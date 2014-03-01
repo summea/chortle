@@ -96,6 +96,7 @@ namespace chortle
                         {
                             Console.WriteLine("found a good weight response");
                             botResponse = item.Split('/')[1];
+                            break;
                         }
                         // no responses available
                         else
