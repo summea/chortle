@@ -1,5 +1,6 @@
 TODO
 ====
 - ultimately, try mixing learned responses and get teacher feedback
+- go back to possible response list more often and get new response possibility if available (especially if the response is a 1)?
 
 + if learnedResponse key is not found, try looking for a slightly smaller part of the key (i like green things -> i like green -> i like)
