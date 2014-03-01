@@ -1,4 +1,5 @@
 TODO
 ====
 - ultimately, try mixing learned responses and get teacher feedback
-- if learnedResponse key is not found, try looking for a slightly smaller part of the key (i like green things -> i like green -> i like)
+
++ if learnedResponse key is not found, try looking for a slightly smaller part of the key (i like green things -> i like green -> i like)

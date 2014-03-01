@@ -165,7 +165,6 @@ namespace chortle
 
                     for (int teacherResponsePieceIndex = teacherResponsePieces.Length; teacherResponsePieceIndex >= 0; --teacherResponsePieceIndex)
                     {
-                        // FIXME: make this work...
                         shorterKey = "";
 
                         // build shorterKey from longest to shortest key possible
