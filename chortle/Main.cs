@@ -90,6 +90,7 @@ namespace chortle
                 {
                     //Console.WriteLine(botLearnedResponses.Count);
                     //Console.WriteLine(randomNumber.Next(botLearnedResponses.Count));
+                    Console.WriteLine("found key: " + teacherResponse);
 
                     bool checkForBest = true;
                     foreach (string item in botLearnedResponses[teacherResponse])
@@ -200,7 +201,7 @@ namespace chortle
                                         if (Convert.ToDouble(weight) >= 0.6 && checkForBest)
                                         {
                                             Console.WriteLine("found a good weight response");
-                                            Console.WriteLine("should be exiting here...");
+                                            //Console.WriteLine("should be exiting here...");
                                             botResponse = item.Split('/')[1];
                                             foundAResponse = true;
                                             break;
