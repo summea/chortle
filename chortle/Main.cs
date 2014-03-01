@@ -86,17 +86,33 @@ namespace chortle
                 {
                     //Console.WriteLine(botLearnedResponses.Count);
                     //Console.WriteLine(randomNumber.Next(botLearnedResponses.Count));
-                    
+
+                    bool checkForBest = true;
                     foreach (string item in botLearnedResponses[teacherResponse])
                     {
                         var weight = item.Split('/')[0];
+                        Console.WriteLine("checking weight response..." + item.Split('/')[0] + " / " + item.Split('/')[1]);
 
                         // if weight is high enough, return found response as bot response
-                        if (Convert.ToDouble(weight) >= 0.5)
+                        if (Convert.ToDouble(weight) >= 0.6 && checkForBest)
                         {
                             Console.WriteLine("found a good weight response");
                             botResponse = item.Split('/')[1];
                             break;
+                        }
+                        else if (Convert.ToDouble(weight) >= 0.5 && Convert.ToDouble(weight) < 1.0)
+                        {
+                            if (checkForBest)
+                            {
+                                Console.WriteLine("found an okay weight response");
+                                botResponse = item.Split('/')[1];
+                            }
+                            else
+                            {
+                                Console.WriteLine("found an okay weight response");
+                                botResponse = item.Split('/')[1];
+                                break;
+                            }
                         }
                         // no responses available
                         else
