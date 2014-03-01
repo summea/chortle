@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-// ask question -or- make a statement
-
 namespace chortle
 {
     class MainClass
@@ -14,10 +12,15 @@ namespace chortle
             Dictionary<string, string> responseData = new Dictionary<string, string>();
             Dictionary<string, string> vocabularyData = new Dictionary<string, string>();
             Dictionary<string, string> phraseData = new Dictionary<string, string>();
-
             Dictionary<string, List<String>> botLearnedResponses = new Dictionary<string, List<string>>();
 
-            //String response;
+            // 1/...    = good response match
+            // 0.5/...  = kinda okay response match
+            // 0/...    = bad response match (please don't use this response, bot)
+
+            // init botLearnedResponses
+            botLearnedResponses["hello"] = new List<string> { "1/oh hey there!", "1/lovely day, isn't it?" };
+            botLearnedResponses["goodbye"] = new List<string> { "1/be seeing you!", "1/see ya?" };
 
             // init questionData
             // this data represents what questions the chatbot has previously "learned" how to ask from a teacher
@@ -56,23 +59,17 @@ namespace chortle
             vocabularyData.Add("when", "interrogative");
             vocabularyData.Add("how", "interrogative");
 
-
             // init phraseData
             // this data represents what phrases the chatbot has previously "learned" from a teacher
             phraseData.Add("response", "I see");
 
-
-            Boolean firstTime = true;
-
             List<string> botLearnedKeyList = new List<string>(botLearnedResponses.Keys);
-            
             List<string> questionKeyList = new List<string>(questionData.Keys);
             List<string> phraseKeyList = new List<string>(phraseData.Keys);
             Random randomNumber = new Random();
             String teacherResponse;
             String teacherDecision;
             String botResponse;
-            //String randomKey;
 
             int loopLimit = 10;
 
@@ -87,12 +84,13 @@ namespace chortle
                 // bot tries out a response
                 if (botLearnedResponses.ContainsKey(teacherResponse))
                 {
-                    Console.WriteLine(botLearnedResponses.Count);
-                    Console.WriteLine(randomNumber.Next(botLearnedResponses.Count));
+                    //Console.WriteLine(botLearnedResponses.Count);
+                    //Console.WriteLine(randomNumber.Next(botLearnedResponses.Count));
                     
                     foreach (string item in botLearnedResponses[teacherResponse])
                     {
                         var weight = item.Split('/')[0];
+
                         // if weight is high enough, return found response as bot response
                         if (Convert.ToDouble(weight) >= 0.5)
                         {
@@ -103,7 +101,8 @@ namespace chortle
                         else
                         {
                             Random rnd = new Random();
-                            //int choice = rnd.Next(1, 2);
+                            // TODO: add the random part (below) back in later...
+                            // int choice = rnd.Next(1, 2);
                             int choice = 1;
 
                             switch (choice)
@@ -142,7 +141,7 @@ namespace chortle
                 
                 // teacher tells bot 1 (yes) 0.5 (maybe) 0 (no)
                 Console.Write("teacher  > 1:yes, 2:maybe, 3:no > ");
-                teacherDecision = Console.ReadKey(true).KeyChar.ToString();
+                teacherDecision = Console.ReadKey().KeyChar.ToString();
                 Console.WriteLine();
 
                 switch (teacherDecision)
@@ -171,24 +170,25 @@ namespace chortle
 
                     if (currentValuesList.Count != 0)
                     {
+                        bool foundResponseInValuesList = false;
                         // TODO: if teacher says "no", save and try another response?
-                        for (int valueIndex = 0; valueIndex < botLearnedResponses[teacherResponse].Count; i++)
+                        for (int valueIndex = 0; valueIndex < botLearnedResponses[teacherResponse].Count; valueIndex++)
                         {
                             var foundResponse = botLearnedResponses[teacherResponse][valueIndex].Split('/')[1];
-                            if (!botResponse.Equals(foundResponse))
-                            {
-                                currentValuesList.Add(teacherDecision + "/" + botResponse);
-                                botLearnedResponses[teacherResponse] = currentValuesList;
-                                Console.WriteLine(string.Join<string>(",", botLearnedResponses[teacherResponse]));
-                                break;
-                            }
-                            else
+                            if (botResponse.Equals(foundResponse))
                             {
                                 botLearnedResponses[teacherResponse][valueIndex] = teacherDecision + "/" + botResponse;
                                 Console.WriteLine("bot already knows this response... but let's update info");
+                                foundResponseInValuesList = true;
                                 break;
                             }
                             i++;
+                        }
+
+                        if (!foundResponseInValuesList)
+                        {
+                            currentValuesList.Add(teacherDecision + "/" + botResponse);
+                            botLearnedResponses[teacherResponse] = currentValuesList;
                         }
                     }
                     else
