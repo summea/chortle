@@ -17,13 +17,16 @@ namespace chortle
             Dictionary<string, string> phraseData = new Dictionary<string, string>();
             Dictionary<string, Dictionary<string, string>> botLearnedResponses = new Dictionary<string, Dictionary<string, string>>();
 
-            // 1/...    = good response match
-            // 0.5/...  = maybe a response match
-            // 0/...    = bad response match (please don't use this response, bot)
+            // topic phrase format:
+            // phrase, weight
+            //
+            // weight values:
+            // 1    = good response match
+            // 0.5  = maybe a response match
+            // 0    = bad response match (please don't use this response, bot)
 
             // init botLearnedResponses
-
-            // topics
+            // init topics
             Dictionary<string, string> topicMeetPeople = new Dictionary<string, string>
             {
                 {"Oh, hey there!", "1"},
@@ -57,7 +60,7 @@ namespace chortle
                 {"Hmm?", "1"},
             };
 
-            // learned keyword response keys
+            // init learned keyword response keys
             botLearnedResponses["*"] = new Dictionary<string, string>(topicAskAgain);
             botLearnedResponses["hello"] = new Dictionary<string, string>(topicMeetPeople);
             botLearnedResponses["goodbye"] = new Dictionary<string, string>(topicMeetPeople);
@@ -283,10 +286,6 @@ namespace chortle
                                 // bot tries out a response
                                 if (botLearnedResponses.ContainsKey(shorterKey))
                                 {
-                                    Console.WriteLine(">>>>>>>>>>>>>");
-                                    //Console.WriteLine(botLearnedResponses.Count);
-                                    //Console.WriteLine(randomNumber.Next(botLearnedResponses.Count));
-
                                     List<string> botLearnedKeyValueList = new List<string>(botLearnedResponses[shorterKey].Keys);
 
                                     bool checkForBest = true;
