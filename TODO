@@ -2,6 +2,8 @@ TODO
 ====
 - ultimately, try mixing learned responses and get teacher feedback
 - go back to possible response list more often and get new response possibility if available (especially if the response is a 1)?
+- randomize the high level weight responses (so that the first one doesn't always get picked first...)
+- pick response from grab bag for newly-created phrase keys
 
 + convert 0/word to dictionary (for efficiency...) word:0
 + store newly-learned keys
