@@ -90,7 +90,7 @@ namespace chortle
             String teacherDecision;
             String botResponse;
 
-            int loopLimit = 5;
+            int loopLimit = 3;
 
             for (int i = 0; i < loopLimit; i++)
             {
@@ -152,13 +152,21 @@ namespace chortle
                                     botLearnedKeyList = new List<string>(botLearnedResponses.Keys);
                                     String randomKey = botLearnedKeyList[randomNumber.Next(botLearnedResponses.Count)];
 
-                                    botLearnedKeyValueList = new List<string>(botLearnedResponses[randomKey].Keys);
-                                    String randomValueKey = botLearnedKeyValueList[randomNumber.Next(botLearnedResponses[randomKey].Count)];
-
-                                    if (botLearnedResponses.ContainsKey(randomKey) && botLearnedResponses[randomKey].Count > 0)
+                                    if (botLearnedResponses[randomKey].Count > 0)
                                     {
-                                        var foundResponse = botLearnedResponses[randomKey][randomValueKey];
-                                        botResponse = foundResponse;
+                                        botLearnedKeyValueList = new List<string>(botLearnedResponses[randomKey].Keys);
+                                        String randomValueKey = botLearnedKeyValueList[randomNumber.Next(botLearnedResponses[randomKey].Count)];
+
+                                        if (botLearnedResponses.ContainsKey(randomKey) && botLearnedResponses[randomKey].Count > 0)
+                                        {
+                                            var foundResponse = botLearnedResponses[randomKey][randomValueKey];
+                                            botResponse = foundResponse;
+                                        }
+                                        else
+                                        {
+                                            // repeat what teacher said
+                                            botResponse = teacherResponse;
+                                        }
                                     }
                                     else
                                     {
@@ -303,7 +311,7 @@ namespace chortle
                                 // otherwise... pick from the * (grab bag) responses
                                 if (botLearnedResponses.ContainsKey("*"))
                                 {
-                                    teacherResponse = "*";
+                                    //teacherResponse = "*";
 
                                     List<string> botLearnedKeyValueList = new List<string>(botLearnedResponses["*"].Keys);
                                     //String randomValueKey = botLearnedKeyValueList[randomNumber.Next(botLearnedResponses[randomKey].Count)];
@@ -311,7 +319,7 @@ namespace chortle
                                     bool checkForBest = true;
                                     foreach (string keyItem in botLearnedKeyValueList)
                                     {
-                                        var weight = botLearnedResponses[teacherResponse][keyItem];
+                                        var weight = botLearnedResponses["*"][keyItem];
                                         Console.WriteLine("checking weight response..." + weight + " / " + keyItem);
 
                                         // if weight is high enough, return found response as bot response
@@ -419,7 +427,11 @@ namespace chortle
                     //currentValuesList = botLearnedResponses[teacherResponse];
                     currentValuesList = new List<string>(botLearnedResponses[teacherResponse].Keys);
 
-                    if (currentValuesList.Count != 0)
+                    Console.WriteLine(string.Join(":", currentValuesList));
+                    Console.WriteLine(botResponse);
+                    Console.WriteLine(teacherResponse);
+
+                    if (currentValuesList.Count > 0)
                     {
                         bool foundResponseInValuesList = false;
 
@@ -439,7 +451,7 @@ namespace chortle
                                 break;
                             }
                         }
-
+                        
                         if (!foundResponseInValuesList)
                         {
                             botLearnedResponses[teacherResponse][botResponse] = teacherDecision;
@@ -456,7 +468,7 @@ namespace chortle
                 // first time learning this response
                 if (firstTimeForThisTopic)
                 {
-                    //Console.WriteLine(teacherResponse);
+                    Console.WriteLine("<> adding new bot response key: " + botResponse);
                     botLearnedResponses[teacherResponse] = new Dictionary<string, string> {
                         {botResponse, teacherDecision}
                     };
