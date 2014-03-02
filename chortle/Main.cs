@@ -14,18 +14,32 @@ namespace chortle
             Dictionary<string, string> responseData = new Dictionary<string, string>();
             Dictionary<string, string> vocabularyData = new Dictionary<string, string>();
             Dictionary<string, string> phraseData = new Dictionary<string, string>();
-            Dictionary<string, List<String>> botLearnedResponses = new Dictionary<string, List<string>>();
+            Dictionary<string, Dictionary<string, string>> botLearnedResponses = new Dictionary<string, Dictionary<string, string>>();
 
             // 1/...    = good response match
             // 0.5/...  = kinda okay response match
             // 0/...    = bad response match (please don't use this response, bot)
 
             // init botLearnedResponses
-            botLearnedResponses["*"] = new List<string> { "1/what do you mean?" };
-            botLearnedResponses["hello"] = new List<string> { "1/oh hey there!", "1/lovely day, isn't it?" };
-            botLearnedResponses["goodbye"] = new List<string> { "1/be seeing you!", "1/see ya?" };
-            botLearnedResponses["i like"] = new List<string> { 
-            "1/Good for you!", "1/I’m sorry to hear that.", "1/Oh, how lovely!", "1/Sounds great.", "1/Yes, I suppose you must be.", "1/Wow! That sounds exciting." };
+            botLearnedResponses["*"] = new Dictionary<string, string> {
+                {"what do you mean?", "1"}
+            };
+            botLearnedResponses["hello"] = new Dictionary<string, string> {
+                {"oh hey there!", "1"},
+                {"lovely day, isn't it?", "1"}
+            };
+            botLearnedResponses["goodbye"] = new Dictionary<string, string> {
+                {"be seeing you!", "1"},
+                {"see ya?", "1"}
+            };
+            botLearnedResponses["i like"] = new Dictionary<string, string> {
+                {"Good for you!","1"},
+                {"I’m sorry to hear that.", "1"},
+                {"Oh, how lovely!", "1"},
+                {"Sounds great.", "1"},
+                {"Yes, I suppose you must be.", "1"},
+                {"Wow! That sounds exciting.", "1"},
+            };
 
             // init questionData
             // this data represents what questions the chatbot has previously "learned" how to ask from a teacher
@@ -94,16 +108,18 @@ namespace chortle
                     Console.WriteLine("found key: " + teacherResponse);
 
                     bool checkForBest = true;
-                    foreach (string item in botLearnedResponses[teacherResponse])
+                    List<string> botLearnedKeyValueList = new List<string>(botLearnedResponses[teacherResponse].Keys);
+
+                    foreach (string keyItem in botLearnedKeyValueList)
                     {
-                        var weight = item.Split('/')[0];
-                        Console.WriteLine("checking weight response..." + item.Split('/')[0] + " / " + item.Split('/')[1]);
+                        var weight = botLearnedResponses[teacherResponse][keyItem];
+                        Console.WriteLine("checking weight response..." + weight + " / " + keyItem);
 
                         // if weight is high enough, return found response as bot response
                         if (Convert.ToDouble(weight) >= 0.6 && checkForBest)
                         {
                             Console.WriteLine("found a good weight response");
-                            botResponse = item.Split('/')[1];
+                            botResponse = keyItem;
                             break;
                         }
                         else if (Convert.ToDouble(weight) >= 0.5 && Convert.ToDouble(weight) < 1.0)
@@ -111,12 +127,12 @@ namespace chortle
                             if (checkForBest)
                             {
                                 Console.WriteLine("found an okay weight response");
-                                botResponse = item.Split('/')[1];
+                                botResponse = keyItem;
                             }
                             else
                             {
                                 Console.WriteLine("found an okay weight response");
-                                botResponse = item.Split('/')[1];
+                                botResponse = keyItem;
                                 break;
                             }
                         }
@@ -135,9 +151,13 @@ namespace chortle
                                     // refresh bot learned key list to get recent changes
                                     botLearnedKeyList = new List<string>(botLearnedResponses.Keys);
                                     String randomKey = botLearnedKeyList[randomNumber.Next(botLearnedResponses.Count)];
+
+                                    botLearnedKeyValueList = new List<string>(botLearnedResponses[randomKey].Keys);
+                                    String randomValueKey = botLearnedKeyValueList[randomNumber.Next(botLearnedResponses[randomKey].Count)];
+
                                     if (botLearnedResponses.ContainsKey(randomKey) && botLearnedResponses[randomKey].Count > 0)
                                     {
-                                        var foundResponse = botLearnedResponses[randomKey][0].Split('/')[1];
+                                        var foundResponse = botLearnedResponses[randomKey][randomValueKey];
                                         botResponse = foundResponse;
                                     }
                                     else
@@ -192,18 +212,20 @@ namespace chortle
                                     //Console.WriteLine(botLearnedResponses.Count);
                                     //Console.WriteLine(randomNumber.Next(botLearnedResponses.Count));
 
+                                    List<string> botLearnedKeyValueList = new List<string>(botLearnedResponses[teacherResponse].Keys);
+
                                     bool checkForBest = true;
-                                    foreach (string item in botLearnedResponses[shorterKey])
+                                    foreach (string keyItem in botLearnedKeyValueList)
                                     {
-                                        var weight = item.Split('/')[0];
-                                        Console.WriteLine("checking weight response..." + item.Split('/')[0] + " / " + item.Split('/')[1]);
+                                        var weight = botLearnedResponses[teacherResponse][keyItem];
+                                        Console.WriteLine("checking weight response..." + weight + " / " + botLearnedResponses[teacherResponse][keyItem]);
 
                                         // if weight is high enough, return found response as bot response
                                         if (Convert.ToDouble(weight) >= 0.6 && checkForBest)
                                         {
                                             Console.WriteLine("found a good weight response");
                                             //Console.WriteLine("should be exiting here...");
-                                            botResponse = item.Split('/')[1];
+                                            botResponse = keyItem;
                                             foundAResponse = true;
                                             break;
                                         }
@@ -213,14 +235,14 @@ namespace chortle
                                             if (checkForBest)
                                             {
                                                 Console.WriteLine("found an okay weight response");
-                                                botResponse = item.Split('/')[1];
+                                                botResponse = keyItem;
                                                 //foundAResponse = true;
                                                 //break;
                                             }
                                             else
                                             {
                                                 Console.WriteLine("found an okay weight response");
-                                                botResponse = item.Split('/')[1];
+                                                botResponse = keyItem;
                                                 foundAResponse = true;
                                                 break;
                                             }
@@ -240,9 +262,13 @@ namespace chortle
                                                     // refresh bot learned key list to get recent changes
                                                     botLearnedKeyList = new List<string>(botLearnedResponses.Keys);
                                                     String randomKey = botLearnedKeyList[randomNumber.Next(botLearnedResponses.Count)];
+
+                                                    botLearnedKeyValueList = new List<string>(botLearnedResponses[randomKey].Keys);
+                                                    String randomValueKey = botLearnedKeyValueList[randomNumber.Next(botLearnedResponses[randomKey].Count)];
+
                                                     if (botLearnedResponses.ContainsKey(randomKey) && botLearnedResponses[randomKey].Count > 0)
                                                     {
-                                                        var foundResponse = botLearnedResponses[randomKey][0].Split('/')[1];
+                                                        var foundResponse = botLearnedResponses[randomKey][randomValueKey];
                                                         botResponse = foundResponse;
                                                     }
                                                     else
@@ -267,23 +293,27 @@ namespace chortle
                                 Console.WriteLine("picking from grab bag...");
 
                                 // save new key first
-                                botLearnedResponses[teacherResponse] = new List<string>();
+                                botLearnedResponses[teacherResponse] = new Dictionary<string, string>();
 
                                 // otherwise... pick from the * (grab bag) responses
                                 if (botLearnedResponses.ContainsKey("*"))
                                 {
                                     teacherResponse = "*";
+
+                                    List<string> botLearnedKeyValueList = new List<string>(botLearnedResponses["*"].Keys);
+                                    //String randomValueKey = botLearnedKeyValueList[randomNumber.Next(botLearnedResponses[randomKey].Count)];
+
                                     bool checkForBest = true;
-                                    foreach (string item in botLearnedResponses[teacherResponse])
+                                    foreach (string keyItem in botLearnedKeyValueList)
                                     {
-                                        var weight = item.Split('/')[0];
-                                        Console.WriteLine("checking weight response..." + item.Split('/')[0] + " / " + item.Split('/')[1]);
+                                        var weight = botLearnedResponses[teacherResponse][keyItem];
+                                        Console.WriteLine("checking weight response..." + weight + " / " + keyItem);
 
                                         // if weight is high enough, return found response as bot response
                                         if (Convert.ToDouble(weight) >= 0.6 && checkForBest)
                                         {
                                             Console.WriteLine("found a good weight response");
-                                            botResponse = item.Split('/')[1];
+                                            botResponse = keyItem;
                                             break;
                                         }
                                         else if (Convert.ToDouble(weight) >= 0.5 && Convert.ToDouble(weight) < 1.0)
@@ -291,12 +321,12 @@ namespace chortle
                                             if (checkForBest)
                                             {
                                                 Console.WriteLine("found an okay weight response");
-                                                botResponse = item.Split('/')[1];
+                                                botResponse = keyItem;
                                             }
                                             else
                                             {
                                                 Console.WriteLine("found an okay weight response");
-                                                botResponse = item.Split('/')[1];
+                                                botResponse = keyItem;
                                                 break;
                                             }
                                         }
@@ -315,9 +345,13 @@ namespace chortle
                                                     // refresh bot learned key list to get recent changes
                                                     botLearnedKeyList = new List<string>(botLearnedResponses.Keys);
                                                     String randomKey = botLearnedKeyList[randomNumber.Next(botLearnedResponses.Count)];
+
+                                                    botLearnedKeyValueList = new List<string>(botLearnedResponses[randomKey].Keys);
+                                                    String randomValueKey = botLearnedKeyValueList[randomNumber.Next(botLearnedResponses[randomKey].Count)];
+
                                                     if (botLearnedResponses.ContainsKey(randomKey) && botLearnedResponses[randomKey].Count > 0)
                                                     {
-                                                        var foundResponse = botLearnedResponses[randomKey][0].Split('/')[1];
+                                                        var foundResponse = botLearnedResponses[randomKey][randomValueKey];
                                                         botResponse = foundResponse;
                                                     }
                                                     else
@@ -373,29 +407,35 @@ namespace chortle
                 if (botLearnedResponses.ContainsKey(teacherResponse))
                 {
                     firstTimeForThisTopic = false;
-                    currentValuesList = botLearnedResponses[teacherResponse];
+                    //currentValuesList = botLearnedResponses[teacherResponse];
+                    currentValuesList = new List<string>(botLearnedResponses[teacherResponse].Keys);
 
                     if (currentValuesList.Count != 0)
                     {
                         bool foundResponseInValuesList = false;
+
+                        List<string> botLearnedKeyValueList = new List<string>(botLearnedResponses[teacherResponse].Keys);
+                        //String randomValueKey = botLearnedKeyValueList[randomNumber.Next(botLearnedResponses[randomKey].Count)];
+
                         // TODO: if teacher says "no", save and try another response?
-                        for (int valueIndex = 0; valueIndex < botLearnedResponses[teacherResponse].Count; valueIndex++)
+
+                        foreach (string keyItem in botLearnedKeyValueList)
                         {
-                            var foundResponse = botLearnedResponses[teacherResponse][valueIndex].Split('/')[1];
-                            if (botResponse.Equals(foundResponse))
+                            //var foundResponse = botLearnedResponses[teacherResponse][keyItem];
+                            if (botResponse.Equals(keyItem))
                             {
-                                botLearnedResponses[teacherResponse][valueIndex] = teacherDecision + "/" + botResponse;
+                                botLearnedResponses[teacherResponse][botResponse] = teacherDecision;
                                 Console.WriteLine("bot already knows this response... but let's update info");
                                 foundResponseInValuesList = true;
                                 break;
                             }
-                            i++;
                         }
 
                         if (!foundResponseInValuesList)
                         {
-                            currentValuesList.Add(teacherDecision + "/" + botResponse);
-                            botLearnedResponses[teacherResponse] = currentValuesList;
+                            botLearnedResponses[teacherResponse][botResponse] = teacherDecision;
+                            //currentValuesList.Add(teacherDecision + "/" + botResponse);
+                            //botLearnedResponses[teacherResponse] = currentValuesList;
                         }
                     }
                     else
@@ -407,8 +447,9 @@ namespace chortle
                 // first time learning this response
                 if (firstTimeForThisTopic)
                 {
-                    currentValuesList.Add(teacherDecision + "/" + botResponse);
-                    botLearnedResponses[teacherResponse] = currentValuesList;
+                    botLearnedResponses[teacherResponse][botResponse] = teacherDecision;
+                    //currentValuesList.Add(teacherDecision + "/" + botResponse);
+                    //botLearnedResponses[teacherResponse] = currentValuesList;
                 }
 
                 /*
@@ -513,7 +554,13 @@ namespace chortle
             Console.WriteLine("\n\nlearned responses:");
             foreach (var key in botLearnedResponses.Keys)
             {
-                Console.WriteLine("{0} - {1}", key,string.Join<string>(",", botLearnedResponses[key]));
+                Console.WriteLine("{0}", key);
+                var value = botLearnedResponses[key];
+
+                foreach (var innerKey in value)
+                {
+                    Console.WriteLine("  {0}", innerKey);
+                }
             }
 
             Console.ReadLine();
