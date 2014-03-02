@@ -116,7 +116,7 @@ namespace chortle
             String teacherDecision;
             String botResponse;
 
-            int loopLimit = 3;
+            int loopLimit = 10;
 
             for (int i = 0; i < loopLimit; i++)
             {
@@ -143,7 +143,7 @@ namespace chortle
                     // Add some randomness in how responses are initially found (ordered)
                     Random rndNumber = new Random();
                     var randomizedItems = from pair in botLearnedResponses[teacherResponse]
-                                          orderby rndNumber.Next()
+                                          orderby rndNumber.Next() descending
                                           select pair;
 
                     List<string> orderedKeys = new List<string>();
