@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Linq;
 
 namespace chortle
 {
@@ -16,30 +17,57 @@ namespace chortle
             Dictionary<string, string> phraseData = new Dictionary<string, string>();
             Dictionary<string, Dictionary<string, string>> botLearnedResponses = new Dictionary<string, Dictionary<string, string>>();
 
-            // 1/...    = good response match
-            // 0.5/...  = kinda okay response match
-            // 0/...    = bad response match (please don't use this response, bot)
+            // topic phrase format:
+            // phrase, weight
+            //
+            // weight values:
+            // 1    = good response match
+            // 0.5  = maybe a response match
+            // 0    = bad response match (please don't use this response, bot)
 
             // init botLearnedResponses
-            botLearnedResponses["*"] = new Dictionary<string, string> {
-                {"what do you mean?", "1"}
+            // init topics
+            Dictionary<string, string> topicMeetPeople = new Dictionary<string, string>
+            {
+                {"Oh, hey there!", "1"},
+                {"Lovely day, isn't it?", "1"},
+                {"Be seeing you!", "1"},
+                {"See ya!", "1"},
+                {"Nice to meet you!", "1"},
             };
-            botLearnedResponses["hello"] = new Dictionary<string, string> {
-                {"oh hey there!", "1"},
-                {"lovely day, isn't it?", "1"}
-            };
-            botLearnedResponses["goodbye"] = new Dictionary<string, string> {
-                {"be seeing you!", "1"},
-                {"see ya?", "1"}
-            };
-            botLearnedResponses["i like"] = new Dictionary<string, string> {
-                {"Good for you!","1"},
+
+            Dictionary<string, string> topicRespondToInformation = new Dictionary<string, string>
+            {
+                {"Good for you!","0.5"},
                 {"I’m sorry to hear that.", "1"},
                 {"Oh, how lovely!", "1"},
                 {"Sounds great.", "1"},
                 {"Yes, I suppose you must be.", "1"},
                 {"Wow! That sounds exciting.", "1"},
             };
+
+            Dictionary<string, string> topicRespondToThanks = new Dictionary<string, string>
+            {
+                {"You are welcome!", "1"},
+                {"Don't mention it.", "1"},
+                {"No problem.", "1"},
+                {"It's okay", "1"}
+            };
+
+            Dictionary<string, string> topicAskAgain = new Dictionary<string, string>
+            {
+                {"What do you mean?", "1"},
+                {"Hmm?", "1"},
+            };
+
+            // init learned keyword response keys
+            botLearnedResponses["*"] = new Dictionary<string, string>(topicAskAgain);
+            botLearnedResponses["hello"] = new Dictionary<string, string>(topicMeetPeople);
+            botLearnedResponses["goodbye"] = new Dictionary<string, string>(topicMeetPeople);
+            botLearnedResponses["i like"] = new Dictionary<string, string>(topicRespondToInformation);
+            botLearnedResponses["my name is"] = new Dictionary<string, string>(topicMeetPeople);
+            botLearnedResponses["thanks"] = new Dictionary<string, string>(topicRespondToThanks);
+
 
             // init questionData
             // this data represents what questions the chatbot has previously "learned" how to ask from a teacher
@@ -55,6 +83,7 @@ namespace chortle
             responseData.Add("your favorite food", "");
             responseData.Add("you like {{your favorite color}} {{your favorite food}}", "");
 
+            
             // init vocabularyData
             // this data represents what vocabulary the chatbot has previously "learned" from a teacher
             vocabularyData.Add("my", "determiner");
@@ -90,7 +119,7 @@ namespace chortle
             String teacherDecision;
             String botResponse;
 
-            int loopLimit = 5;
+            int loopLimit = 10;
 
             for (int i = 0; i < loopLimit; i++)
             {
@@ -103,12 +132,31 @@ namespace chortle
                 // bot tries out a response
                 if (botLearnedResponses.ContainsKey(teacherResponse))
                 {
-                    //Console.WriteLine(botLearnedResponses.Count);
-                    //Console.WriteLine(randomNumber.Next(botLearnedResponses.Count));
                     Console.WriteLine("found key: " + teacherResponse);
 
                     bool checkForBest = true;
-                    List<string> botLearnedKeyValueList = new List<string>(botLearnedResponses[teacherResponse].Keys);
+                    //List<string> botLearnedKeyValueList = new List<string>(botLearnedResponses[teacherResponse].Keys);
+
+                    /*
+                    var sortedItems = from pair in botLearnedResponses[teacherResponse]
+                                      orderby pair.Value descending
+                                      select pair;
+                    */
+
+                    // Add some randomness in how responses are initially found (ordered)
+                    Random rndNumber = new Random();
+                    var randomizedItems = from pair in botLearnedResponses[teacherResponse]
+                                          orderby rndNumber.Next() descending
+                                          select pair;
+
+                    List<string> orderedKeys = new List<string>();
+                    foreach (KeyValuePair<string, string> pair in randomizedItems)
+                    {
+                        orderedKeys.Add(pair.Key);
+                        //Console.WriteLine("{0} : {1}", pair.Key, pair.Value);
+                    }
+
+                    List<string> botLearnedKeyValueList = new List<string>(orderedKeys);
 
                     foreach (string keyItem in botLearnedKeyValueList)
                     {
@@ -152,13 +200,42 @@ namespace chortle
                                     botLearnedKeyList = new List<string>(botLearnedResponses.Keys);
                                     String randomKey = botLearnedKeyList[randomNumber.Next(botLearnedResponses.Count)];
 
-                                    botLearnedKeyValueList = new List<string>(botLearnedResponses[randomKey].Keys);
-                                    String randomValueKey = botLearnedKeyValueList[randomNumber.Next(botLearnedResponses[randomKey].Count)];
-
-                                    if (botLearnedResponses.ContainsKey(randomKey) && botLearnedResponses[randomKey].Count > 0)
+                                    if (botLearnedResponses[randomKey].Count > 0)
                                     {
-                                        var foundResponse = botLearnedResponses[randomKey][randomValueKey];
-                                        botResponse = foundResponse;
+                                        // Add some randomness in how guesses happen
+                                        // (when bot doesn't have a response... try guessing at another topic response)
+                                        Random rndNumberForGuess = new Random();
+                                        var randomizedTopicsForGuess = from pair in botLearnedResponses[randomKey]
+                                                                        orderby rndNumber.Next()
+                                                                        select pair;
+
+                                        List<string> orderedKeysForGuess = new List<string>();
+                                        foreach (KeyValuePair<string, string> pair in randomizedTopicsForGuess)
+                                        {
+                                            orderedKeysForGuess.Add(pair.Key);
+                                            //Console.WriteLine("{0} : {1}", pair.Key, pair.Value);
+                                        }
+
+                                        List<string> botLearnedKeyValueListForGuess = new List<string>(orderedKeysForGuess);
+
+                                        foreach (string keyItemForGuess in botLearnedKeyValueListForGuess)
+                                        {
+                                            if (botLearnedResponses.ContainsKey(randomKey) && botLearnedResponses[randomKey].Count > 0)
+                                            {
+                                                var foundResponse = keyItemForGuess;
+                                                Console.WriteLine("found response: " + foundResponse);
+                                                if (!foundResponse.Equals(""))
+                                                {
+                                                    botResponse = foundResponse;
+                                                    break;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                // repeat what teacher said
+                                                botResponse = teacherResponse;
+                                            }
+                                        }
                                     }
                                     else
                                     {
@@ -209,16 +286,13 @@ namespace chortle
                                 // bot tries out a response
                                 if (botLearnedResponses.ContainsKey(shorterKey))
                                 {
-                                    //Console.WriteLine(botLearnedResponses.Count);
-                                    //Console.WriteLine(randomNumber.Next(botLearnedResponses.Count));
-
-                                    List<string> botLearnedKeyValueList = new List<string>(botLearnedResponses[teacherResponse].Keys);
+                                    List<string> botLearnedKeyValueList = new List<string>(botLearnedResponses[shorterKey].Keys);
 
                                     bool checkForBest = true;
                                     foreach (string keyItem in botLearnedKeyValueList)
                                     {
-                                        var weight = botLearnedResponses[teacherResponse][keyItem];
-                                        Console.WriteLine("checking weight response..." + weight + " / " + botLearnedResponses[teacherResponse][keyItem]);
+                                        var weight = botLearnedResponses[shorterKey][keyItem];
+                                        Console.WriteLine("checking weight response..." + weight + " / " + botLearnedResponses[shorterKey][keyItem]);
 
                                         // if weight is high enough, return found response as bot response
                                         if (Convert.ToDouble(weight) >= 0.6 && checkForBest)
@@ -286,9 +360,13 @@ namespace chortle
                                             }
                                         }
                                     }
+                                    Console.WriteLine("||||" + botResponse + "||||");
                                 }
                             }
-                            else
+
+                            Console.WriteLine("found a response: " + foundAResponse);
+                            
+                            if (!foundAResponse)
                             {
                                 Console.WriteLine("picking from grab bag...");
 
@@ -298,7 +376,7 @@ namespace chortle
                                 // otherwise... pick from the * (grab bag) responses
                                 if (botLearnedResponses.ContainsKey("*"))
                                 {
-                                    teacherResponse = "*";
+                                    //teacherResponse = "*";
 
                                     List<string> botLearnedKeyValueList = new List<string>(botLearnedResponses["*"].Keys);
                                     //String randomValueKey = botLearnedKeyValueList[randomNumber.Next(botLearnedResponses[randomKey].Count)];
@@ -306,7 +384,7 @@ namespace chortle
                                     bool checkForBest = true;
                                     foreach (string keyItem in botLearnedKeyValueList)
                                     {
-                                        var weight = botLearnedResponses[teacherResponse][keyItem];
+                                        var weight = botLearnedResponses["*"][keyItem];
                                         Console.WriteLine("checking weight response..." + weight + " / " + keyItem);
 
                                         // if weight is high enough, return found response as bot response
@@ -375,11 +453,15 @@ namespace chortle
                                 }
                             }
                         }
+                        else
+                        {
+                            break;
+                        }
                     }
                 }
 
                 Console.Write("bot      > " + botResponse + "\n");
-                
+
                 // teacher tells bot 1 (yes) 0.5 (maybe) 0 (no)
                 Console.Write("teacher  > 1:yes, 2:maybe, 3:no > ");
                 teacherDecision = Console.ReadKey().KeyChar.ToString();
@@ -410,7 +492,11 @@ namespace chortle
                     //currentValuesList = botLearnedResponses[teacherResponse];
                     currentValuesList = new List<string>(botLearnedResponses[teacherResponse].Keys);
 
-                    if (currentValuesList.Count != 0)
+                    Console.WriteLine(string.Join(":", currentValuesList));
+                    Console.WriteLine(botResponse);
+                    Console.WriteLine(teacherResponse);
+
+                    if (currentValuesList.Count > 0)
                     {
                         bool foundResponseInValuesList = false;
 
@@ -447,10 +533,13 @@ namespace chortle
                 // first time learning this response
                 if (firstTimeForThisTopic)
                 {
-                    botLearnedResponses[teacherResponse][botResponse] = teacherDecision;
-                    //currentValuesList.Add(teacherDecision + "/" + botResponse);
-                    //botLearnedResponses[teacherResponse] = currentValuesList;
+                    Console.WriteLine("<> adding new bot response key: " + botResponse);
+                    botLearnedResponses[teacherResponse] = new Dictionary<string, string> {
+                        {botResponse, teacherDecision}
+                    };
+                    firstTimeForThisTopic = false;
                 }
+                
 
                 /*
                 string randomKey = questionKeyList[randomNumber.Next(questionKeyList.Count)];
