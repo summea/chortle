@@ -21,6 +21,7 @@ namespace chortle
             // 0/...    = bad response match (please don't use this response, bot)
 
             // init botLearnedResponses
+            botLearnedResponses["*"] = new List<string> { "1/what do you mean?" };
             botLearnedResponses["hello"] = new List<string> { "1/oh hey there!", "1/lovely day, isn't it?" };
             botLearnedResponses["goodbye"] = new List<string> { "1/be seeing you!", "1/see ya?" };
             botLearnedResponses["i like"] = new List<string> { 
@@ -153,7 +154,7 @@ namespace chortle
                         }
                     }
                 }
-                // no responses available, just repeat what teacher said
+                // no responses available (yet) so try some things
                 else
                 {
                     // break down teacher response key until nothing remains (i.e. nothing is found):
@@ -263,8 +264,81 @@ namespace chortle
                             }
                             else
                             {
-                                //botResponse = teacherResponse;
-                                //foundAResponse = true;
+                                Console.WriteLine("picking from grab bag...");
+
+                                // save new key first
+                                botLearnedResponses[teacherResponse] = new List<string>();
+
+                                // otherwise... pick from the * (grab bag) responses
+                                if (botLearnedResponses.ContainsKey("*"))
+                                {
+                                    teacherResponse = "*";
+                                    bool checkForBest = true;
+                                    foreach (string item in botLearnedResponses[teacherResponse])
+                                    {
+                                        var weight = item.Split('/')[0];
+                                        Console.WriteLine("checking weight response..." + item.Split('/')[0] + " / " + item.Split('/')[1]);
+
+                                        // if weight is high enough, return found response as bot response
+                                        if (Convert.ToDouble(weight) >= 0.6 && checkForBest)
+                                        {
+                                            Console.WriteLine("found a good weight response");
+                                            botResponse = item.Split('/')[1];
+                                            break;
+                                        }
+                                        else if (Convert.ToDouble(weight) >= 0.5 && Convert.ToDouble(weight) < 1.0)
+                                        {
+                                            if (checkForBest)
+                                            {
+                                                Console.WriteLine("found an okay weight response");
+                                                botResponse = item.Split('/')[1];
+                                            }
+                                            else
+                                            {
+                                                Console.WriteLine("found an okay weight response");
+                                                botResponse = item.Split('/')[1];
+                                                break;
+                                            }
+                                        }
+                                        // no responses available
+                                        else
+                                        {
+                                            Random rnd = new Random();
+                                            // TODO: add the random part (below) back in later...
+                                            // int choice = rnd.Next(1, 2);
+                                            int choice = 1;
+
+                                            switch (choice)
+                                            {
+                                                // randomly guess from learned words
+                                                case 1:
+                                                    // refresh bot learned key list to get recent changes
+                                                    botLearnedKeyList = new List<string>(botLearnedResponses.Keys);
+                                                    String randomKey = botLearnedKeyList[randomNumber.Next(botLearnedResponses.Count)];
+                                                    if (botLearnedResponses.ContainsKey(randomKey) && botLearnedResponses[randomKey].Count > 0)
+                                                    {
+                                                        var foundResponse = botLearnedResponses[randomKey][0].Split('/')[1];
+                                                        botResponse = foundResponse;
+                                                    }
+                                                    else
+                                                    {
+                                                        // repeat what teacher said
+                                                        botResponse = teacherResponse;
+                                                    }
+                                                    break;
+                                                default:
+                                                    // repeat what teacher said
+                                                    botResponse = teacherResponse;
+                                                    break;
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    // repeat what teacher said
+                                    botResponse = teacherResponse;
+                                }
                             }
                         }
                     }
