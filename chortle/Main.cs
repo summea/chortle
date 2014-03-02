@@ -209,16 +209,17 @@ namespace chortle
                                 // bot tries out a response
                                 if (botLearnedResponses.ContainsKey(shorterKey))
                                 {
+                                    Console.WriteLine(">>>>>>>>>>>>>");
                                     //Console.WriteLine(botLearnedResponses.Count);
                                     //Console.WriteLine(randomNumber.Next(botLearnedResponses.Count));
 
-                                    List<string> botLearnedKeyValueList = new List<string>(botLearnedResponses[teacherResponse].Keys);
+                                    List<string> botLearnedKeyValueList = new List<string>(botLearnedResponses[shorterKey].Keys);
 
                                     bool checkForBest = true;
                                     foreach (string keyItem in botLearnedKeyValueList)
                                     {
-                                        var weight = botLearnedResponses[teacherResponse][keyItem];
-                                        Console.WriteLine("checking weight response..." + weight + " / " + botLearnedResponses[teacherResponse][keyItem]);
+                                        var weight = botLearnedResponses[shorterKey][keyItem];
+                                        Console.WriteLine("checking weight response..." + weight + " / " + botLearnedResponses[shorterKey][keyItem]);
 
                                         // if weight is high enough, return found response as bot response
                                         if (Convert.ToDouble(weight) >= 0.6 && checkForBest)
@@ -286,9 +287,13 @@ namespace chortle
                                             }
                                         }
                                     }
+                                    Console.WriteLine("||||" + botResponse + "||||");
                                 }
                             }
-                            else
+
+                            Console.WriteLine("found a response: " + foundAResponse);
+                            
+                            if (!foundAResponse)
                             {
                                 Console.WriteLine("picking from grab bag...");
 
@@ -375,6 +380,10 @@ namespace chortle
                                 }
                             }
                         }
+                        else
+                        {
+                            break;
+                        }
                     }
                 }
 
@@ -447,7 +456,10 @@ namespace chortle
                 // first time learning this response
                 if (firstTimeForThisTopic)
                 {
-                    botLearnedResponses[teacherResponse][botResponse] = teacherDecision;
+                    //Console.WriteLine(teacherResponse);
+                    botLearnedResponses[teacherResponse] = new Dictionary<string, string> {
+                        {botResponse, teacherDecision}
+                    };
                     //currentValuesList.Add(teacherDecision + "/" + botResponse);
                     //botLearnedResponses[teacherResponse] = currentValuesList;
                 }
