@@ -79,7 +79,7 @@ Learning Example Output:
 
     learned information:
     your name - andy bean
-    your favorite color - red rubies
+    your favorite color - red ruby
     your favorite food - green jelly
     you like {{your favorite color}} {{your favorite food}} - yes
 
