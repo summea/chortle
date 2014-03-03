@@ -18,19 +18,19 @@ namespace chortle
 
             // init questionData
             // this data represents what questions the chatbot has previously "learned" how to ask from a teacher
-            //questionData.Add("your name", "What is your name?");
+            questionData.Add("your name", "What is your name?");
             questionData.Add("way to go", "what is the way to go? (multiple verb test)");
-            //questionData.Add("your favorite color", "What is your favorite color?");
-            //questionData.Add("your favorite food", "What is your favorite food?");
-            //questionData.Add("you like {{your favorite color}} {{your favorite food}}", "Do you like {{your favorite color}} {{your favorite food}}?");
+            questionData.Add("your favorite color", "What is your favorite color?");
+            questionData.Add("your favorite food", "What is your favorite food?");
+            questionData.Add("you like {{your favorite color}} {{your favorite food}}", "Do you like {{your favorite color}} {{your favorite food}}?");
 
             // init responseData
             // the keys in this data represent concepts that the chatbot has previously "learned" from a teacher
-            //responseData.Add("your name", "");
+            responseData.Add("your name", "");
             responseData.Add("way to go", "");
-            //responseData.Add("your favorite color", "");
-            //responseData.Add("your favorite food", "");
-            //responseData.Add("you like {{your favorite color}} {{your favorite food}}", "");
+            responseData.Add("your favorite color", "");
+            responseData.Add("your favorite food", "");
+            responseData.Add("you like {{your favorite color}} {{your favorite food}}", "");
 
             // init vocabularyData
             // this data represents what vocabulary the chatbot has previously "learned" from a teacher
