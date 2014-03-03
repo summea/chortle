@@ -221,3 +221,24 @@ Learning Example Output:
     your favorite food - green jelly
     you like {{your favorite color}} {{your favorite food}} - yes
 
+
+    
+Learning Example Output (final verb check)
+------------------------------------------
+
+    bot    > what is the way to go? (multiple verb test)
+    human  > my way to go is over there
+    bot    > I see
+    responsePOS: PRP,UNKNOWN,UNKNOWN,VBZ,VBZ,UNKNOWN,UNKNOWN
+    my way to go is over there
+    > found match!
+    found final verb: VBZ
+    generated key/value lists joined individually
+    PRP,UNKNOWN,UNKNOWN,VBZ,VBZ
+    over,there
+    UNKNOWN,UNKNOWN
+    >>> result: over there
+
+
+    learned information:
+    way to go - over there

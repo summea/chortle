@@ -18,17 +18,19 @@ namespace chortle
 
             // init questionData
             // this data represents what questions the chatbot has previously "learned" how to ask from a teacher
-            questionData.Add("your name", "What is your name?");
-            questionData.Add("your favorite color", "What is your favorite color?");
-            questionData.Add("your favorite food", "What is your favorite food?");
-            questionData.Add("you like {{your favorite color}} {{your favorite food}}", "Do you like {{your favorite color}} {{your favorite food}}?");
+            //questionData.Add("your name", "What is your name?");
+            questionData.Add("way to go", "what is the way to go? (multiple verb test)");
+            //questionData.Add("your favorite color", "What is your favorite color?");
+            //questionData.Add("your favorite food", "What is your favorite food?");
+            //questionData.Add("you like {{your favorite color}} {{your favorite food}}", "Do you like {{your favorite color}} {{your favorite food}}?");
 
             // init responseData
             // the keys in this data represent concepts that the chatbot has previously "learned" from a teacher
-            responseData.Add("your name", "");
-            responseData.Add("your favorite color", "");
-            responseData.Add("your favorite food", "");
-            responseData.Add("you like {{your favorite color}} {{your favorite food}}", "");
+            //responseData.Add("your name", "");
+            responseData.Add("way to go", "");
+            //responseData.Add("your favorite color", "");
+            //responseData.Add("your favorite food", "");
+            //responseData.Add("you like {{your favorite color}} {{your favorite food}}", "");
 
             // init vocabularyData
             // this data represents what vocabulary the chatbot has previously "learned" from a teacher
@@ -54,12 +56,15 @@ namespace chortle
   
             vocabularyData.Add("eat", "VBP");
             vocabularyData.Add("eats", "VBZ");
+            vocabularyData.Add("go", "VB");
             vocabularyData.Add("is", "VBZ");
             vocabularyData.Add("like", "VBP");
 
             // init phraseData
             // this data represents what phrases the chatbot has previously "learned" from a teacher
             phraseData.Add("response", "I see");
+
+            string[] posVerbTypes = new string[] { "VB", "VBD", "VBG", "VBN", "VBP", "VBZ" };
 
             string response;
             bool firstTime = true;
@@ -85,7 +90,7 @@ namespace chortle
                 }
 
                 // check if we've already asked question
-                if (responseData[randomKey] == "")
+                if (responseData.ContainsKey(randomKey) && responseData[randomKey] == "")
                 {
                     // check for "dynamic" patterns in question
                     // requires that the bot has already asked about related patterns
@@ -148,18 +153,7 @@ namespace chortle
                         string randomPhraseKey = phraseKeyList[randomPhraseNumber.Next(phraseKeyList.Count)];
                         Console.WriteLine("bot    > " + phraseData[randomPhraseKey]);
 
-                        // TODO: convert chortlejs parsing to here
-                        /*
-                        string[] responseWords = response.Split(' ');
-                        foreach (string word in responseWords)
-                        {
-                            if (!vocabularyData.ContainsKey(word.ToLower()))
-                            {
-                                connectedResponse = connectedResponse + word.ToLower();
-                                //Console.WriteLine ("found: " + word.ToLower ());
-                            }
-                        }*/
-
+                        // originally from chortlejs parsing
                         string[] responsePieces = response.Split(' ');
                         List<string> responsePiecesAsPOS = new List<string>();
 
@@ -173,13 +167,31 @@ namespace chortle
 
                         string responsePOS = string.Join(",", responsePiecesAsPOS);
 
-                        Match matchPOS = Regex.Match(responsePOS, @"PRP(.*)VBZ", RegexOptions.IgnoreCase);
+                        // TODO: match actual last/final verb
+
+                        Console.WriteLine("responsePOS: " + responsePOS);
+
+                        int finalVerbPosition = 0;
+
+                        // loop through POS and find last VBZ index and value
+                        for (int posIndex = 0; posIndex < responsePiecesAsPOS.Count; posIndex++)
+                        {
+                            if (posVerbTypes.Contains(responsePiecesAsPOS[posIndex]))
+                            {
+                                finalVerbPosition = posIndex;
+                            }
+                        }
+
+                        // general match with final verb at end (if verb exists)
+                        Match matchPOS = Regex.Match(responsePOS, @"(.*)VBZ", RegexOptions.IgnoreCase);
                         Console.WriteLine(response);
                         List<string> generatedKeyList = new List<string>();
                         List<string> generatedValueList = new List<string>();
                         List<string> generatedValuePatternList = new List<string>();
                         if (matchPOS.Success)
-                        {                            
+                        {
+                            Console.WriteLine("> found match!");
+
                             bool pastFinalVerb = false;
 
                             // divide up how we learn this data (key:value)
@@ -191,7 +203,7 @@ namespace chortle
                                     if (vocabularyData.ContainsKey(responsePieces[userResponseIndex]))
                                     {
                                         generatedValueList.Add(responsePieces[userResponseIndex].ToLower());
-                                        generatedValuePatternList.Add(vocabularyData[responsePiecesAsPOS[userResponseIndex]]);
+                                        generatedValuePatternList.Add(responsePiecesAsPOS[userResponseIndex]);
                                     }
                                     else
                                     {
@@ -205,12 +217,10 @@ namespace chortle
                                     generatedKeyList.Add(responsePiecesAsPOS[userResponseIndex]);
                                 }
 
-                                //Match finalVerbFound = Regex.Match(currentPOS.Trim, @"VBZ", RegexOptions.IgnoreCase);
-                                //if (finalVerbFound.Success)
-                                if (responsePiecesAsPOS[userResponseIndex] == "VBZ")
+                                if (userResponseIndex == finalVerbPosition)
                                 {
                                     // TODO: check for actual final (last in order) verb
-                                    Console.WriteLine("found final verb");
+                                    Console.WriteLine("found final verb: " + responsePiecesAsPOS[userResponseIndex]);
                                     pastFinalVerb = true;
                                 }
                             }
@@ -793,8 +803,8 @@ namespace chortle
 
         public static void Main(string[] args)
         {
-            teacherMode();
-            //botAsk();
+            //teacherMode();
+            botAsk();
 
             Console.ReadLine();
         }

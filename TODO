@@ -2,9 +2,9 @@ TODO
 ====
 - teacher: ultimately, try mixing learned responses and get teacher feedback
 - teacher: go back to possible response list more often and get new response possibility if available (especially if the response is a 1)?
-- botAsk: bring over parser from chortlejs to match parts of speech (POS)
+- botAsk: find actual final verb in POS parsing
 
-
++ botAsk: bring over parser from chortlejs to match parts of speech (POS)
 + teacher: instead of having yes/maybe/no, what about having just yes/no (and increment/decrement accordingly until 0 or 1)?
 + updated question process:
   - what is {{your name}}?
