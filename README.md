@@ -66,11 +66,11 @@ Learning Example Output:
     green jelly
     >>> result: green jelly
     bot    > What is your favorite color?
-    human  > red rubies
+    human  > red ruby
     bot    > I see
     red rubies
     >>> result: red rubies
-    bot    > Do you like red rubies green jelly?
+    bot    > Do you like red ruby green jelly?
     human  > yes
     bot    > I see
     yes
