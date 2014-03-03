@@ -262,14 +262,19 @@ namespace chortle
             String teacherDecision;
             String botResponse;
 
-            bool debugMode = false;
+            const double maxWeight      = 1.0;
+            const double midWeight      = 0.5;
+            const double minWeight      = 0.0;
+            const double incDecWeight   = 0.1;
+
+            bool debugMode = true;
 
             // topic phrase format:
             // phrase, weight
             //
             // weight values:
-            // good = increment weight by .1
-            // bad  = decrement weight by .1
+            // good = increment weight by incDecWeight
+            // bad  = decrement weight by incDecWeight
 
             // init botLearnedResponses
             // init topics
@@ -361,14 +366,14 @@ namespace chortle
                             Console.WriteLine("> checking weight response..." + weight + " / " + keyItem);
 
                         // if weight is high enough, return found response as bot response
-                        if (Convert.ToDouble(weight) >= 0.6 && checkForBest)
+                        if (Convert.ToDouble(weight) >= (midWeight+incDecWeight) && checkForBest)
                         {
                             if (debugMode)
                                 Console.WriteLine("> found a good weight response");
                             botResponse = keyItem;
                             break;
                         }
-                        else if (Convert.ToDouble(weight) >= 0.5 && Convert.ToDouble(weight) < 1.0)
+                        else if (Convert.ToDouble(weight) >= midWeight && Convert.ToDouble(weight) < maxWeight)
                         {
                             if (checkForBest)
                             {
@@ -500,7 +505,7 @@ namespace chortle
                                             Console.WriteLine("> checking weight response..." + weight + " / " + botLearnedResponses[shorterKey][keyItem]);
 
                                         // if weight is high enough, return found response as bot response
-                                        if (Convert.ToDouble(weight) >= 0.6 && checkForBest)
+                                        if (Convert.ToDouble(weight) >= (midWeight+incDecWeight) && checkForBest)
                                         {
                                             if (debugMode)
                                                 Console.WriteLine("> found a good weight response");
@@ -509,7 +514,7 @@ namespace chortle
                                             foundAResponse = true;
                                             break;
                                         }
-                                        else if (Convert.ToDouble(weight) >= 0.5 && Convert.ToDouble(weight) < 1.0)
+                                        else if (Convert.ToDouble(weight) >= midWeight && Convert.ToDouble(weight) < maxWeight)
                                         {
                                             if (debugMode)
                                                 Console.WriteLine("> checking an 'okay' response");
@@ -602,14 +607,14 @@ namespace chortle
                                             Console.WriteLine("> checking weight response..." + weight + " / " + keyItem);
 
                                         // if weight is high enough, return found response as bot response
-                                        if (Convert.ToDouble(weight) >= 0.6 && checkForBest)
+                                        if (Convert.ToDouble(weight) >= (midWeight+incDecWeight) && checkForBest)
                                         {
                                             if (debugMode)
                                                 Console.WriteLine("> found a good weight response");
                                             botResponse = keyItem;
                                             break;
                                         }
-                                        else if (Convert.ToDouble(weight) >= 0.5 && Convert.ToDouble(weight) < 1.0)
+                                        else if (Convert.ToDouble(weight) >= midWeight && Convert.ToDouble(weight) < maxWeight)
                                         {
                                             if (checkForBest)
                                             {
@@ -737,15 +742,15 @@ namespace chortle
 
                         if (!foundResponseInValuesList)
                         {
-                            // ensure that weight values are not above or below limits (0.0 and 1.)
-                            if (teacherDecisionValue > 1.0)
-                                teacherDecisionValue = 1.0;
-                            else if (teacherDecisionValue < 0.0)
-                                teacherDecisionValue = 0.0;
+                            // ensure that weight values are not above or below limits (minWeight and maxWeight)
+                            if ((midWeight + teacherDecisionValue) > maxWeight)
+                                teacherDecisionValue = maxWeight;
+                            else if ((midWeight + teacherDecisionValue) < minWeight)
+                                teacherDecisionValue = minWeight;
 
                             if (debugMode)
                                 Console.WriteLine("> adding response to learned key ...");
-                            botLearnedResponses[teacherResponse].Add(botResponse, teacherDecisionValue);
+                            botLearnedResponses[teacherResponse].Add(botResponse, (midWeight + teacherDecisionValue));
                         }
                     }
                     else
@@ -760,14 +765,14 @@ namespace chortle
                     if (debugMode)
                         Console.WriteLine("> adding new bot response key: " + botResponse);
 
-                    // ensure that weight values are not above or below limits (0.0 and 1.)
-                    if (teacherDecisionValue > 1.0)
-                        teacherDecisionValue = 1.0;
-                    else if (teacherDecisionValue < 0.0)
-                        teacherDecisionValue = 0.0;
+                    // ensure that weight values are not above or below limits (minWeight and maxWeight)
+                    if ((midWeight + teacherDecisionValue) > maxWeight)
+                        teacherDecisionValue = maxWeight;
+                    else if ((midWeight + teacherDecisionValue) < minWeight)
+                        teacherDecisionValue = minWeight;
 
                     botLearnedResponses[teacherResponse] = new Dictionary<string, double> {
-                        {botResponse, teacherDecisionValue}
+                        {botResponse, (midWeight + teacherDecisionValue)}
                     };
                     firstTimeForThisTopic = false;
                 }
