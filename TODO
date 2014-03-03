@@ -5,6 +5,7 @@ TODO
 - botAsk: bring over parser from chortlejs to match parts of speech (POS)
 
 
++ teacher: instead of having yes/maybe/no, what about having just yes/no (and increment/decrement accordingly until 0 or 1)?
 + updated question process:
   - what is {{your name}}?
   - get response
