@@ -9,13 +9,258 @@ namespace chortle
 {
     class MainClass
     {
-        public static void Main(string[] args)
+        public static void botAsk()
         {
             Dictionary<string, string> questionData = new Dictionary<string, string>();
             Dictionary<string, string> responseData = new Dictionary<string, string>();
             Dictionary<string, string> vocabularyData = new Dictionary<string, string>();
             Dictionary<string, string> phraseData = new Dictionary<string, string>();
+
+            // init questionData
+            // this data represents what questions the chatbot has previously "learned" how to ask from a teacher
+            questionData.Add("your name", "What is your name?");
+            questionData.Add("your favorite color", "What is your favorite color?");
+            questionData.Add("your favorite food", "What is your favorite food?");
+            questionData.Add("you like {{your favorite color}} {{your favorite food}}", "Do you like {{your favorite color}} {{your favorite food}}?");
+
+            // init responseData
+            // the keys in this data represent concepts that the chatbot has previously "learned" from a teacher
+            responseData.Add("your name", "");
+            responseData.Add("your favorite color", "");
+            responseData.Add("your favorite food", "");
+            responseData.Add("you like {{your favorite color}} {{your favorite food}}", "");
+
+            // init vocabularyData
+            // this data represents what vocabulary the chatbot has previously "learned" from a teacher
+            vocabularyData.Add("yes", "UH");
+            vocabularyData.Add("no", "DT");
+
+            vocabularyData.Add("i", "PRP");
+            vocabularyData.Add("you", "PRP");
+            vocabularyData.Add("he", "PRP");
+            vocabularyData.Add("she", "PRP");
+            vocabularyData.Add("it", "PRP");
+            vocabularyData.Add("we", "PRP");
+            vocabularyData.Add("they", "PRP");
+            vocabularyData.Add("me", "PRP");
+            vocabularyData.Add("him", "PRP");
+            vocabularyData.Add("her", "PRP");
+            vocabularyData.Add("us", "PRP");
+            vocabularyData.Add("them", "PRP");
+            vocabularyData.Add("my", "PRP");
+            vocabularyData.Add("your", "PRP");
+ 
+            vocabularyData.Add("because", "IN");
+  
+            vocabularyData.Add("eat", "VBP");
+            vocabularyData.Add("eats", "VBZ");
+            vocabularyData.Add("is", "VBZ");
+            vocabularyData.Add("like", "VBP");
+
+            // init phraseData
+            // this data represents what phrases the chatbot has previously "learned" from a teacher
+            phraseData.Add("response", "I see");
+
+            string response;
+            bool firstTime = true;
+            bool doneChatting = false;
+            List<string> questionKeyList = new List<string>(questionData.Keys);
+            List<string> phraseKeyList = new List<string>(phraseData.Keys);
+
+            int numBotQuestionsAsked = 0;
+            int numTotalBotQuestions = questionKeyList.Count;
+
+            while (!doneChatting && (numBotQuestionsAsked < numTotalBotQuestions))
+            {
+                Random randomNumber = new Random();
+                string randomKey = questionKeyList[randomNumber.Next(questionKeyList.Count)];
+                bool validQuestion = true;
+                bool questionNeedsInterpolation = false;
+
+                // make sure to ask name at start
+                if (firstTime)
+                {
+                    randomKey = "your name";
+                    firstTime = false;
+                }
+
+                // check if we've already asked question
+                if (responseData[randomKey] == "")
+                {
+                    // check for "dynamic" patterns in question
+                    // requires that the bot has already asked about related patterns
+                    string pattern = @"({{[\w\s]+}})";
+                    foreach (Match match in Regex.Matches(questionData[randomKey], pattern, RegexOptions.IgnoreCase))
+                    {
+                        //Console.WriteLine ("found tags to replace... {0}", match.Groups[0].Value);
+                        //Console.WriteLine ("passing through...");
+                        String item = match.Groups[0].ToString();
+                        item = item.Replace("{", "").Replace("}", "");
+                        //Console.WriteLine (item);
+
+                        // check if responseData contains required, previously-asked information
+                        // #ADDME: could someday allow bot to ask questions about required information
+                        //     until required information is collected... and then ask  original, "dynamic" question
+
+                        //Console.WriteLine ("checking dictionary...");
+                        if (responseData.ContainsKey(item) && responseData[item] == "")
+                        {
+                            validQuestion = false;
+                            //Console.WriteLine ("sorry, still have to ask about this...");
+                        }
+                        else
+                        {
+                            questionNeedsInterpolation = true;
+                        }
+                    }
+
+
+                    if (validQuestion)
+                    {
+                        String questionText = questionData[randomKey];
+
+                        if (questionNeedsInterpolation)
+                        {
+                            // interpolate "dynamic" patterns in question
+                            String interpolatedString = questionData[randomKey];
+                            string patternItem = @"({{[\w\s]+}})";
+                            foreach (Match match in Regex.Matches(questionData[randomKey], patternItem, RegexOptions.IgnoreCase))
+                            {
+                                String itemKey = match.Groups[0].ToString();
+                                itemKey = itemKey.Replace("{", "").Replace("}", "");
+                                interpolatedString = interpolatedString.Replace(match.Groups[0].ToString(), responseData[itemKey]);
+                            }
+
+                            questionText = interpolatedString;
+                            questionNeedsInterpolation = false;
+
+                        }
+
+                        // bot asks question and gets human response
+                        Console.WriteLine("bot    > " + questionText);
+                        Console.Write("human  > ");
+                        response = Console.ReadLine();
+
+                        if (response.Equals("goodbye"))
+                            doneChatting = true;
+
+                        Random randomPhraseNumber = new Random();
+                        string randomPhraseKey = phraseKeyList[randomPhraseNumber.Next(phraseKeyList.Count)];
+                        Console.WriteLine("bot    > " + phraseData[randomPhraseKey]);
+
+                        // TODO: convert chortlejs parsing to here
+                        /*
+                        string[] responseWords = response.Split(' ');
+                        foreach (string word in responseWords)
+                        {
+                            if (!vocabularyData.ContainsKey(word.ToLower()))
+                            {
+                                connectedResponse = connectedResponse + word.ToLower();
+                                //Console.WriteLine ("found: " + word.ToLower ());
+                            }
+                        }*/
+
+                        string[] responsePieces = response.Split(' ');
+                        List<string> responsePiecesAsPOS = new List<string>();
+
+                        foreach (string word in responsePieces)
+                        {
+                            if (vocabularyData.ContainsKey(word))
+                                responsePiecesAsPOS.Add(vocabularyData[word]);
+                            else
+                                responsePiecesAsPOS.Add("UNKNOWN");
+                        }
+
+                        string responsePOS = string.Join(",", responsePiecesAsPOS);
+
+                        Match matchPOS = Regex.Match(responsePOS, @"PRP(.*)VBZ", RegexOptions.IgnoreCase);
+                        Console.WriteLine(response);
+                        List<string> generatedKeyList = new List<string>();
+                        List<string> generatedValueList = new List<string>();
+                        List<string> generatedValuePatternList = new List<string>();
+                        if (matchPOS.Success)
+                        {                            
+                            bool pastFinalVerb = false;
+
+                            // divide up how we learn this data (key:value)
+                            for (int userResponseIndex = 0; userResponseIndex < responsePiecesAsPOS.Count; userResponseIndex++)
+                            {
+                                // if after final verb (goes into value)
+                                if (pastFinalVerb)
+                                {
+                                    if (vocabularyData.ContainsKey(responsePieces[userResponseIndex]))
+                                    {
+                                        generatedValueList.Add(responsePieces[userResponseIndex].ToLower());
+                                        generatedValuePatternList.Add(vocabularyData[responsePiecesAsPOS[userResponseIndex]]);
+                                    }
+                                    else
+                                    {
+                                        generatedValueList.Add(responsePieces[userResponseIndex].ToLower());
+                                        generatedValuePatternList.Add("UNKNOWN");
+                                    }
+                                }
+                                // if before or equal to final verb (goes into key)
+                                else
+                                {
+                                    generatedKeyList.Add(responsePiecesAsPOS[userResponseIndex]);
+                                }
+
+                                //Match finalVerbFound = Regex.Match(currentPOS.Trim, @"VBZ", RegexOptions.IgnoreCase);
+                                //if (finalVerbFound.Success)
+                                if (responsePiecesAsPOS[userResponseIndex] == "VBZ")
+                                {
+                                    // TODO: check for actual final (last in order) verb
+                                    Console.WriteLine("found final verb");
+                                    pastFinalVerb = true;
+                                }
+                            }
+                            
+                            Console.WriteLine("generated key/value lists joined individually");
+                            Console.WriteLine(string.Join(",", generatedKeyList));
+                            Console.WriteLine(string.Join(",", generatedValueList));
+                            Console.WriteLine(string.Join(",", generatedValuePatternList));
+                        }
+                        else
+                        {
+                            // check for just answers (no verb necessarily)
+                            matchPOS = Regex.Match(responsePOS, @"(.*)", RegexOptions.IgnoreCase);
+                            if (matchPOS.Success)
+                            {
+                                for (int userResponseIndex = 0; userResponseIndex < responsePiecesAsPOS.Count; userResponseIndex++)
+                                {
+                                    generatedValueList.Add(responsePieces[userResponseIndex].ToLower());
+                                }
+                            }
+                        }
+
+
+
+                        Console.WriteLine(">>> result: " + string.Join(" ", generatedValueList));
+                        // save response data to dictionary
+                        responseData[randomKey] = string.Join(" ", generatedValueList);
+                        numBotQuestionsAsked++;
+                    }
+                }
+            }
+
+
+            // print out learned values
+            Console.WriteLine("\n\nlearned information:");
+            foreach (var key in responseData.Keys)
+            {
+                Console.WriteLine("{0} - {1}", key, responseData[key]);
+            }
+        }
+
+        public static void teacherMode()
+        {
             Dictionary<string, Dictionary<string, string>> botLearnedResponses = new Dictionary<string, Dictionary<string, string>>();
+            List<string> botLearnedKeyList = new List<string>(botLearnedResponses.Keys);
+
+            Random randomNumber = new Random();
+            String teacherResponse;
+            String teacherDecision;
+            String botResponse;
 
             // topic phrase format:
             // phrase, weight
@@ -67,57 +312,6 @@ namespace chortle
             botLearnedResponses["i like"] = new Dictionary<string, string>(topicRespondToInformation);
             botLearnedResponses["my name is"] = new Dictionary<string, string>(topicMeetPeople);
             botLearnedResponses["thanks"] = new Dictionary<string, string>(topicRespondToThanks);
-
-
-            // init questionData
-            // this data represents what questions the chatbot has previously "learned" how to ask from a teacher
-            questionData.Add("your name", "What is your name?");
-            questionData.Add("your favorite color", "What is your favorite color?");
-            questionData.Add("your favorite food", "What is your favorite food?");
-            questionData.Add("you like {{your favorite color}} {{your favorite food}}", "Do you like {{your favorite color}} {{your favorite food}}?");
-
-            // init responseData
-            // the keys in this data represent concepts that the chatbot has previously "learned" from a teacher
-            responseData.Add("your name", "");
-            responseData.Add("your favorite color", "");
-            responseData.Add("your favorite food", "");
-            responseData.Add("you like {{your favorite color}} {{your favorite food}}", "");
-
-            
-            // init vocabularyData
-            // this data represents what vocabulary the chatbot has previously "learned" from a teacher
-            vocabularyData.Add("my", "determiner");
-            vocabularyData.Add("you", "determiner");
-            vocabularyData.Add("name", "noun");
-            vocabularyData.Add("is", "verb");
-            vocabularyData.Add("favorite", "noun");
-            vocabularyData.Add("color", "noun");
-            vocabularyData.Add("i", "determiner");
-            vocabularyData.Add("like", "verb");
-            vocabularyData.Add("to", "determiner");
-            vocabularyData.Add("eat", "verb");
-            vocabularyData.Add("food", "noun");
-            vocabularyData.Add("do", "verb");
-            vocabularyData.Add("not", "determiner");
-            vocabularyData.Add("it", "determiner");
-            vocabularyData.Add("that", "determiner");
-            vocabularyData.Add("who", "interrogative");
-            vocabularyData.Add("what", "interrogative");
-            vocabularyData.Add("why", "interrogative");
-            vocabularyData.Add("when", "interrogative");
-            vocabularyData.Add("how", "interrogative");
-
-            // init phraseData
-            // this data represents what phrases the chatbot has previously "learned" from a teacher
-            phraseData.Add("response", "I see");
-
-            List<string> botLearnedKeyList = new List<string>(botLearnedResponses.Keys);
-            List<string> questionKeyList = new List<string>(questionData.Keys);
-            List<string> phraseKeyList = new List<string>(phraseData.Keys);
-            Random randomNumber = new Random();
-            String teacherResponse;
-            String teacherDecision;
-            String botResponse;
 
             int loopLimit = 10;
 
@@ -206,8 +400,8 @@ namespace chortle
                                         // (when bot doesn't have a response... try guessing at another topic response)
                                         Random rndNumberForGuess = new Random();
                                         var randomizedTopicsForGuess = from pair in botLearnedResponses[randomKey]
-                                                                        orderby rndNumber.Next()
-                                                                        select pair;
+                                                                       orderby rndNumber.Next()
+                                                                       select pair;
 
                                         List<string> orderedKeysForGuess = new List<string>();
                                         foreach (KeyValuePair<string, string> pair in randomizedTopicsForGuess)
@@ -365,7 +559,7 @@ namespace chortle
                             }
 
                             Console.WriteLine("found a response: " + foundAResponse);
-                            
+
                             if (!foundAResponse)
                             {
                                 Console.WriteLine("picking from grab bag...");
@@ -539,105 +733,6 @@ namespace chortle
                     };
                     firstTimeForThisTopic = false;
                 }
-                
-
-                /*
-                string randomKey = questionKeyList[randomNumber.Next(questionKeyList.Count)];
-                Boolean validQuestion = true;
-                Boolean questionNeedsInterpolation = false;
-
-                // make sure to ask name at start
-                if (firstTime)
-                {
-                    randomKey = "your name";
-                    firstTime = false;
-                }
-
-                String connectedResponse = "";
-
-                // check if we've already asked question
-                if (responseData[randomKey] == "")
-                {
-                    // check for "dynamic" patterns in question
-                    // requires that the bot has already asked about related patterns
-                    string pattern = @"({{[\w\s]+}})";
-                    foreach (Match match in Regex.Matches(questionData[randomKey], pattern, RegexOptions.IgnoreCase))
-                    {
-                        //Console.WriteLine ("found tags to replace... {0}", match.Groups[0].Value);
-                        //Console.WriteLine ("passing through...");
-                        String item = match.Groups[0].ToString();
-                        item = item.Replace("{", "").Replace("}", "");
-                        //Console.WriteLine (item);
-
-                        // check if responseData contains required, previously-asked information
-                        // #ADDME: could someday allow bot to ask questions about required information
-                        //     until required information is collected... and then ask  original, "dynamic" question
-
-                        //Console.WriteLine ("checking dictionary...");
-                        if (responseData.ContainsKey(item) && responseData[item] == "")
-                        {
-                            validQuestion = false;
-                            //Console.WriteLine ("sorry, still have to ask about this...");
-                        }
-                        else
-                        {
-                            questionNeedsInterpolation = true;
-                        }
-                    }
-
-
-                    if (validQuestion)
-                    {
-                        String questionText = questionData[randomKey];
-
-                        if (questionNeedsInterpolation)
-                        {
-                            // interpolate "dynamic" patterns in question
-                            String interpolatedString = questionData[randomKey];
-                            string patternItem = @"({{[\w\s]+}})";
-                            foreach (Match match in Regex.Matches(questionData[randomKey], patternItem, RegexOptions.IgnoreCase))
-                            {
-                                String itemKey = match.Groups[0].ToString();
-                                itemKey = itemKey.Replace("{", "").Replace("}", "");
-                                interpolatedString = interpolatedString.Replace(match.Groups[0].ToString(), responseData[itemKey]);
-                            }
-
-                            questionText = interpolatedString;
-                            questionNeedsInterpolation = false;
-
-                        }
-
-                        // bot asks question and gets human response
-                        Console.WriteLine("bot    > " + questionText);
-                        Console.Write("human  > ");
-                        response = Console.ReadLine();
-
-                        Random randomPhraseNumber = new Random();
-                        string randomPhraseKey = phraseKeyList[randomPhraseNumber.Next(phraseKeyList.Count)];
-                        Console.WriteLine("bot    > " + phraseData[randomPhraseKey]);
-
-                        string[] responseWords = response.Split(' ');
-                        foreach (string word in responseWords)
-                        {
-                            if (!vocabularyData.ContainsKey(word.ToLower()))
-                            {
-                                connectedResponse = connectedResponse + word.ToLower();
-                                //Console.WriteLine ("found: " + word.ToLower ());
-                            }
-                        }
-
-                        // save response data to dictionary
-                        responseData[randomKey] = connectedResponse.ToLower();
-                    }
-                }
-                 */
-            }
-
-            // print out learned values
-            Console.WriteLine("\n\nlearned information:");
-            foreach (var key in responseData.Keys)
-            {
-                Console.WriteLine("{0} - {1}", key, responseData[key]);
             }
 
             Console.WriteLine("\n\nlearned responses:");
@@ -651,6 +746,12 @@ namespace chortle
                     Console.WriteLine("  {0}", innerKey);
                 }
             }
+        }
+
+        public static void Main(string[] args)
+        {
+            //teacherMode();
+            botAsk();
 
             Console.ReadLine();
         }
