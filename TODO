@@ -1,14 +1,14 @@
 TODO
 ====
-- ultimately, try mixing learned responses and get teacher feedback
-- go back to possible response list more often and get new response possibility if available (especially if the response is a 1)?
+- teacher: ultimately, try mixing learned responses and get teacher feedback
+- teacher: go back to possible response list more often and get new response possibility if available (especially if the response is a 1)?
+- botAsk: bring over parser from chortlejs to match parts of speech (POS)
 
-- updated question process:
+
++ updated question process:
   - what is {{your name}}?
   - get response
   - save response to newly-added key in responseData
-  
-
 + fixed: when adding a new phrase key, I end up getting weights as "text" keys because there are no other choices
 + guess at another response topic when no clear, existing response is found
 + abstract out responses into groups (reduce the amount of duplicate data lines...)

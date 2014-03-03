@@ -58,21 +58,35 @@ Learning Example Output:
 ------------------------
 
     bot    > What is your name?
-    human  > My name is Jim.
+    human  > my name is andy bean
     bot    > I see
+    my name is andy bean
+    found final verb
+    generated key/value lists joined individually
+    PRP,UNKNOWN,VBZ
+    andy,bean
+    UNKNOWN,UNKNOWN
+    >>> result: andy bean
     bot    > What is your favorite food?
-    human  > My favorite food is pasta.
+    human  > green jelly
     bot    > I see
+    green jelly
+    >>> result: green jelly
     bot    > What is your favorite color?
-    human  > My favorite color is orange.
+    human  > red rubies
     bot    > I see
-    bot    > Do you like orange pasta?
-    human  > Yes
+    red rubies
+    >>> result: red rubies
+    bot    > Do you like red rubies green jelly?
+    human  > yes
     bot    > I see
+    yes
+    >>> result: yes
 
 
     learned information:
-    your name - jim
-    your favorite color - orange
-    your favorite food - pasta
+    your name - andy bean
+    your favorite color - red rubies
+    your favorite food - green jelly
     you like {{your favorite color}} {{your favorite food}} - yes
+
