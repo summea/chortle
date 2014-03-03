@@ -38,14 +38,7 @@ Teacher Example Output:
     teacher  > 1:yes, 2:maybe, 3:no > 1
     bot already knows this response... but let's update info
 
-
-    learned information:
-    your name -
-    your favorite color -
-    your favorite food -
-    you like {{your favorite color}} {{your favorite food}} -
-
-
+    
     learned responses:
     hello - 1/oh hey there!,1/lovely day, isn't it?
     goodbye - 1/be seeing you!,1/see ya?
@@ -73,11 +66,11 @@ Learning Example Output:
     green jelly
     >>> result: green jelly
     bot    > What is your favorite color?
-    human  > red rubies
+    human  > red ruby
     bot    > I see
     red rubies
     >>> result: red rubies
-    bot    > Do you like red rubies green jelly?
+    bot    > Do you like red ruby green jelly?
     human  > yes
     bot    > I see
     yes
