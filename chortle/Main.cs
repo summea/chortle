@@ -42,33 +42,31 @@ namespace chortle
             public const int BOT_ASK        = 1;
             public const int BOT_RESPOND    = 2;
             public const int BOT_FOLLOW_UP  = 3;
+
+            public static int botState = ChortleSettings.BOT_ASK;
         }
 
-        public static bool botAsk()
+        public static string botAsk(string questionKey, bool followUp=false)
         {
-            List<string> questionKeyList = new List<string>(ChortleSettings.questionData.Keys);
-            List<string> phraseKeyList = new List<string>(ChortleSettings.phraseData.Keys);
             string response;
-            Random randomNumber = new Random();
-            string randomKey = questionKeyList[randomNumber.Next(questionKeyList.Count)];
+            string result = "";
             bool validQuestion = true;
             bool questionNeedsInterpolation = false;
-            bool success = false;
 
             // make sure to ask name at start
             if (ChortleSettings.firstTime)
             {
-                randomKey = "your name";
+                questionKey = "your name";
                 ChortleSettings.firstTime = false;
             }
 
             // check if we've already asked question
-            if (ChortleSettings.responseData.ContainsKey(randomKey) && ChortleSettings.responseData[randomKey] == "")
+            if ((ChortleSettings.responseData.ContainsKey(questionKey) && ChortleSettings.responseData[questionKey] == "") || followUp)
             {
                 // check for "dynamic" patterns in question
                 // requires that the bot has already asked about related patterns
                 string pattern = @"({{[\w\s]+}})";
-                foreach (Match match in Regex.Matches(ChortleSettings.questionData[randomKey], pattern, RegexOptions.IgnoreCase))
+                foreach (Match match in Regex.Matches(ChortleSettings.questionData[questionKey], pattern, RegexOptions.IgnoreCase))
                 {
                     //Console.WriteLine ("found tags to replace... {0}", match.Groups[0].Value);
                     //Console.WriteLine ("passing through...");
@@ -95,14 +93,14 @@ namespace chortle
 
                 if (validQuestion)
                 {
-                    String questionText = ChortleSettings.questionData[randomKey];
+                    String questionText = ChortleSettings.questionData[questionKey];
 
                     if (questionNeedsInterpolation)
                     {
                         // interpolate "dynamic" patterns in question
-                        String interpolatedString = ChortleSettings.questionData[randomKey];
+                        String interpolatedString = ChortleSettings.questionData[questionKey];
                         string patternItem = @"({{[\w\s]+}})";
-                        foreach (Match match in Regex.Matches(ChortleSettings.questionData[randomKey], patternItem, RegexOptions.IgnoreCase))
+                        foreach (Match match in Regex.Matches(ChortleSettings.questionData[questionKey], patternItem, RegexOptions.IgnoreCase))
                         {
                             String itemKey = match.Groups[0].ToString();
                             itemKey = itemKey.Replace("{", "").Replace("}", "");
@@ -125,9 +123,10 @@ namespace chortle
                     //if (response.Equals("goodbye"))
                         //doneChatting = true;
 
-                    Random randomPhraseNumber = new Random();
-                    string randomPhraseKey = phraseKeyList[randomPhraseNumber.Next(phraseKeyList.Count)];
-                    Console.WriteLine("bot    > " + ChortleSettings.phraseData[randomPhraseKey]);
+                    // TODO: bot respond with a previously-taught phrase
+                    //Random randomPhraseNumber = new Random();
+                    //string randomPhraseKey = phraseKeyList[randomPhraseNumber.Next(phraseKeyList.Count)];
+                    //Console.WriteLine("bot    > " + ChortleSettings.phraseData[randomPhraseKey]);
 
                     // originally from chortlejs parsing
                     string[] responsePieces = response.Split(' ');
@@ -145,9 +144,6 @@ namespace chortle
 
                     // TODO: find "target verb" from question and use as root verb
 
-                    // TODO: "what is _that_?" (clarify... FOLLOW_UP state)
-                    // TODO: save clarification to previous answer key...
-
                     if (ChortleSettings.debugMode)
                         Console.WriteLine("responsePOS: " + responsePOS);
 
@@ -156,7 +152,7 @@ namespace chortle
                     
                     int rootVerbPosition = 0;
 
-                    // TODO: be able to catch: that *** is ... 
+                    // match: DT *** VB (that *** is ...)
                     Match matchDT_X_VB = Regex.Match(responsePOS, @"DT(.*)VB*", RegexOptions.IgnoreCase);
                     if (matchDT_X_VB.Success)
                     {
@@ -175,12 +171,17 @@ namespace chortle
                     if (responsePiecesAsPOS.Count >= 2)
                         sentenceBeginning = responsePiecesAsPOS[0] + "," + responsePiecesAsPOS[1];
 
+                    bool followUpFlag = false;
+
                     if (ChortleSettings.posDetVerbTypes.Contains(sentenceBeginning))
                     {
                         rootVerbPosition = 1;
                         resultKeyValueDirection = "rtl";
                         if (ChortleSettings.debugMode)
                             Console.WriteLine("> switching to RTL for verb key value parsing...");
+
+                        // human response is unclear... ask a follow up question
+                        followUpFlag = true;
                     }
                     // else this is a "common" verb statement
                     else
@@ -290,16 +291,33 @@ namespace chortle
                     }
 
 
+                    if (followUpFlag)
+                    {
+                        result = botFollowUp(questionKey);
+                    }
+                    else
+                    {
+                        result = string.Join(" ", generatedValueList);
+                    }
+
+
                     if (ChortleSettings.debugMode)
-                        Console.WriteLine(">>> result: " + string.Join(" ", generatedValueList));
+                        Console.WriteLine(">>> result: " + result);
 
                     // save response data to dictionary
-                    ChortleSettings.responseData[randomKey] = string.Join(" ", generatedValueList);
-                    //numBotQuestionsAsked++;
-                    success = true;
+                    ChortleSettings.responseData[questionKey] = result;
                 }
             }
-            return success;
+            return result;
+        }
+
+        public static string botFollowUp(string keyInQuestion)
+        {
+            string result = "";
+            if (ChortleSettings.debugMode)
+                Console.WriteLine("follow up question about: " + keyInQuestion);
+            result = botAsk(keyInQuestion, true);
+            return result;
         }
 
         public static void chatMode()
@@ -316,20 +334,24 @@ namespace chortle
 
             int numBotQuestionsAsked = 0;
             int numTotalBotQuestions = questionKeyList.Count;            
-            
-            // bot states:
-            int botState = ChortleSettings.BOT_ASK;
 
             while (!doneChatting && (numBotQuestionsAsked < numTotalBotQuestions))
             {
-                switch (botState)
+                switch (ChortleSettings.botState)
                 {
-                    // bot ask
-                    case 1:
-                        if (botAsk())
+                    case ChortleSettings.BOT_NOP:
+                        break;
+                    case ChortleSettings.BOT_ASK:
+                        Random randomNumber = new Random();
+                        string randomKey = questionKeyList[randomNumber.Next(questionKeyList.Count)];
+                        if (!string.IsNullOrEmpty(botAsk(randomKey)))
                         {
                             numBotQuestionsAsked++;
                         }
+                        break;
+                    case ChortleSettings.BOT_FOLLOW_UP:
+                        break;
+                    case ChortleSettings.BOT_RESPOND:
                         break;
                 }
             }

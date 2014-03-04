@@ -7,13 +7,12 @@ TODO
   - ask
   - respond
     - using previously-taught expressions (try to find closest-matching key...)
-  - follow-up
-    - "what is _that_?" (get specifics about a general word...) (follow-up)
-- catch multiple words before "is" (verb) in this example: "that way is the way"
 
-
+    
 Done
 ====
++ follow-up (repeat question until satisfactory answer is provided)
++ catch multiple words before "is" (verb) in this example: "that way is the way"
 + grouped settings under ChortleSettings class
 + create some sort of pooled dictionary location (learned responses + questions)
 + keep track of previous human response conversation data in some sort of stack
@@ -38,6 +37,5 @@ Done
 
 Extra
 =====
-- "that is the way to go" (note that the "is" happens earlier than the "go"... but "is" is what we want for the related question...)
-  - add a way to look for related target verb (from the question)
-  - maybe check how many words are in front of the verbs and after... and determine which one is more likely the more important verb? (the side with the least amount of words might be the target...)
+- add a way to look for related target verb (from the question)
+- maybe check how many words are in front of the verbs and after... and determine which one is more likely the more important verb? (the side with the least amount of words might be the target...)
