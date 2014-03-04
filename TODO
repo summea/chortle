@@ -2,20 +2,28 @@ TODO
 ====
 - teacher: ultimately, try mixing learned responses and get teacher feedback
 - teacher: go back to possible response list more often and get new response possibility if available (especially if the response is a 1)?
-- break up main.cs into classes
-  - create some sort of pooled dictionary location (learned responses + questions)
-- "what is _that_?" (get specifics about a general word...)
+- break up main.cs into smaller functions
+- bot state behavior
+  - ask
+  - respond
+    - using previously-taught expressions (try to find closest-matching key...)
+  - follow-up
+    - "what is _that_?" (get specifics about a general word...) (follow-up)
 
 
+Done
+====
++ grouped settings under ChortleSettings class
++ create some sort of pooled dictionary location (learned responses + questions)
 + keep track of previous human response conversation data in some sort of stack
 + botAsk: added "right to left" verb pattern (i.e. "what is ...? _that is_ ...) ("_that is_ the way to go" (key=the way to go, value=that))
 + botAsk: find actual final verb in POS parsing
 + botAsk: bring over parser from chortlejs to match parts of speech (POS)
 + teacher: instead of having yes/maybe/no, what about having just yes/no (and increment/decrement accordingly until 0 or 1)?
 + updated question process:
-  - what is {{your name}}?
-  - get response
-  - save response to newly-added key in responseData
+  + what is {{your name}}?
+  + get response
+  + save response to newly-added key in responseData
 + fixed: when adding a new phrase key, I end up getting weights as "text" keys because there are no other choices
 + guess at another response topic when no clear, existing response is found
 + abstract out responses into groups (reduce the amount of duplicate data lines...)
@@ -27,7 +35,8 @@ TODO
 + if learnedResponse key is not found, try looking for a slightly smaller part of the key (i like green things -> i like green -> i like)
 
 
-Extra:
+Extra
+=====
 - "that is the way to go" (note that the "is" happens earlier than the "go"... but "is" is what we want for the related question...)
   - add a way to look for related target verb (from the question)
   - maybe check how many words are in front of the verbs and after... and determine which one is more likely the more important verb? (the side with the least amount of words might be the target...)

@@ -11,295 +11,329 @@ namespace chortle
 {
     class MainClass
     {
-        public static void botAsk()
+        public static class ChortleSettings
         {
-            bool debugMode = true;
+            public static bool debugMode = true;
+            public static bool firstTime = true;
 
-            List<string> humanResponseConversationData = new List<string>();
-
-            Dictionary<string, string> phraseData = new Dictionary<string, string>();
+            public static List<string> humanResponseConversationData = new List<string>();
 
             // init dictionary data
-            string questionDataSrc = File.ReadAllText("../../Data/bot-questions.json");
-            string responseDataSrc = File.ReadAllText("../../Data/bot-responses.json");
-            string vocabularyDataSrc = File.ReadAllText("../../Data/vocabulary.json");
+            private static string questionDataSrc = File.ReadAllText("../../Data/bot-questions.json");
+            private static string responseDataSrc = File.ReadAllText("../../Data/bot-responses.json");
+            private static string vocabularyDataSrc = File.ReadAllText("../../Data/vocabulary.json");
 
-            Dictionary<string, string> questionData = JsonConvert.DeserializeObject<Dictionary<string, string>>(questionDataSrc);
-            Dictionary<string, string> responseData = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseDataSrc);
-            Dictionary<string, string> vocabularyData = JsonConvert.DeserializeObject<Dictionary<string, string>>(vocabularyDataSrc);
+            public static Dictionary<string, string> questionData = JsonConvert.DeserializeObject<Dictionary<string, string>>(questionDataSrc);
+            public static Dictionary<string, string> responseData = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseDataSrc);
+            public static Dictionary<string, string> vocabularyData = JsonConvert.DeserializeObject<Dictionary<string, string>>(vocabularyDataSrc);
+            public static Dictionary<string, string> phraseData = new Dictionary<string, string>();
 
-            // TODO: connected learned phrases (teacher to bot) to this...
+            public static string[] posVerbTypes = new string[] { "VB", "VBD", "VBG", "VBN", "VBP", "VBZ" };
+            public static string[] posDetVerbTypes = new string[] { "DT,VB", "DT,VBD", "DT,VBG", "DT,VBN", "DT,VBP", "DT,VBZ" };
 
-            // init phraseData
-            // this data represents what phrases the chatbot has previously "learned" from a teacher
-            phraseData.Add("response", "I see");
+            // teacher decision weights
+            public const double maxWeight = 1.0;
+            public const double midWeight = 0.5;
+            public const double minWeight = 0.0;
+            public const double incDecWeight = 0.1;
+        }
 
-            string[] posVerbTypes = new string[] { "VB", "VBD", "VBG", "VBN", "VBP", "VBZ" };
-            string[] posDetVerbTypes = new string[] { "DT,VB", "DT,VBD", "DT,VBG", "DT,VBN", "DT,VBP", "DT,VBZ" };
-
+        public static bool botAsk()
+        {
+            List<string> questionKeyList = new List<string>(ChortleSettings.questionData.Keys);
+            List<string> phraseKeyList = new List<string>(ChortleSettings.phraseData.Keys);
             string response;
-            bool firstTime = true;
-            bool doneChatting = false;
-            List<string> questionKeyList = new List<string>(questionData.Keys);
-            List<string> phraseKeyList = new List<string>(phraseData.Keys);
+            Random randomNumber = new Random();
+            string randomKey = questionKeyList[randomNumber.Next(questionKeyList.Count)];
+            bool validQuestion = true;
+            bool questionNeedsInterpolation = false;
+            bool success = false;
 
-            int numBotQuestionsAsked = 0;
-            int numTotalBotQuestions = questionKeyList.Count;
-
-            while (!doneChatting && (numBotQuestionsAsked < numTotalBotQuestions))
+            // make sure to ask name at start
+            if (ChortleSettings.firstTime)
             {
-                Random randomNumber = new Random();
-                string randomKey = questionKeyList[randomNumber.Next(questionKeyList.Count)];
-                bool validQuestion = true;
-                bool questionNeedsInterpolation = false;
+                randomKey = "your name";
+                ChortleSettings.firstTime = false;
+            }
 
-                // make sure to ask name at start
-                if (firstTime)
+            // check if we've already asked question
+            if (ChortleSettings.responseData.ContainsKey(randomKey) && ChortleSettings.responseData[randomKey] == "")
+            {
+                // check for "dynamic" patterns in question
+                // requires that the bot has already asked about related patterns
+                string pattern = @"({{[\w\s]+}})";
+                foreach (Match match in Regex.Matches(ChortleSettings.questionData[randomKey], pattern, RegexOptions.IgnoreCase))
                 {
-                    randomKey = "your name";
-                    firstTime = false;
+                    //Console.WriteLine ("found tags to replace... {0}", match.Groups[0].Value);
+                    //Console.WriteLine ("passing through...");
+                    String item = match.Groups[0].ToString();
+                    item = item.Replace("{", "").Replace("}", "");
+                    //Console.WriteLine (item);
+
+                    // check if responseData contains required, previously-asked information
+                    // #ADDME: could someday allow bot to ask questions about required information
+                    //     until required information is collected... and then ask  original, "dynamic" question
+
+                    //Console.WriteLine ("checking dictionary...");
+                    if (ChortleSettings.responseData.ContainsKey(item) && ChortleSettings.responseData[item] == "")
+                    {
+                        validQuestion = false;
+                        //Console.WriteLine ("sorry, still have to ask about this...");
+                    }
+                    else
+                    {
+                        questionNeedsInterpolation = true;
+                    }
                 }
 
-                // check if we've already asked question
-                if (responseData.ContainsKey(randomKey) && responseData[randomKey] == "")
+
+                if (validQuestion)
                 {
-                    // check for "dynamic" patterns in question
-                    // requires that the bot has already asked about related patterns
-                    string pattern = @"({{[\w\s]+}})";
-                    foreach (Match match in Regex.Matches(questionData[randomKey], pattern, RegexOptions.IgnoreCase))
+                    String questionText = ChortleSettings.questionData[randomKey];
+
+                    if (questionNeedsInterpolation)
                     {
-                        //Console.WriteLine ("found tags to replace... {0}", match.Groups[0].Value);
-                        //Console.WriteLine ("passing through...");
-                        String item = match.Groups[0].ToString();
-                        item = item.Replace("{", "").Replace("}", "");
-                        //Console.WriteLine (item);
-
-                        // check if responseData contains required, previously-asked information
-                        // #ADDME: could someday allow bot to ask questions about required information
-                        //     until required information is collected... and then ask  original, "dynamic" question
-
-                        //Console.WriteLine ("checking dictionary...");
-                        if (responseData.ContainsKey(item) && responseData[item] == "")
+                        // interpolate "dynamic" patterns in question
+                        String interpolatedString = ChortleSettings.questionData[randomKey];
+                        string patternItem = @"({{[\w\s]+}})";
+                        foreach (Match match in Regex.Matches(ChortleSettings.questionData[randomKey], patternItem, RegexOptions.IgnoreCase))
                         {
-                            validQuestion = false;
-                            //Console.WriteLine ("sorry, still have to ask about this...");
+                            String itemKey = match.Groups[0].ToString();
+                            itemKey = itemKey.Replace("{", "").Replace("}", "");
+                            interpolatedString = interpolatedString.Replace(match.Groups[0].ToString(), ChortleSettings.responseData[itemKey]);
                         }
+
+                        questionText = interpolatedString;
+                        questionNeedsInterpolation = false;
+
+                    }
+
+                    // bot asks question and gets human response
+                    Console.WriteLine("bot    > " + questionText);
+                    Console.Write("human  > ");
+                    response = Console.ReadLine();
+
+                    // save human response to conversation data
+                    ChortleSettings.humanResponseConversationData.Add(response);
+
+                    //if (response.Equals("goodbye"))
+                        //doneChatting = true;
+
+                    Random randomPhraseNumber = new Random();
+                    string randomPhraseKey = phraseKeyList[randomPhraseNumber.Next(phraseKeyList.Count)];
+                    Console.WriteLine("bot    > " + ChortleSettings.phraseData[randomPhraseKey]);
+
+                    // originally from chortlejs parsing
+                    string[] responsePieces = response.Split(' ');
+                    List<string> responsePiecesAsPOS = new List<string>();
+
+                    foreach (string word in responsePieces)
+                    {
+                        if (ChortleSettings.vocabularyData.ContainsKey(word))
+                            responsePiecesAsPOS.Add(ChortleSettings.vocabularyData[word]);
                         else
+                            responsePiecesAsPOS.Add("UNKNOWN");
+                    }
+
+                    string responsePOS = string.Join(",", responsePiecesAsPOS);
+
+                    // TODO: find "target verb" from question and use as root verb
+
+                    // TODO: "what is _that_?" (clarify)
+                    // TODO: save clarification to previous answer key...
+
+                    if (ChortleSettings.debugMode)
+                        Console.WriteLine("responsePOS: " + responsePOS);
+
+                    string resultKeyValueDirection = "ltr";
+                    string sentenceBeginning = "";
+                    if (responsePiecesAsPOS.Count >= 2)
+                        sentenceBeginning = responsePiecesAsPOS[0] + "," + responsePiecesAsPOS[1];
+                    int rootVerbPosition = 0;
+
+                    // check for WP/ VBZ/ (e.g. "that is") statements
+
+                    // check for DT,Verb type sentence openings
+                    if (ChortleSettings.posDetVerbTypes.Contains(sentenceBeginning))
+                    {
+                        rootVerbPosition = 1;
+                        resultKeyValueDirection = "rtl";
+                        if (ChortleSettings.debugMode)
+                            Console.WriteLine("> switching to RTL for verb key value parsing...");
+                    }
+                    // else this is a "common" verb statement
+                    else
+                    {
+                        // loop through POS and find root VBZ index and value
+                        for (int posIndex = 0; posIndex < responsePiecesAsPOS.Count; posIndex++)
                         {
-                            questionNeedsInterpolation = true;
+                            if (ChortleSettings.posVerbTypes.Contains(responsePiecesAsPOS[posIndex]))
+                            {
+                                rootVerbPosition = posIndex;
+                            }
                         }
                     }
 
-
-                    if (validQuestion)
+                    // general match with root verb (if verb exists)
+                    Match matchPOS = Regex.Match(responsePOS, @"(.*)VBZ", RegexOptions.IgnoreCase);
+                    if (ChortleSettings.debugMode)
+                        Console.WriteLine(response);
+                    List<string> generatedKeyList = new List<string>();
+                    List<string> generatedValueList = new List<string>();
+                    List<string> generatedValuePatternList = new List<string>();
+                    if (matchPOS.Success)
                     {
-                        String questionText = questionData[randomKey];
+                        if (ChortleSettings.debugMode)
+                            Console.WriteLine("> found match!");
 
-                        if (questionNeedsInterpolation)
+                        bool pastRootVerb = false;
+
+                        // divide up how we learn this data (key:value)
+                        for (int userResponseIndex = 0; userResponseIndex < responsePiecesAsPOS.Count; userResponseIndex++)
                         {
-                            // interpolate "dynamic" patterns in question
-                            String interpolatedString = questionData[randomKey];
-                            string patternItem = @"({{[\w\s]+}})";
-                            foreach (Match match in Regex.Matches(questionData[randomKey], patternItem, RegexOptions.IgnoreCase))
+                            // if we are past root verb (goes into value)
+                            if (pastRootVerb)
                             {
-                                String itemKey = match.Groups[0].ToString();
-                                itemKey = itemKey.Replace("{", "").Replace("}", "");
-                                interpolatedString = interpolatedString.Replace(match.Groups[0].ToString(), responseData[itemKey]);
-                            }
-
-                            questionText = interpolatedString;
-                            questionNeedsInterpolation = false;
-
-                        }
-
-                        // bot asks question and gets human response
-                        Console.WriteLine("bot    > " + questionText);
-                        Console.Write("human  > ");
-                        response = Console.ReadLine();
-
-                        // save human response to conversation dat
-                        humanResponseConversationData.Add(response);
-
-                        if (response.Equals("goodbye"))
-                            doneChatting = true;
-
-                        Random randomPhraseNumber = new Random();
-                        string randomPhraseKey = phraseKeyList[randomPhraseNumber.Next(phraseKeyList.Count)];
-                        Console.WriteLine("bot    > " + phraseData[randomPhraseKey]);
-
-                        // originally from chortlejs parsing
-                        string[] responsePieces = response.Split(' ');
-                        List<string> responsePiecesAsPOS = new List<string>();
-
-                        foreach (string word in responsePieces)
-                        {
-                            if (vocabularyData.ContainsKey(word))
-                                responsePiecesAsPOS.Add(vocabularyData[word]);
-                            else
-                                responsePiecesAsPOS.Add("UNKNOWN");
-                        }
-
-                        string responsePOS = string.Join(",", responsePiecesAsPOS);
-
-                        // TODO: find "target verb" from question and use as root verb
-                        
-                        // TODO: "what is _that_?" (clarify)
-                        // TODO: save clarification to previous answer key...
-
-                        if (debugMode)
-                            Console.WriteLine("responsePOS: " + responsePOS);
-
-                        string resultKeyValueDirection = "ltr";
-                        string sentenceBeginning = "";
-                        if (responsePiecesAsPOS.Count >= 2)
-                            sentenceBeginning = responsePiecesAsPOS[0] + "," + responsePiecesAsPOS[1];
-                        int rootVerbPosition = 0;
-
-                        // check for WP/ VBZ/ (e.g. "that is") statements
-
-                        // check for DT,Verb type sentence openings
-                        if (posDetVerbTypes.Contains(sentenceBeginning))
-                        {
-                            rootVerbPosition = 1;
-                            resultKeyValueDirection = "rtl";
-                            if (debugMode)
-                                Console.WriteLine("> switching to RTL for verb key value parsing...");
-                        }
-                        // else this is a "common" verb statement
-                        else
-                        {
-                            // loop through POS and find root VBZ index and value
-                            for (int posIndex = 0; posIndex < responsePiecesAsPOS.Count; posIndex++)
-                            {
-                                if (posVerbTypes.Contains(responsePiecesAsPOS[posIndex]))
+                                if (ChortleSettings.vocabularyData.ContainsKey(responsePieces[userResponseIndex]))
                                 {
-                                    rootVerbPosition = posIndex;
-                                }
-                            }
-                        }
-
-                        // general match with root verb (if verb exists)
-                        Match matchPOS = Regex.Match(responsePOS, @"(.*)VBZ", RegexOptions.IgnoreCase);
-                        if (debugMode)
-                            Console.WriteLine(response);
-                        List<string> generatedKeyList = new List<string>();
-                        List<string> generatedValueList = new List<string>();
-                        List<string> generatedValuePatternList = new List<string>();
-                        if (matchPOS.Success)
-                        {
-                            if (debugMode)
-                                Console.WriteLine("> found match!");
-
-                            bool pastRootVerb = false;
-
-                            // divide up how we learn this data (key:value)
-                            for (int userResponseIndex = 0; userResponseIndex < responsePiecesAsPOS.Count; userResponseIndex++)
-                            {
-                                // if we are past root verb (goes into value)
-                                if (pastRootVerb)
-                                {
-                                    if (vocabularyData.ContainsKey(responsePieces[userResponseIndex]))
+                                    if (resultKeyValueDirection.Equals("ltr"))
                                     {
-                                        if (resultKeyValueDirection.Equals("ltr"))
-                                        {
-                                            generatedValueList.Add(responsePieces[userResponseIndex].ToLower());
-                                            generatedValuePatternList.Add(responsePiecesAsPOS[userResponseIndex]);
-                                        }
-                                        else
-                                        {
-                                            generatedKeyList.Add(responsePieces[userResponseIndex].ToLower());
-                                        }
+                                        generatedValueList.Add(responsePieces[userResponseIndex].ToLower());
+                                        generatedValuePatternList.Add(responsePiecesAsPOS[userResponseIndex]);
                                     }
                                     else
                                     {
-                                        if (resultKeyValueDirection.Equals("ltr"))
-                                        {
-                                            generatedValueList.Add(responsePieces[userResponseIndex].ToLower());
-                                            generatedValuePatternList.Add("UNKNOWN");
-                                        }
-                                        else
-                                        {
-                                            generatedKeyList.Add(responsePieces[userResponseIndex].ToLower());
-                                        }
+                                        generatedKeyList.Add(responsePieces[userResponseIndex].ToLower());
                                     }
                                 }
-                                // if we are in front of or looking at root verb (goes into key)
                                 else
                                 {
                                     if (resultKeyValueDirection.Equals("ltr"))
                                     {
-                                        generatedKeyList.Add(responsePiecesAsPOS[userResponseIndex]);
+                                        generatedValueList.Add(responsePieces[userResponseIndex].ToLower());
+                                        generatedValuePatternList.Add("UNKNOWN");
                                     }
                                     else
                                     {
-                                        if (debugMode)
-                                            Console.WriteLine("right to left verb direction!");
-
-                                        if (!posVerbTypes.Contains(responsePiecesAsPOS[userResponseIndex]))
-                                        {
-                                            generatedValueList.Add(responsePieces[userResponseIndex].ToLower());
-                                            generatedValuePatternList.Add(responsePiecesAsPOS[userResponseIndex]);
-                                        }
+                                        generatedKeyList.Add(responsePieces[userResponseIndex].ToLower());
                                     }
                                 }
-
-                                if (userResponseIndex == rootVerbPosition)
+                            }
+                            // if we are in front of or looking at root verb (goes into key)
+                            else
+                            {
+                                if (resultKeyValueDirection.Equals("ltr"))
                                 {
-                                    if (debugMode)
-                                        Console.WriteLine("found root verb: " + responsePiecesAsPOS[userResponseIndex]);
-                                    pastRootVerb = true;
+                                    generatedKeyList.Add(responsePiecesAsPOS[userResponseIndex]);
+                                }
+                                else
+                                {
+                                    if (ChortleSettings.debugMode)
+                                        Console.WriteLine("right to left verb direction!");
+
+                                    if (!ChortleSettings.posVerbTypes.Contains(responsePiecesAsPOS[userResponseIndex]))
+                                    {
+                                        generatedValueList.Add(responsePieces[userResponseIndex].ToLower());
+                                        generatedValuePatternList.Add(responsePiecesAsPOS[userResponseIndex]);
+                                    }
                                 }
                             }
 
-                            if (debugMode)
+                            if (userResponseIndex == rootVerbPosition)
                             {
-                                Console.WriteLine("generated key/value lists joined individually");
-                                Console.WriteLine("generated key list: " + string.Join(",", generatedKeyList));
-                                Console.WriteLine("generated value list: " + string.Join(",", generatedValueList));
-                                Console.WriteLine("generated value pattern list: " + string.Join(",", generatedValuePatternList));
+                                if (ChortleSettings.debugMode)
+                                    Console.WriteLine("found root verb: " + responsePiecesAsPOS[userResponseIndex]);
+                                pastRootVerb = true;
                             }
                         }
-                        else
+
+                        if (ChortleSettings.debugMode)
                         {
-                            // check for just answers (no verb necessarily)
-                            matchPOS = Regex.Match(responsePOS, @"(.*)", RegexOptions.IgnoreCase);
-                            if (matchPOS.Success)
+                            Console.WriteLine("generated key/value lists joined individually");
+                            Console.WriteLine("generated key list: " + string.Join(",", generatedKeyList));
+                            Console.WriteLine("generated value list: " + string.Join(",", generatedValueList));
+                            Console.WriteLine("generated value pattern list: " + string.Join(",", generatedValuePatternList));
+                        }
+                    }
+                    else
+                    {
+                        // check for just answers (no verb necessarily)
+                        matchPOS = Regex.Match(responsePOS, @"(.*)", RegexOptions.IgnoreCase);
+                        if (matchPOS.Success)
+                        {
+                            for (int userResponseIndex = 0; userResponseIndex < responsePiecesAsPOS.Count; userResponseIndex++)
                             {
-                                for (int userResponseIndex = 0; userResponseIndex < responsePiecesAsPOS.Count; userResponseIndex++)
-                                {
-                                    generatedValueList.Add(responsePieces[userResponseIndex].ToLower());
-                                }
+                                generatedValueList.Add(responsePieces[userResponseIndex].ToLower());
                             }
                         }
-
-
-                        if (debugMode)
-                            Console.WriteLine(">>> result: " + string.Join(" ", generatedValueList));
-
-                        // save response data to dictionary
-                        responseData[randomKey] = string.Join(" ", generatedValueList);
-                        numBotQuestionsAsked++;
                     }
+
+
+                    if (ChortleSettings.debugMode)
+                        Console.WriteLine(">>> result: " + string.Join(" ", generatedValueList));
+
+                    // save response data to dictionary
+                    ChortleSettings.responseData[randomKey] = string.Join(" ", generatedValueList);
+                    //numBotQuestionsAsked++;
+                    success = true;
+                }
+            }
+            return success;
+        }
+
+        public static void chatMode()
+        {
+            // TODO: connected learned phrases (teacher to bot) to this...
+
+            // init phraseData
+            // this data represents what phrases the chatbot has previously "learned" from a teacher
+            ChortleSettings.phraseData.Add("response", "I see");
+
+            bool doneChatting = false;
+            List<string> questionKeyList = new List<string>(ChortleSettings.questionData.Keys);
+            List<string> phraseKeyList = new List<string>(ChortleSettings.phraseData.Keys);
+
+            int numBotQuestionsAsked = 0;
+            int numTotalBotQuestions = questionKeyList.Count;            
+            
+            // bot states:
+            // 0 = do nothing
+            // 1 = ask
+            // 2 = respond
+            // 3 = follow-up
+            int botState = 1;
+
+            while (!doneChatting && (numBotQuestionsAsked < numTotalBotQuestions))
+            {
+                switch (botState)
+                {
+                    // bot ask
+                    case 1:
+                        if (botAsk())
+                        {
+                            numBotQuestionsAsked++;
+                        }
+                        break;
                 }
             }
 
             // print out human response conversation data
-            if (debugMode)
+            if (ChortleSettings.debugMode)
             {
                 Console.WriteLine("\n\nhuman response conversation data:");
-                foreach (var line in humanResponseConversationData)
+                foreach (var line in ChortleSettings.humanResponseConversationData)
                 {
                     Console.WriteLine("{0}", line);
                 }
             }
 
             // print out learned values
-            if (debugMode)
+            if (ChortleSettings.debugMode)
             {
                 Console.WriteLine("\n\nlearned information:");
-                foreach (var key in responseData.Keys)
+                foreach (var key in ChortleSettings.responseData.Keys)
                 {
-                    Console.WriteLine("{0} - {1}", key, responseData[key]);
+                    Console.WriteLine("{0} - {1}", key, ChortleSettings.responseData[key]);
                 }
             }
         }
@@ -313,11 +347,6 @@ namespace chortle
             String teacherResponse;
             String teacherDecision;
             String botResponse;
-
-            const double maxWeight      = 1.0;
-            const double midWeight      = 0.5;
-            const double minWeight      = 0.0;
-            const double incDecWeight   = 0.1;
 
             bool debugMode = true;
 
@@ -418,14 +447,14 @@ namespace chortle
                             Console.WriteLine("> checking weight response..." + weight + " / " + keyItem);
 
                         // if weight is high enough, return found response as bot response
-                        if (Convert.ToDouble(weight) >= (midWeight+incDecWeight) && checkForBest)
+                        if (Convert.ToDouble(weight) >= (ChortleSettings.midWeight + ChortleSettings.incDecWeight) && checkForBest)
                         {
                             if (debugMode)
                                 Console.WriteLine("> found a good weight response");
                             botResponse = keyItem;
                             break;
                         }
-                        else if (Convert.ToDouble(weight) >= midWeight && Convert.ToDouble(weight) < maxWeight)
+                        else if (Convert.ToDouble(weight) >= ChortleSettings.midWeight && Convert.ToDouble(weight) < ChortleSettings.maxWeight)
                         {
                             if (checkForBest)
                             {
@@ -557,7 +586,7 @@ namespace chortle
                                             Console.WriteLine("> checking weight response..." + weight + " / " + botLearnedResponses[shorterKey][keyItem]);
 
                                         // if weight is high enough, return found response as bot response
-                                        if (Convert.ToDouble(weight) >= (midWeight+incDecWeight) && checkForBest)
+                                        if (Convert.ToDouble(weight) >= (ChortleSettings.midWeight + ChortleSettings.incDecWeight) && checkForBest)
                                         {
                                             if (debugMode)
                                                 Console.WriteLine("> found a good weight response");
@@ -566,7 +595,7 @@ namespace chortle
                                             foundAResponse = true;
                                             break;
                                         }
-                                        else if (Convert.ToDouble(weight) >= midWeight && Convert.ToDouble(weight) < maxWeight)
+                                        else if (Convert.ToDouble(weight) >= ChortleSettings.midWeight && Convert.ToDouble(weight) < ChortleSettings.maxWeight)
                                         {
                                             if (debugMode)
                                                 Console.WriteLine("> checking an 'okay' response");
@@ -659,14 +688,14 @@ namespace chortle
                                             Console.WriteLine("> checking weight response..." + weight + " / " + keyItem);
 
                                         // if weight is high enough, return found response as bot response
-                                        if (Convert.ToDouble(weight) >= (midWeight+incDecWeight) && checkForBest)
+                                        if (Convert.ToDouble(weight) >= (ChortleSettings.midWeight + ChortleSettings.incDecWeight) && checkForBest)
                                         {
                                             if (debugMode)
                                                 Console.WriteLine("> found a good weight response");
                                             botResponse = keyItem;
                                             break;
                                         }
-                                        else if (Convert.ToDouble(weight) >= midWeight && Convert.ToDouble(weight) < maxWeight)
+                                        else if (Convert.ToDouble(weight) >= ChortleSettings.midWeight && Convert.ToDouble(weight) < ChortleSettings.maxWeight)
                                         {
                                             if (checkForBest)
                                             {
@@ -795,14 +824,14 @@ namespace chortle
                         if (!foundResponseInValuesList)
                         {
                             // ensure that weight values are not above or below limits (minWeight and maxWeight)
-                            if ((midWeight + teacherDecisionValue) > maxWeight)
-                                teacherDecisionValue = maxWeight;
-                            else if ((midWeight + teacherDecisionValue) < minWeight)
-                                teacherDecisionValue = minWeight;
+                            if ((ChortleSettings.midWeight + teacherDecisionValue) > ChortleSettings.maxWeight)
+                                teacherDecisionValue = ChortleSettings.maxWeight;
+                            else if ((ChortleSettings.midWeight + teacherDecisionValue) < ChortleSettings.minWeight)
+                                teacherDecisionValue = ChortleSettings.minWeight;
 
                             if (debugMode)
                                 Console.WriteLine("> adding response to learned key ...");
-                            botLearnedResponses[teacherResponse].Add(botResponse, (midWeight + teacherDecisionValue));
+                            botLearnedResponses[teacherResponse].Add(botResponse, (ChortleSettings.midWeight + teacherDecisionValue));
                         }
                     }
                     else
@@ -818,13 +847,13 @@ namespace chortle
                         Console.WriteLine("> adding new bot response key: " + botResponse);
 
                     // ensure that weight values are not above or below limits (minWeight and maxWeight)
-                    if ((midWeight + teacherDecisionValue) > maxWeight)
-                        teacherDecisionValue = maxWeight;
-                    else if ((midWeight + teacherDecisionValue) < minWeight)
-                        teacherDecisionValue = minWeight;
+                    if ((ChortleSettings.midWeight + teacherDecisionValue) > ChortleSettings.maxWeight)
+                        teacherDecisionValue = ChortleSettings.maxWeight;
+                    else if ((ChortleSettings.midWeight + teacherDecisionValue) < ChortleSettings.minWeight)
+                        teacherDecisionValue = ChortleSettings.minWeight;
 
                     botLearnedResponses[teacherResponse] = new Dictionary<string, double> {
-                        {botResponse, (midWeight + teacherDecisionValue)}
+                        {botResponse, (ChortleSettings.midWeight + teacherDecisionValue)}
                     };
                     firstTimeForThisTopic = false;
                 }
@@ -846,7 +875,7 @@ namespace chortle
         public static void Main(string[] args)
         {
             //teacherMode();
-            botAsk();
+            chatMode();
 
             Console.ReadLine();
         }
