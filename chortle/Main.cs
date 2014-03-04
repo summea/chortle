@@ -13,6 +13,10 @@ namespace chortle
     {
         public static void botAsk()
         {
+            bool debugMode = true;
+
+            List<string> humanResponseConversationData = new List<string>();
+
             Dictionary<string, string> phraseData = new Dictionary<string, string>();
 
             // init dictionary data
@@ -31,6 +35,7 @@ namespace chortle
             phraseData.Add("response", "I see");
 
             string[] posVerbTypes = new string[] { "VB", "VBD", "VBG", "VBN", "VBP", "VBZ" };
+            string[] posDetVerbTypes = new string[] { "DT,VB", "DT,VBD", "DT,VBG", "DT,VBN", "DT,VBP", "DT,VBZ" };
 
             string response;
             bool firstTime = true;
@@ -112,6 +117,9 @@ namespace chortle
                         Console.Write("human  > ");
                         response = Console.ReadLine();
 
+                        // save human response to conversation dat
+                        humanResponseConversationData.Add(response);
+
                         if (response.Equals("goodbye"))
                             doneChatting = true;
 
@@ -133,68 +141,123 @@ namespace chortle
 
                         string responsePOS = string.Join(",", responsePiecesAsPOS);
 
-                        // TODO: match actual last/final verb
+                        // TODO: find "target verb" from question and use as root verb
+                        
+                        // TODO: "what is _that_?" (clarify)
+                        // TODO: save clarification to previous answer key...
 
-                        Console.WriteLine("responsePOS: " + responsePOS);
+                        if (debugMode)
+                            Console.WriteLine("responsePOS: " + responsePOS);
 
-                        int finalVerbPosition = 0;
+                        string resultKeyValueDirection = "ltr";
+                        string sentenceBeginning = "";
+                        if (responsePiecesAsPOS.Count >= 2)
+                            sentenceBeginning = responsePiecesAsPOS[0] + "," + responsePiecesAsPOS[1];
+                        int rootVerbPosition = 0;
 
-                        // loop through POS and find last VBZ index and value
-                        for (int posIndex = 0; posIndex < responsePiecesAsPOS.Count; posIndex++)
+                        // check for WP/ VBZ/ (e.g. "that is") statements
+
+                        // check for DT,Verb type sentence openings
+                        if (posDetVerbTypes.Contains(sentenceBeginning))
                         {
-                            if (posVerbTypes.Contains(responsePiecesAsPOS[posIndex]))
+                            rootVerbPosition = 1;
+                            resultKeyValueDirection = "rtl";
+                            if (debugMode)
+                                Console.WriteLine("> switching to RTL for verb key value parsing...");
+                        }
+                        // else this is a "common" verb statement
+                        else
+                        {
+                            // loop through POS and find root VBZ index and value
+                            for (int posIndex = 0; posIndex < responsePiecesAsPOS.Count; posIndex++)
                             {
-                                finalVerbPosition = posIndex;
+                                if (posVerbTypes.Contains(responsePiecesAsPOS[posIndex]))
+                                {
+                                    rootVerbPosition = posIndex;
+                                }
                             }
                         }
 
-                        // general match with final verb at end (if verb exists)
+                        // general match with root verb (if verb exists)
                         Match matchPOS = Regex.Match(responsePOS, @"(.*)VBZ", RegexOptions.IgnoreCase);
-                        Console.WriteLine(response);
+                        if (debugMode)
+                            Console.WriteLine(response);
                         List<string> generatedKeyList = new List<string>();
                         List<string> generatedValueList = new List<string>();
                         List<string> generatedValuePatternList = new List<string>();
                         if (matchPOS.Success)
                         {
-                            Console.WriteLine("> found match!");
+                            if (debugMode)
+                                Console.WriteLine("> found match!");
 
-                            bool pastFinalVerb = false;
+                            bool pastRootVerb = false;
 
                             // divide up how we learn this data (key:value)
                             for (int userResponseIndex = 0; userResponseIndex < responsePiecesAsPOS.Count; userResponseIndex++)
                             {
-                                // if after final verb (goes into value)
-                                if (pastFinalVerb)
+                                // if we are past root verb (goes into value)
+                                if (pastRootVerb)
                                 {
                                     if (vocabularyData.ContainsKey(responsePieces[userResponseIndex]))
                                     {
-                                        generatedValueList.Add(responsePieces[userResponseIndex].ToLower());
-                                        generatedValuePatternList.Add(responsePiecesAsPOS[userResponseIndex]);
+                                        if (resultKeyValueDirection.Equals("ltr"))
+                                        {
+                                            generatedValueList.Add(responsePieces[userResponseIndex].ToLower());
+                                            generatedValuePatternList.Add(responsePiecesAsPOS[userResponseIndex]);
+                                        }
+                                        else
+                                        {
+                                            generatedKeyList.Add(responsePieces[userResponseIndex].ToLower());
+                                        }
                                     }
                                     else
                                     {
-                                        generatedValueList.Add(responsePieces[userResponseIndex].ToLower());
-                                        generatedValuePatternList.Add("UNKNOWN");
+                                        if (resultKeyValueDirection.Equals("ltr"))
+                                        {
+                                            generatedValueList.Add(responsePieces[userResponseIndex].ToLower());
+                                            generatedValuePatternList.Add("UNKNOWN");
+                                        }
+                                        else
+                                        {
+                                            generatedKeyList.Add(responsePieces[userResponseIndex].ToLower());
+                                        }
                                     }
                                 }
-                                // if before or equal to final verb (goes into key)
+                                // if we are in front of or looking at root verb (goes into key)
                                 else
                                 {
-                                    generatedKeyList.Add(responsePiecesAsPOS[userResponseIndex]);
+                                    if (resultKeyValueDirection.Equals("ltr"))
+                                    {
+                                        generatedKeyList.Add(responsePiecesAsPOS[userResponseIndex]);
+                                    }
+                                    else
+                                    {
+                                        if (debugMode)
+                                            Console.WriteLine("right to left verb direction!");
+
+                                        if (!posVerbTypes.Contains(responsePiecesAsPOS[userResponseIndex]))
+                                        {
+                                            generatedValueList.Add(responsePieces[userResponseIndex].ToLower());
+                                            generatedValuePatternList.Add(responsePiecesAsPOS[userResponseIndex]);
+                                        }
+                                    }
                                 }
 
-                                if (userResponseIndex == finalVerbPosition)
+                                if (userResponseIndex == rootVerbPosition)
                                 {
-                                    // TODO: check for actual final (last in order) verb
-                                    Console.WriteLine("found final verb: " + responsePiecesAsPOS[userResponseIndex]);
-                                    pastFinalVerb = true;
+                                    if (debugMode)
+                                        Console.WriteLine("found root verb: " + responsePiecesAsPOS[userResponseIndex]);
+                                    pastRootVerb = true;
                                 }
                             }
-                            
-                            Console.WriteLine("generated key/value lists joined individually");
-                            Console.WriteLine(string.Join(",", generatedKeyList));
-                            Console.WriteLine(string.Join(",", generatedValueList));
-                            Console.WriteLine(string.Join(",", generatedValuePatternList));
+
+                            if (debugMode)
+                            {
+                                Console.WriteLine("generated key/value lists joined individually");
+                                Console.WriteLine("generated key list: " + string.Join(",", generatedKeyList));
+                                Console.WriteLine("generated value list: " + string.Join(",", generatedValueList));
+                                Console.WriteLine("generated value pattern list: " + string.Join(",", generatedValuePatternList));
+                            }
                         }
                         else
                         {
@@ -210,8 +273,9 @@ namespace chortle
                         }
 
 
+                        if (debugMode)
+                            Console.WriteLine(">>> result: " + string.Join(" ", generatedValueList));
 
-                        Console.WriteLine(">>> result: " + string.Join(" ", generatedValueList));
                         // save response data to dictionary
                         responseData[randomKey] = string.Join(" ", generatedValueList);
                         numBotQuestionsAsked++;
@@ -219,12 +283,24 @@ namespace chortle
                 }
             }
 
+            // print out human response conversation data
+            if (debugMode)
+            {
+                Console.WriteLine("\n\nhuman response conversation data:");
+                foreach (var line in humanResponseConversationData)
+                {
+                    Console.WriteLine("{0}", line);
+                }
+            }
 
             // print out learned values
-            Console.WriteLine("\n\nlearned information:");
-            foreach (var key in responseData.Keys)
+            if (debugMode)
             {
-                Console.WriteLine("{0} - {1}", key, responseData[key]);
+                Console.WriteLine("\n\nlearned information:");
+                foreach (var key in responseData.Keys)
+                {
+                    Console.WriteLine("{0} - {1}", key, responseData[key]);
+                }
             }
         }
 
