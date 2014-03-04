@@ -3,8 +3,65 @@ chortle
 
 a really simple chat bot
 
-Teacher Example Output:
------------------------
+## Learning Example Output:
+
+    bot    > What is your name?
+    human  > my name is andy bean
+    bot    > I see
+    my name is andy bean
+    found final verb
+    generated key/value lists joined individually
+    PRP,UNKNOWN,VBZ
+    andy,bean
+    UNKNOWN,UNKNOWN
+    >>> result: andy bean
+    bot    > What is your favorite food?
+    human  > green jelly
+    bot    > I see
+    green jelly
+    >>> result: green jelly
+    bot    > What is your favorite color?
+    human  > red ruby
+    bot    > I see
+    red ruby
+    >>> result: red ruby
+    bot    > Do you like red ruby green jelly?
+    human  > yes
+    bot    > I see
+    yes
+    >>> result: yes
+
+
+    learned information:
+    your name - andy bean
+    your favorite color - red ruby
+    your favorite food - green jelly
+    you like {{your favorite color}} {{your favorite food}} - yes
+
+
+    
+## Learning Example Output (final verb check)
+
+    bot    > what is the way to go? (multiple verb test)
+    human  > my way to go is over there
+    bot    > I see
+    responsePOS: PRP,UNKNOWN,UNKNOWN,VBZ,VBZ,UNKNOWN,UNKNOWN
+    my way to go is over there
+    > found match!
+    found final verb: VBZ
+    generated key/value lists joined individually
+    PRP,UNKNOWN,UNKNOWN,VBZ,VBZ
+    over,there
+    UNKNOWN,UNKNOWN
+    >>> result: over there
+
+
+    learned information:
+    way to go - over there
+
+    
+
+## Teacher Example Output:
 
     teacher  > hello
     bot      > See ya!
@@ -60,8 +117,7 @@ Teacher Example Output:
 
 
       
-Teacher Example Output (debug mode):
-------------------------------------
+## Teacher Example Output (debug mode):
 
     teacher  > hello there
     > finding response...
@@ -182,63 +238,3 @@ Teacher Example Output (debug mode):
       [Hmm?, 0.4]
       [Nice to meet you!, 0.4]
       [Oh, hey there!, 0.6]
-
-      
-
-Learning Example Output:
-------------------------
-
-    bot    > What is your name?
-    human  > my name is andy bean
-    bot    > I see
-    my name is andy bean
-    found final verb
-    generated key/value lists joined individually
-    PRP,UNKNOWN,VBZ
-    andy,bean
-    UNKNOWN,UNKNOWN
-    >>> result: andy bean
-    bot    > What is your favorite food?
-    human  > green jelly
-    bot    > I see
-    green jelly
-    >>> result: green jelly
-    bot    > What is your favorite color?
-    human  > red ruby
-    bot    > I see
-    red ruby
-    >>> result: red ruby
-    bot    > Do you like red ruby green jelly?
-    human  > yes
-    bot    > I see
-    yes
-    >>> result: yes
-
-
-    learned information:
-    your name - andy bean
-    your favorite color - red ruby
-    your favorite food - green jelly
-    you like {{your favorite color}} {{your favorite food}} - yes
-
-
-    
-Learning Example Output (final verb check)
-------------------------------------------
-
-    bot    > what is the way to go? (multiple verb test)
-    human  > my way to go is over there
-    bot    > I see
-    responsePOS: PRP,UNKNOWN,UNKNOWN,VBZ,VBZ,UNKNOWN,UNKNOWN
-    my way to go is over there
-    > found match!
-    found final verb: VBZ
-    generated key/value lists joined individually
-    PRP,UNKNOWN,UNKNOWN,VBZ,VBZ
-    over,there
-    UNKNOWN,UNKNOWN
-    >>> result: over there
-
-
-    learned information:
-    way to go - over there

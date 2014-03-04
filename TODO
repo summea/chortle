@@ -2,8 +2,11 @@ TODO
 ====
 - teacher: ultimately, try mixing learned responses and get teacher feedback
 - teacher: go back to possible response list more often and get new response possibility if available (especially if the response is a 1)?
-- botAsk: find actual final verb in POS parsing
+- break up main.cs into classes
+  - create some sort of pooled dictionary location (learned responses + questions)
 
+
++ botAsk: find actual final verb in POS parsing
 + botAsk: bring over parser from chortlejs to match parts of speech (POS)
 + teacher: instead of having yes/maybe/no, what about having just yes/no (and increment/decrement accordingly until 0 or 1)?
 + updated question process:

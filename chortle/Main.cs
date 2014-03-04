@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Linq;
+using System.IO;
+using Newtonsoft.Json;
 
 namespace chortle
 {
@@ -11,54 +13,18 @@ namespace chortle
     {
         public static void botAsk()
         {
-            Dictionary<string, string> questionData = new Dictionary<string, string>();
-            Dictionary<string, string> responseData = new Dictionary<string, string>();
-            Dictionary<string, string> vocabularyData = new Dictionary<string, string>();
             Dictionary<string, string> phraseData = new Dictionary<string, string>();
 
-            // init questionData
-            // this data represents what questions the chatbot has previously "learned" how to ask from a teacher
-            questionData.Add("your name", "What is your name?");
-            questionData.Add("way to go", "what is the way to go? (multiple verb test)");
-            questionData.Add("your favorite color", "What is your favorite color?");
-            questionData.Add("your favorite food", "What is your favorite food?");
-            questionData.Add("you like {{your favorite color}} {{your favorite food}}", "Do you like {{your favorite color}} {{your favorite food}}?");
+            // init dictionary data
+            string questionDataSrc = File.ReadAllText("../../Data/bot-questions.json");
+            string responseDataSrc = File.ReadAllText("../../Data/bot-responses.json");
+            string vocabularyDataSrc = File.ReadAllText("../../Data/vocabulary.json");
 
-            // init responseData
-            // the keys in this data represent concepts that the chatbot has previously "learned" from a teacher
-            responseData.Add("your name", "");
-            responseData.Add("way to go", "");
-            responseData.Add("your favorite color", "");
-            responseData.Add("your favorite food", "");
-            responseData.Add("you like {{your favorite color}} {{your favorite food}}", "");
+            Dictionary<string, string> questionData = JsonConvert.DeserializeObject<Dictionary<string, string>>(questionDataSrc);
+            Dictionary<string, string> responseData = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseDataSrc);
+            Dictionary<string, string> vocabularyData = JsonConvert.DeserializeObject<Dictionary<string, string>>(vocabularyDataSrc);
 
-            // init vocabularyData
-            // this data represents what vocabulary the chatbot has previously "learned" from a teacher
-            vocabularyData.Add("yes", "UH");
-            vocabularyData.Add("no", "DT");
-
-            vocabularyData.Add("i", "PRP");
-            vocabularyData.Add("you", "PRP");
-            vocabularyData.Add("he", "PRP");
-            vocabularyData.Add("she", "PRP");
-            vocabularyData.Add("it", "PRP");
-            vocabularyData.Add("we", "PRP");
-            vocabularyData.Add("they", "PRP");
-            vocabularyData.Add("me", "PRP");
-            vocabularyData.Add("him", "PRP");
-            vocabularyData.Add("her", "PRP");
-            vocabularyData.Add("us", "PRP");
-            vocabularyData.Add("them", "PRP");
-            vocabularyData.Add("my", "PRP");
-            vocabularyData.Add("your", "PRP");
- 
-            vocabularyData.Add("because", "IN");
-  
-            vocabularyData.Add("eat", "VBP");
-            vocabularyData.Add("eats", "VBZ");
-            vocabularyData.Add("go", "VB");
-            vocabularyData.Add("is", "VBZ");
-            vocabularyData.Add("like", "VBP");
+            // TODO: connected learned phrases (teacher to bot) to this...
 
             // init phraseData
             // this data represents what phrases the chatbot has previously "learned" from a teacher
