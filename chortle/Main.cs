@@ -19,23 +19,29 @@ namespace chortle
             public static List<string> humanResponseConversationData = new List<string>();
 
             // init dictionary data
-            private static string questionDataSrc = File.ReadAllText("../../Data/bot-questions.json");
-            private static string responseDataSrc = File.ReadAllText("../../Data/bot-responses.json");
+            private static string questionDataSrc   = File.ReadAllText("../../Data/bot-questions.json");
+            private static string responseDataSrc   = File.ReadAllText("../../Data/bot-responses.json");
             private static string vocabularyDataSrc = File.ReadAllText("../../Data/vocabulary.json");
 
-            public static Dictionary<string, string> questionData = JsonConvert.DeserializeObject<Dictionary<string, string>>(questionDataSrc);
-            public static Dictionary<string, string> responseData = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseDataSrc);
+            public static Dictionary<string, string> questionData   = JsonConvert.DeserializeObject<Dictionary<string, string>>(questionDataSrc);
+            public static Dictionary<string, string> responseData   = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseDataSrc);
             public static Dictionary<string, string> vocabularyData = JsonConvert.DeserializeObject<Dictionary<string, string>>(vocabularyDataSrc);
-            public static Dictionary<string, string> phraseData = new Dictionary<string, string>();
+            public static Dictionary<string, string> phraseData     = new Dictionary<string, string>();
 
-            public static string[] posVerbTypes = new string[] { "VB", "VBD", "VBG", "VBN", "VBP", "VBZ" };
-            public static string[] posDetVerbTypes = new string[] { "DT,VB", "DT,VBD", "DT,VBG", "DT,VBN", "DT,VBP", "DT,VBZ" };
+            public static string[] posVerbTypes     = new string[] { "VB", "VBD", "VBG", "VBN", "VBP", "VBZ" };
+            public static string[] posDetVerbTypes  = new string[] { "DT,VB", "DT,VBD", "DT,VBG", "DT,VBN", "DT,VBP", "DT,VBZ" };
 
             // teacher decision weights
-            public const double maxWeight = 1.0;
-            public const double midWeight = 0.5;
-            public const double minWeight = 0.0;
-            public const double incDecWeight = 0.1;
+            public const double maxWeight       = 1.0;
+            public const double midWeight       = 0.5;
+            public const double minWeight       = 0.0;
+            public const double incDecWeight    = 0.1;
+
+            // bot states
+            public const int BOT_NOP        = 0;
+            public const int BOT_ASK        = 1;
+            public const int BOT_RESPOND    = 2;
+            public const int BOT_FOLLOW_UP  = 3;
         }
 
         public static bool botAsk()
@@ -139,7 +145,7 @@ namespace chortle
 
                     // TODO: find "target verb" from question and use as root verb
 
-                    // TODO: "what is _that_?" (clarify)
+                    // TODO: "what is _that_?" (clarify... FOLLOW_UP state)
                     // TODO: save clarification to previous answer key...
 
                     if (ChortleSettings.debugMode)
@@ -147,13 +153,28 @@ namespace chortle
 
                     string resultKeyValueDirection = "ltr";
                     string sentenceBeginning = "";
-                    if (responsePiecesAsPOS.Count >= 2)
-                        sentenceBeginning = responsePiecesAsPOS[0] + "," + responsePiecesAsPOS[1];
+                    
                     int rootVerbPosition = 0;
 
-                    // check for WP/ VBZ/ (e.g. "that is") statements
+                    // TODO: be able to catch: that *** is ... 
+                    Match matchDT_X_VB = Regex.Match(responsePOS, @"DT(.*)VBZ", RegexOptions.IgnoreCase);
+                    if (matchDT_X_VB.Success)
+                    {
+                        if (ChortleSettings.debugMode)
+                            Console.WriteLine("> found DT_X_VB!");
+                        // split match and find root verb (last verb in match)
+                        string matchedPOSString = matchDT_X_VB.Groups[0].ToString();
+                        string[] matchedPOSItems = matchedPOSString.Split(',');
 
+                        rootVerbPosition = matchedPOSItems.Length - 1;
+                        resultKeyValueDirection = "rtl";
+                    }
+
+                    // check for WP/ VBZ/ (e.g. "that is") statements
                     // check for DT,Verb type sentence openings
+                    if (responsePiecesAsPOS.Count >= 2)
+                        sentenceBeginning = responsePiecesAsPOS[0] + "," + responsePiecesAsPOS[1];
+
                     if (ChortleSettings.posDetVerbTypes.Contains(sentenceBeginning))
                     {
                         rootVerbPosition = 1;
@@ -297,11 +318,7 @@ namespace chortle
             int numTotalBotQuestions = questionKeyList.Count;            
             
             // bot states:
-            // 0 = do nothing
-            // 1 = ask
-            // 2 = respond
-            // 3 = follow-up
-            int botState = 1;
+            int botState = ChortleSettings.BOT_ASK;
 
             while (!doneChatting && (numBotQuestionsAsked < numTotalBotQuestions))
             {

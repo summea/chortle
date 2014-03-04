@@ -3,7 +3,7 @@ chortle
 
 a really simple chat bot
 
-## Learning Example Output:
+### Learning Example Output:
 
     bot    > What is your name?
     human  > my name is andy bean
@@ -40,7 +40,7 @@ a really simple chat bot
 
 
     
-## Learning Example Output (final verb check)
+### Learning Example Output (final verb check)
 
     bot    > what is the way to go? (multiple verb test)
     human  > my way to go is over there
@@ -60,8 +60,43 @@ a really simple chat bot
     way to go - over there
 
     
+    
+### Learning Example Output (DT_X_VB check)
+    bot    > What is your name?
+    human  > a
+    bot    > I see
+    responsePOS: UNKNOWN
+    a
+    >>> result: a
+    bot    > What is the way to go? (multiple verb test)
+    human  > that way is the way
+    bot    > I see
+    responsePOS: DT,UNKNOWN,VBZ,DT,UNKNOWN
+    > found DT_X_VB!
+    that way is the way
+    > found match!
+    right to left verb direction!
+    right to left verb direction!
+    right to left verb direction!
+    found root verb: VBZ
+    generated key/value lists joined individually
+    generated key list: the,way
+    generated value list: that,way
+    generated value pattern list: DT,UNKNOWN
+    >>> result: that way
 
-## Teacher Example Output:
+
+    human response conversation data:
+    a
+    that way is the way
+
+
+    learned information:
+    your name - a
+    way to go - that way
+
+
+### Teacher Example Output:
 
     teacher  > hello
     bot      > See ya!
@@ -117,7 +152,7 @@ a really simple chat bot
 
 
       
-## Teacher Example Output (debug mode):
+### Teacher Example Output (debug mode):
 
     teacher  > hello there
     > finding response...
