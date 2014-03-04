@@ -3,15 +3,14 @@ TODO
 - teacher: ultimately, try mixing learned responses and get teacher feedback
 - teacher: go back to possible response list more often and get new response possibility if available (especially if the response is a 1)?
 - break up main.cs into smaller functions
-- bot state behavior
-  - ask
   - respond
     - using previously-taught expressions (try to find closest-matching key...)
 
     
 Done
 ====
-+ follow-up (repeat question until satisfactory answer is provided)
++ convert learnedResponses (taught responses) to json
++ botFollowUp: follow-up (repeat question until satisfactory answer is provided)
 + catch multiple words before "is" (verb) in this example: "that way is the way"
 + grouped settings under ChortleSettings class
 + create some sort of pooled dictionary location (learned responses + questions)
