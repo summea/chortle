@@ -157,7 +157,7 @@ namespace chortle
                     int rootVerbPosition = 0;
 
                     // TODO: be able to catch: that *** is ... 
-                    Match matchDT_X_VB = Regex.Match(responsePOS, @"DT(.*)VBZ", RegexOptions.IgnoreCase);
+                    Match matchDT_X_VB = Regex.Match(responsePOS, @"DT(.*)VB*", RegexOptions.IgnoreCase);
                     if (matchDT_X_VB.Success)
                     {
                         if (ChortleSettings.debugMode)
@@ -170,7 +170,7 @@ namespace chortle
                         resultKeyValueDirection = "rtl";
                     }
 
-                    // check for WP/ VBZ/ (e.g. "that is") statements
+                    // check for WP/ VB*/ (e.g. "that is") statements
                     // check for DT,Verb type sentence openings
                     if (responsePiecesAsPOS.Count >= 2)
                         sentenceBeginning = responsePiecesAsPOS[0] + "," + responsePiecesAsPOS[1];
@@ -185,7 +185,7 @@ namespace chortle
                     // else this is a "common" verb statement
                     else
                     {
-                        // loop through POS and find root VBZ index and value
+                        // loop through POS and find root VB* index and value
                         for (int posIndex = 0; posIndex < responsePiecesAsPOS.Count; posIndex++)
                         {
                             if (ChortleSettings.posVerbTypes.Contains(responsePiecesAsPOS[posIndex]))
@@ -196,7 +196,7 @@ namespace chortle
                     }
 
                     // general match with root verb (if verb exists)
-                    Match matchPOS = Regex.Match(responsePOS, @"(.*)VBZ", RegexOptions.IgnoreCase);
+                    Match matchPOS = Regex.Match(responsePOS, @"(.*)VB*", RegexOptions.IgnoreCase);
                     if (ChortleSettings.debugMode)
                         Console.WriteLine(response);
                     List<string> generatedKeyList = new List<string>();
