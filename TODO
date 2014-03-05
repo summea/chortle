@@ -1,14 +1,18 @@
 TODO
 ====
 - teacher: ultimately, try mixing learned responses and get teacher feedback
+- teacher: merge patterns from previous work into the new teacher project so that bot can start to build phrase keys like: learned["NN ..."] instead of a hard coded phrase
 - teacher: go back to possible response list more often and get new response possibility if available (especially if the response is a 1)?
-- break up main.cs into smaller functions
-  - respond
-    - using previously-taught expressions (try to find closest-matching key...)
+- fix: "the way to go is over there" (this is finding "go" before "is"... maybe time to go back to target verb idea... take verb from question and match?)
+- support for: "it's" and "that's" (it is, that is)
 
-    
+
 Done
 ====
++ teacher: save teacher mode data back to taught-responses json
++ added bot respond state: using previously-taught expressions (try to find closest-matching key...)
++ break up main.cs into smaller functions
++ menu for chatMode/teacherMode
 + convert learnedResponses (taught responses) to json
 + botFollowUp: follow-up (repeat question until satisfactory answer is provided)
 + catch multiple words before "is" (verb) in this example: "that way is the way"

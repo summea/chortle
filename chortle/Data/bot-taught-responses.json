@@ -1,11 +1,12 @@
 {
   "*": {
+    "Ah, I see.": 0.5,
     "What do you mean?": 0.5,
     "Hmm?": 0.5
   },
   "hello": {
     "Oh, hey there!": 0.5,
-    "Lovely day, isn't it?": 0.5,
+    "Lovely day, isn't it?": 0.7,
     "Be seeing you!": 0.5,
     "See ya!": 0.5,
     "Nice to meet you!": 0.5
@@ -13,7 +14,7 @@
   "goodbye": {
     "Oh, hey there!": 0.5,
     "Lovely day, isn't it?": 0.5,
-    "Be seeing you!": 0.5,
+    "Be seeing you!": 0.6,
     "See ya!": 0.5,
     "Nice to meet you!": 0.5
   },
@@ -34,8 +35,8 @@
   },
   "thanks": {
     "You are welcome!": 0.5,
-    "Don't mention it.": 0.5,
+    "Don't mention it.": 0.6,
     "No problem.": 0.5,
-    "It's okay": 0.5
+    "It's okay": 0.4
   }
 }
