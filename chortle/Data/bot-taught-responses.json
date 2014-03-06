@@ -1,12 +1,12 @@
 {
   "*": {
-    "Ah, I see.": 0.5,
     "What do you mean?": 0.5,
-    "Hmm?": 0.5
+    "Hmm?": 0.5,
+    "Ah, I see.": 0.5
   },
   "hello": {
     "Oh, hey there!": 0.5,
-    "Lovely day, isn't it?": 0.7,
+    "Lovely day, isn't it?": 0.8,
     "Be seeing you!": 0.5,
     "See ya!": 0.5,
     "Nice to meet you!": 0.5
@@ -26,7 +26,7 @@
     "Yes, I suppose you must be.": 0.5,
     "Wow! That sounds exciting.": 0.5
   },
-  "my name is": {
+  "what is your name?": {
     "Oh, hey there!": 0.5,
     "Lovely day, isn't it?": 0.5,
     "Be seeing you!": 0.5,
@@ -38,5 +38,11 @@
     "Don't mention it.": 0.6,
     "No problem.": 0.5,
     "It's okay": 0.4
+  },
+  "bye": {
+    "Ah, I see.": 0.4,
+    "Oh, hey there!": 0.4,
+    "Nice to meet you!": 0.4,
+    "Sounds great.": 0.6
   }
 }

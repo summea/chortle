@@ -50,11 +50,13 @@ namespace chortle
             public static int botState = ChortleSettings.BOT_ASK;
         }
 
-        public static string botAsk(string questionKey, bool followUp=false)
+        public static Dictionary<string, string> botAsk(string questionKey, bool followUp=false)
         {
-            string response;
-            string result = "";
-            bool validQuestion = true;
+            Dictionary<string, string> result = new Dictionary<string, string>();
+            string response     = "";
+            result["question"]  = questionKey;
+            result["answer"]    = "";
+            bool validQuestion  = true;
             bool questionNeedsInterpolation = false;
 
             // make sure to ask name at start
@@ -118,6 +120,7 @@ namespace chortle
 
                     // bot asks question and gets human response
                     Console.WriteLine("bot    > " + questionText);
+                    result["question"] = questionText;
                     Console.Write("human  > ");
                     response = Console.ReadLine();
 
@@ -176,6 +179,7 @@ namespace chortle
                         sentenceBeginning = responsePiecesAsPOS[0] + "," + responsePiecesAsPOS[1];
 
                     bool followUpFlag = false;
+                    bool verbFound = true;
 
                     if (ChortleSettings.posDetVerbTypes.Contains(sentenceBeginning))
                     {
@@ -284,6 +288,7 @@ namespace chortle
                     else
                     {
                         // check for just answers (no verb necessarily)
+                        verbFound = false;
                         matchPOS = Regex.Match(responsePOS, @"(.*)", RegexOptions.IgnoreCase);
                         if (matchPOS.Success)
                         {
@@ -297,20 +302,25 @@ namespace chortle
 
                     if (followUpFlag)
                     {
-                        result = botFollowUp(questionKey);
+                        result["answer"] = botFollowUp(questionKey);
                     }
                     else
                     {
-                        result = string.Join(" ", generatedValueList);
+                        Console.WriteLine("verb found: " + verbFound.ToString());
+                        Console.WriteLine(result["question"]);
+                        // if no (obvious) verb is found, use question as part of key for bot response search
+                        if (!verbFound)
+                            result["combinedKey"] = result["question"].ToLower() + " " + string.Join(" ", generatedValueList);
+
+                        result["answer"] = string.Join(" ", generatedValueList);
                         ChortleSettings.botState = ChortleSettings.BOT_RESPOND;
                     }
 
-
                     if (ChortleSettings.debugMode)
-                        Console.WriteLine(">>> result: " + result);
+                        Console.WriteLine(">>> result: " + result["answer"]);
 
                     // save response data to dictionary
-                    ChortleSettings.responseData[questionKey] = result;
+                    ChortleSettings.responseData[questionKey] = result["answer"];
                 }
             }
             return result;
@@ -318,19 +328,20 @@ namespace chortle
 
         public static string botFollowUp(string keyInQuestion)
         {
-            string result = "";
+            Dictionary<string, string> result = new Dictionary<string, string>();
             if (ChortleSettings.debugMode)
                 Console.WriteLine("follow up question about: " + keyInQuestion);
             result = botAsk(keyInQuestion, true);
-            return result;
+            return result["answer"];
         }
 
-        public static string botRespond(string phrase)
+        public static string botRespond(Dictionary<string, string> phraseData)
         {
             string result = "";
 
             // formulate a response from learned responses
-            result = botFormulateResponse(phrase);
+            //result = botFormulateResponse(phraseData["answer"]);
+            result = botFormulateResponse(phraseData);
 
             // respond
             Console.WriteLine(result);
@@ -342,19 +353,14 @@ namespace chortle
 
         public static void chatMode()
         {
-            // TODO: connected learned phrases (teacher to bot) to this...
-
-            // init phraseData
-            // this data represents what phrases the chatbot has previously "learned" from a teacher
-            ChortleSettings.phraseData.Add("response", "I see");
-
             bool doneChatting = false;
             List<string> questionKeyList = new List<string>(ChortleSettings.questionData.Keys);
             List<string> phraseKeyList = new List<string>(ChortleSettings.phraseData.Keys);
 
             int numBotQuestionsAsked = 0;
             int numTotalBotQuestions = questionKeyList.Count;
-            string previousResponse = "";
+
+            Dictionary<string, string> previousQA = new Dictionary<string, string>();
 
             while (!doneChatting && (numBotQuestionsAsked < numTotalBotQuestions))
             {
@@ -365,8 +371,8 @@ namespace chortle
                     case ChortleSettings.BOT_ASK:
                         Random randomNumber = new Random();
                         string randomKey = questionKeyList[randomNumber.Next(questionKeyList.Count)];
-                        previousResponse = botAsk(randomKey);
-                        if (!string.IsNullOrEmpty(previousResponse))
+                        previousQA = botAsk(randomKey);
+                        if (!string.IsNullOrEmpty(previousQA["answer"]))
                         {
                             numBotQuestionsAsked++;
                         }
@@ -374,7 +380,7 @@ namespace chortle
                     case ChortleSettings.BOT_FOLLOW_UP:
                         break;
                     case ChortleSettings.BOT_RESPOND:
-                        botRespond(previousResponse);        
+                        botRespond(previousQA);
                         break;
                 }
             }
@@ -400,23 +406,31 @@ namespace chortle
             }
         }
 
-        public static string botFormulateResponse(string topicPhrase)
+        public static string botFormulateResponse(Dictionary<string, string> topicPhraseData)
         {
             string botResponse = "";
             List<string> botLearnedKeyList = new List<string>(ChortleSettings.botLearnedResponses.Keys);
             Random randomNumber = new Random();
+            string searchKey = "";
+
+            if (topicPhraseData.ContainsKey("answer"))
+                searchKey = topicPhraseData["answer"];
+            if (topicPhraseData.ContainsKey("combinedKey"))
+                searchKey = topicPhraseData["combinedKey"];
+
+            Console.WriteLine("]] searching for: " + searchKey);
 
             // bot tries out a response
-            if (ChortleSettings.botLearnedResponses.ContainsKey(topicPhrase))
+            if (ChortleSettings.botLearnedResponses.ContainsKey(searchKey))
             {
                 if (ChortleSettings.debugMode)
-                    Console.WriteLine("> found key: " + topicPhrase);
+                    Console.WriteLine("> found key: " + searchKey);
 
                 bool checkForBest = true;
 
                 // Add some randomness in how responses are initially found (ordered)
                 Random rndNumber = new Random();
-                var randomizedItems = from pair in ChortleSettings.botLearnedResponses[topicPhrase]
+                var randomizedItems = from pair in ChortleSettings.botLearnedResponses[searchKey]
                                       orderby rndNumber.Next() descending
                                       select pair;
 
@@ -430,7 +444,7 @@ namespace chortle
 
                 foreach (string keyItem in botLearnedKeyValueList)
                 {
-                    var weight = ChortleSettings.botLearnedResponses[topicPhrase][keyItem];
+                    var weight = ChortleSettings.botLearnedResponses[searchKey][keyItem];
                     if (ChortleSettings.debugMode)
                         Console.WriteLine("> checking weight response..." + weight + " / " + keyItem);
 
@@ -508,19 +522,19 @@ namespace chortle
                                         else
                                         {
                                             // repeat what teacher said
-                                            botResponse = topicPhrase;
+                                            botResponse = searchKey;
                                         }
                                     }
                                 }
                                 else
                                 {
                                     // repeat what teacher said
-                                    botResponse = topicPhrase;
+                                    botResponse = searchKey;
                                 }
                                 break;
                             default:
                                 // repeat what teacher said
-                                botResponse = topicPhrase;
+                                botResponse = searchKey;
                                 break;
                         }
                     }
@@ -533,8 +547,8 @@ namespace chortle
                 //  i like green things
                 //  i like green
                 //  i like
-                string[] teacherResponsePieces = topicPhrase.Split(' ');
-                string[] teacherResponsePiecesWorkingCopy = topicPhrase.Split(' ');
+                string[] teacherResponsePieces = searchKey.Split(' ');
+                string[] teacherResponsePiecesWorkingCopy = searchKey.Split(' ');
                 string shorterKey = "";
                 bool foundAResponse = false;
 
@@ -592,7 +606,7 @@ namespace chortle
                                             if (ChortleSettings.debugMode)
                                                 Console.WriteLine("> found an okay weight response");
                                             botResponse = keyItem;
-                                            //foundAResponse = true;
+                                            foundAResponse = true;
                                             //break;
                                         }
                                         else
@@ -658,7 +672,7 @@ namespace chortle
                                 Console.WriteLine("> picking from grab bag...");
 
                             // save new key first
-                            ChortleSettings.botLearnedResponses[topicPhrase] = new Dictionary<string, double>();
+                            ChortleSettings.botLearnedResponses[searchKey] = new Dictionary<string, double>();
 
                             // otherwise... pick from the * (grab bag) responses
                             if (ChortleSettings.botLearnedResponses.ContainsKey("*"))
@@ -727,12 +741,12 @@ namespace chortle
                                                 else
                                                 {
                                                     // repeat what teacher said
-                                                    botResponse = topicPhrase;
+                                                    botResponse = searchKey;
                                                 }
                                                 break;
                                             default:
                                                 // repeat what teacher said
-                                                botResponse = topicPhrase;
+                                                botResponse = searchKey;
                                                 break;
                                         }
                                     }
@@ -741,7 +755,7 @@ namespace chortle
                             else
                             {
                                 // repeat what teacher said
-                                botResponse = topicPhrase;
+                                botResponse = searchKey;
                             }
                         }
                     }
@@ -783,8 +797,13 @@ namespace chortle
                 Console.Write("teacher  > ");
                 teacherResponse = Console.ReadLine();
 
+                Dictionary<string, string> combinedResponse = new Dictionary<string, string>();
+                combinedResponse["question"] = teacherResponse;
+                combinedResponse["answer"] = teacherResponse;
+                combinedResponse["combined"] = teacherResponse;
+
                 // bot formulates a response
-                botResponse = botFormulateResponse(teacherResponse);
+                botResponse = botFormulateResponse(combinedResponse);
 
                 Console.Write("bot      > " + botResponse + "\n");
 
