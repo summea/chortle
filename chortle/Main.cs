@@ -13,8 +13,9 @@ namespace chortle
     {
         public static class ChortleSettings
         {
-            public static bool debugMode = true;
-            public static bool firstTime = true;
+            public static bool debugMode    = true;
+            public static bool firstTime    = true;
+            public static bool roundWeight  = true;
 
             public static List<string> humanResponseConversationData = new List<string>();
 
@@ -853,7 +854,12 @@ namespace chortle
                                 if ((ChortleSettings.botLearnedResponses[teacherResponse][botResponse] + teacherDecisionValue <= 1.0) &&
                                 (ChortleSettings.botLearnedResponses[teacherResponse][botResponse] + teacherDecisionValue >= 0.0))
                                 {
-                                    ChortleSettings.botLearnedResponses[teacherResponse][botResponse] += teacherDecisionValue;
+                                    double weightTotal = ChortleSettings.botLearnedResponses[teacherResponse][botResponse] + teacherDecisionValue;
+
+                                    if (ChortleSettings.roundWeight)
+                                        weightTotal = Math.Round(weightTotal, 2);
+
+                                    ChortleSettings.botLearnedResponses[teacherResponse][botResponse] = weightTotal;
                                 }
                                 if (ChortleSettings.debugMode)
                                     Console.WriteLine("> bot already knows this response... but let's update info");
@@ -893,8 +899,13 @@ namespace chortle
                     else if ((ChortleSettings.midWeight + teacherDecisionValue) < ChortleSettings.minWeight)
                         teacherDecisionValue = ChortleSettings.minWeight;
 
+                    double weightTotal = ChortleSettings.midWeight + teacherDecisionValue;
+
+                    if (ChortleSettings.roundWeight)
+                        weightTotal = Math.Round(weightTotal, 2);
+
                     ChortleSettings.botLearnedResponses[teacherResponse] = new Dictionary<string, double> {
-                        {botResponse, (ChortleSettings.midWeight + teacherDecisionValue)}
+                        {botResponse, weightTotal}
                     };
                     firstTimeForThisTopic = false;
                 }

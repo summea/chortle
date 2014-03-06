@@ -8,11 +8,12 @@ TODO
 - meaning? (so that bot can use variables and relate items/people)
 - punctuation check: ? is a question
 - punctuation check: . (or nothing) is a statement
-- fix rounding (lack of) bug for double values for bot-taught-response data save
 
 
 Done
 ====
++ fix rounding (lack of) bug for double values for bot-taught-response data save
++ fix weight boundary checks (for some reason I'm getting larger than 1.0 weights...)
 + when UNKNOWN POS is found for a one-word answer (or something without verbs) use question text as key for bot response formulation
 + teacher: save teacher mode data back to taught-responses json
 + added bot respond state: using previously-taught expressions (try to find closest-matching key...)
