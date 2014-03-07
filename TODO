@@ -3,15 +3,20 @@ TODO
 - teacher: ultimately, try mixing learned responses and get teacher feedback
 - teacher: merge patterns from previous work into the new teacher project so that bot can start to build phrase keys like: learned["NN ..."] instead of a hard coded phrase
 - teacher: go back to possible response list more often and get new response possibility if available (especially if the response is a 1)?
-- fix: "the way to go is over there" (this is finding "go" before "is"... maybe time to go back to target verb idea... take verb from question and match?)
 - support for: "it's" and "that's" (it is, that is)
-- meaning? (so that bot can use variables and relate items/people)
+- prune responses that fall below a certain weight?
+- meaning? (so that bot can use variables and relate items/people) 
 - punctuation check: ? is a question
 - punctuation check: . (or nothing) is a statement
 
 
 Done
 ====
++ fixed: "that way is the way to go" (make sure to stop collecting values after root verb...)
++ fixed: "the way to go is over there" (this is finding "go" before "is"... maybe time to go back to target verb idea... take verb from question and match?)
++ fixed: "the way to go is over there" OK
++ fixed: "that is the way to go" OK  <-- this will re-ask question to try to get a more definite answer...
++ fixed: "that way is the way to go" OK
 + fix rounding (lack of) bug for double values for bot-taught-response data save
 + fix weight boundary checks (for some reason I'm getting larger than 1.0 weights...)
 + when UNKNOWN POS is found for a one-word answer (or something without verbs) use question text as key for bot response formulation
