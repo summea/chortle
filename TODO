@@ -5,9 +5,11 @@ TODO
 - teacher: go back to possible response list more often and get new response possibility if available (especially if the response is a 1)?
 - support for: "it's" and "that's" (it is, that is)
 - prune responses that fall below a certain weight?
-- meaning? (so that bot can use variables and relate items/people) 
 - punctuation check: ? is a question
 - punctuation check: . (or nothing) is a statement
+- meaning? (so that bot can use variables and relate items/people)
+- fix: relational data for "you like {{ x }} {{ y }}" (object should pick up both x and y...)
+  - be able to parse "yes" or "no" and save results... like/don't like
 
 
 Done
