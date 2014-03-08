@@ -51,7 +51,6 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="Data\bot-questions.json" />
-    <None Include="Data\bot-responses.json" />
     <None Include="Data\bot-taught-responses.json" />
     <None Include="Data\vocabulary.json" />
     <None Include="packages.config" />

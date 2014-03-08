@@ -23,12 +23,11 @@ namespace chortle
             public static string taughtResponsesDataPath    = @"../../Data/bot-taught-responses.json";
 
             private static string questionDataSrc           = File.ReadAllText("../../Data/bot-questions.json");
-            private static string responseDataSrc           = File.ReadAllText("../../Data/bot-responses.json");
             private static string vocabularyDataSrc         = File.ReadAllText("../../Data/vocabulary.json");
             private static string taughtResponsesDataSrc    = File.ReadAllText("../../Data/bot-taught-responses.json");
 
             public static Dictionary<string, string> questionData   = JsonConvert.DeserializeObject<Dictionary<string, string>>(questionDataSrc);
-            public static Dictionary<string, string> responseData   = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseDataSrc);
+            public static Dictionary<string, string> responseData = new Dictionary<string, string>();
             public static Dictionary<string, string> vocabularyData = JsonConvert.DeserializeObject<Dictionary<string, string>>(vocabularyDataSrc);
             public static Dictionary<string, Dictionary<string, double>> botLearnedResponses = JsonConvert.DeserializeObject <Dictionary<string, Dictionary<string, double>>>(taughtResponsesDataSrc);
             public static Dictionary<string, string> phraseData = new Dictionary<string, string>();
@@ -74,6 +73,25 @@ namespace chortle
                     questionKey = "your name";
                 ChortleSettings.firstTime = false;
             }
+
+            // add response key to response dictionary if it doesn't exist
+            if (!ChortleSettings.responseData.ContainsKey(questionKey))
+            {
+                ChortleSettings.responseData.Add(questionKey, "");
+
+                // add keys of interpolation data too...
+                String interpolatedKey = questionKey;
+                string patternInterpolations = @"({{[\w\s]+}})";
+                foreach (Match match in Regex.Matches(questionKey, patternInterpolations, RegexOptions.IgnoreCase))
+                {
+                    String itemKey = match.Groups[0].ToString();
+                    itemKey = itemKey.Replace("{", "").Replace("}", "");
+                    if (!ChortleSettings.responseData.ContainsKey(itemKey))
+                        ChortleSettings.responseData.Add(itemKey, "");
+                }
+            }
+
+            Console.WriteLine("checking new key... " + questionKey + " " + ChortleSettings.responseData[questionKey]);
 
             // check if we've already asked question
             if ((ChortleSettings.responseData.ContainsKey(questionKey) && ChortleSettings.responseData[questionKey] == "") || followUp)
