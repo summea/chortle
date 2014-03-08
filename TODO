@@ -4,16 +4,19 @@ TODO
 - teacher: merge patterns from previous work into the new teacher project so that bot can start to build phrase keys like: learned["NN ..."] instead of a hard coded phrase
 - teacher: go back to possible response list more often and get new response possibility if available (especially if the response is a 1)?
 - support for: "it's" and "that's" (it is, that is)
-- prune responses that fall below a certain weight?
 - punctuation check: ? is a question
 - punctuation check: . (or nothing) is a statement
-- meaning? (so that bot can use variables and relate items/people)
-- fix: relational data for "you like {{ x }} {{ y }}" (object should pick up both x and y...)
-  - be able to parse "yes" or "no" and save results... like/don't like
+- teacher: prune responses that fall below a certain weight?
+- meaning? (so that bot can use relational data and relate items/people)
 
 
 Done
 ====
++ fixed: relational data for "you like {{ x }} {{ y }}" (object should pick up both x and y...)
+  + be able to parse answer that contains "no" (basic) and save results... like/don't like
+  + interpolate question for relational data part...
+  + know when to use question object "green beans" vs answer
+- fixed: "that is" (way to go question) (right side check)
 + fixed: "that way is the way to go" (make sure to stop collecting values after root verb...)
 + fixed: "the way to go is over there" (this is finding "go" before "is"... maybe time to go back to target verb idea... take verb from question and match?)
 + fixed: "the way to go is over there" OK

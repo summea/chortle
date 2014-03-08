@@ -244,13 +244,21 @@ namespace chortle
                         Console.WriteLine();
 
                         int rightSideMatchCount = 0;
-                        for (int rightSidePieceIndex = questionRootVerbIndex + 1; rightSidePieceIndex < questionPieces.Length; rightSidePieceIndex++)
+
+                        // make sure we have a right side to work with...
+                        if ((questionRootVerbIndex + 1) < responsePieces.Length)
                         {
-                            //Console.WriteLine(" checking... " + responsePieces[rightSidePieceIndex]);
-                            if (!responsePieces[rightSidePieceIndex].Equals(questionRootVerb))
+                            for (int rightSidePieceIndex = questionRootVerbIndex + 1; rightSidePieceIndex < questionPieces.Length; rightSidePieceIndex++)
                             {
-                                if (questionPieces.Contains(responsePieces[rightSidePieceIndex]))
-                                    rightSideMatchCount++;
+                                //Console.WriteLine(" checking... " + responsePieces[rightSidePieceIndex]);
+                                if (responsePieces[rightSidePieceIndex].Length > 0)
+                                {
+                                    if (!responsePieces[rightSidePieceIndex].Equals(questionRootVerb))
+                                    {
+                                        if (questionPieces.Contains(responsePieces[rightSidePieceIndex]))
+                                            rightSideMatchCount++;
+                                    }
+                                }
                             }
                         }
 
@@ -490,6 +498,20 @@ namespace chortle
                     string questionSubject = string.Join(" ", questionSubjects);
                     string questionObject = string.Join(" ", questionObjects);
 
+
+                    // interpolate "dynamic" patterns in question
+                    String interpolatedStringTwo = questionObject;
+                    string patternItemTwo = @"({{[\w\s]+}})";
+                    foreach (Match match in Regex.Matches(questionObject, patternItemTwo, RegexOptions.IgnoreCase))
+                    {
+                        String itemKey = match.Groups[0].ToString();
+                        itemKey = itemKey.Replace("{", "").Replace("}", "");
+                        interpolatedStringTwo = interpolatedStringTwo.Replace(match.Groups[0].ToString(), ChortleSettings.responseData[itemKey]);
+                    }
+
+                    questionObject = interpolatedStringTwo;
+
+
                     if (ChortleSettings.debugMode) {
                         Console.WriteLine("> found question subject: " + questionSubject);
                         Console.WriteLine("> found question (root) verb: " + questionRootVerb);
@@ -498,29 +520,38 @@ namespace chortle
 
                     if (!string.IsNullOrWhiteSpace(questionSubject))
                     {
+                        List<string> values = new List<string>();
+
                         // key exists
                         if (ChortleSettings.relationalData.ContainsKey(questionSubject))
                         {
-                            Dictionary<string, List<string>> relationalKeyValue = ChortleSettings.relationalData[questionSubject];
-
-                            if (relationalKeyValue.ContainsKey(questionObject))
-                            {
-                                List<string> items = relationalKeyValue[questionObject];
-                                if (!items.Contains( result["answer"] ))
-                                    items.Add( result["answer"] );
-
-                                // add item to existing list
-                                ChortleSettings.relationalData[questionSubject][questionObject] = items;
-                            }
+                            //ChortleSettings.relationalData[questionSubject] = new Dictionary<string, List<string>>();
+                            values = ChortleSettings.relationalData[questionSubject][questionRootVerb];
                         }
-                        // create key
+                        // create new key
                         else
                         {
                             ChortleSettings.relationalData[questionSubject] = new Dictionary<string, List<string>>();
-                            List<string> values = new List<string> { result["answer"] };
-
-                            ChortleSettings.relationalData[questionSubject][questionRootVerb] = values;
+                            values = new List<string> { questionObject };
                         }
+                            
+                        if (questionRootVerb == "is")
+                        {
+                            values = new List<string> { result["answer"] };
+                        }
+                        else
+                        {
+                            // TODO: add better check for negation
+                            Match answerMatch = Regex.Match(result["answer"], @"no", RegexOptions.IgnoreCase);
+
+                            if (answerMatch.Success)
+                            {
+                                // TODO: add better list of inflections for negation
+                                questionRootVerb = "don't " + questionRootVerb;
+                            }
+                        }
+
+                        ChortleSettings.relationalData[questionSubject][questionRootVerb] = values;
                     }
 
                     //ChortleSettings.relationalData["you"] = 
