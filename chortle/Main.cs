@@ -13,7 +13,7 @@ namespace chortle
     {
         public static class ChortleSettings
         {
-            public static bool debugMode    = true;
+            public static bool debugMode    = false;
             public static bool firstTime    = true;
             public static bool roundWeight  = true;
 
@@ -91,8 +91,6 @@ namespace chortle
                 }
             }
 
-            Console.WriteLine("checking new key... " + questionKey + " " + ChortleSettings.responseData[questionKey]);
-
             // check if we've already asked question
             if ((ChortleSettings.responseData.ContainsKey(questionKey) && ChortleSettings.responseData[questionKey] == "") || followUp)
             {
@@ -157,11 +155,6 @@ namespace chortle
                     //if (response.Equals("goodbye"))
                         //doneChatting = true;
 
-                    // TODO: bot respond with a previously-taught phrase
-                    //Random randomPhraseNumber = new Random();
-                    //string randomPhraseKey = phraseKeyList[randomPhraseNumber.Next(phraseKeyList.Count)];
-                    //Console.WriteLine("bot    > " + ChortleSettings.phraseData[randomPhraseKey]);
-
                     // originally from chortlejs parsing
                     string[] questionPieces = questionKey.Split(' ');
                     List<string> questionPiecesAsPOS = new List<string>();
@@ -206,7 +199,6 @@ namespace chortle
                     int questionRootVerbIndex = 0;
                     for (int itemIndex = 0; itemIndex < questionPiecesAsPOS.Count; itemIndex++)
                     {
-                        Console.WriteLine("checking... " + questionPiecesAsPOS[itemIndex]);
                         if (ChortleSettings.posVerbTypes.Contains(questionPiecesAsPOS[itemIndex]))
                         {
                             questionRootVerb = questionPieces[itemIndex];
@@ -214,10 +206,6 @@ namespace chortle
                             questionRootVerbIndex = itemIndex;
                         }
                     }
-
-                    //Console.WriteLine("OOooOO originally found root verb: " + questionRootVerb);
-
-                    // TODO: "that way is the way to go" (match "is" to original root verb from question)
 
                     // match: DT *** VB (that *** is ...)
                     Match matchDT_X_VB = Regex.Match(responsePOS, @"DT(.*)(VB*)", RegexOptions.IgnoreCase);
@@ -229,25 +217,11 @@ namespace chortle
                         string matchedPOSString = matchDT_X_VB.Groups[0].ToString();
                         string[] matchedPOSItems = matchedPOSString.Split(',');
 
-
-                        // TODO: determine how to know when answer is on left or right of root verb
-
-                        // one approach: use determiner+something to show that answer is on opposite side of root verb
-                        // problem: what if the question has determiner+something?
                         resultKeyValueDirection = "rtl";
-
-                        // one approach: check which side contains 50% or more of the original question pieces?
-                        // problem: partial phrase will throw this off...
-
-                        
-                        //Console.WriteLine("--------------------------------------------");
-                        //Console.WriteLine("original question: " + string.Join(" ", questionPieces));
-                        //Console.WriteLine("--------------------------------------------");
 
                         int leftSideMatchCount = 0;
                         for (int leftSidePieceIndex = 0; leftSidePieceIndex < questionPieces.Length; leftSidePieceIndex++)
                         {
-                            //Console.WriteLine(" checking... " + responsePieces[leftSidePieceIndex]);
                             if (responsePieces[leftSidePieceIndex].Equals(questionRootVerb))
                             {
                                 break;
@@ -259,7 +233,7 @@ namespace chortle
                             }
                         }
 
-                        Console.WriteLine();
+                        //Console.WriteLine();
 
                         int rightSideMatchCount = 0;
 
@@ -317,8 +291,6 @@ namespace chortle
                         }
                     }
 
-                    //Console.WriteLine("OOOoo Checking root verb: " + questionRootVerb);
-
                     // general match with root verb (if verb exists)
                     Match matchPOS = Regex.Match(responsePOS, @"(.*)VB*", RegexOptions.IgnoreCase);
                     if (ChortleSettings.debugMode)
@@ -373,11 +345,8 @@ namespace chortle
                                 }
                                 else
                                 {
-
-                                    // TODO make sure we are not past root verb
-
-                                    Console.WriteLine("------ " + responsePieces[userResponseIndex] + " " + responsePieces[rootVerbPosition]);
-
+                                    if (ChortleSettings.debugMode)
+                                        Console.WriteLine("------ " + responsePieces[userResponseIndex] + " " + responsePieces[rootVerbPosition]);
 
                                     if (!responsePieces[userResponseIndex].Equals(questionRootVerb))
                                     {
@@ -434,8 +403,9 @@ namespace chortle
                     }
                     else
                     {
-                        Console.WriteLine("verb found: " + verbFound.ToString());
-                        //Console.WriteLine(result["question"]);
+                        if (ChortleSettings.debugMode)
+                            Console.WriteLine("verb found: " + verbFound.ToString());
+
                         // if no (obvious) verb is found, use question as part of key for bot response search
                         if (!verbFound)
                             result["combinedKey"] = result["question"].ToLower() + " " + string.Join(" ", generatedValueList);
@@ -452,7 +422,8 @@ namespace chortle
 
                     // save relation data
                     // break down question into POS
-                    Console.WriteLine(">>>>> Question POS: " + string.Join(",", questionPiecesAsPOS));
+                    if (ChortleSettings.debugMode)
+                        Console.WriteLine(">>>>> Question POS: " + string.Join(",", questionPiecesAsPOS));
 
                     List<string> questionSubjects = new List<string>();
                     List<string> questionObjects = new List<string>();
@@ -462,7 +433,6 @@ namespace chortle
                     questionRootVerbIndex = 0;
                     for (int itemIndex = 0; itemIndex < questionPiecesAsPOS.Count; itemIndex++)
                     {
-                        //Console.WriteLine("checking... " + questionPiecesAsPOS[itemIndex]);
                         if (ChortleSettings.posVerbTypes.Contains(questionPiecesAsPOS[itemIndex]))
                         {
                             questionRootVerb = questionPieces[itemIndex];
@@ -485,12 +455,10 @@ namespace chortle
                     }
                     else
                     {
-                        Console.WriteLine("current root verb: " + questionRootVerb);
+                        if (ChortleSettings.debugMode)
+                            Console.WriteLine("current root verb: " + questionRootVerb);
 
-                        // TODO: keep track of where root verb is found... let subject/object know so they know when to start/stop
-
-                        // search for subject
-                    
+                        // search for subject                    
                         for (int itemIndex = 0; itemIndex < questionRootVerbIndex; itemIndex++)
                         {
                             if (ChortleSettings.posSubjectTypes.Contains(questionPiecesAsPOS[itemIndex]))
@@ -500,7 +468,6 @@ namespace chortle
                         }
 
                         // search for object
-                    
                         if ((questionRootVerbIndex + 1) <= questionPiecesAsPOS.Count)
                         {
                             for (int itemIndex = questionRootVerbIndex+1; itemIndex < questionPiecesAsPOS.Count; itemIndex++)
@@ -571,8 +538,6 @@ namespace chortle
 
                         ChortleSettings.relationalData[questionSubject][questionRootVerb] = values;
                     }
-
-                    //ChortleSettings.relationalData["you"] = 
                 }
             }
             return result;
@@ -636,6 +601,8 @@ namespace chortle
                 }
             }
 
+            Console.WriteLine("bot    > Well, I need to be going!");
+
             // print out human response conversation data
             if (ChortleSettings.debugMode)
             {
@@ -686,7 +653,8 @@ namespace chortle
             if (topicPhraseData.ContainsKey("combinedKey"))
                 searchKey = topicPhraseData["combinedKey"];
 
-            Console.WriteLine("]] searching for: " + searchKey);
+            if (ChortleSettings.debugMode)
+                Console.WriteLine("]] searching for: " + searchKey);
 
             // bot tries out a response
             if (ChortleSettings.botLearnedResponses.ContainsKey(searchKey))

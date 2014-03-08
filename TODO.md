@@ -7,6 +7,7 @@ TODO
 - punctuation check: ? is a question
 - punctuation check: . (or nothing) is a statement
 - break out interpolation code into a function
+- goodbye phrases (end)
 - teacher: prune responses that fall below a certain weight?
 - meaning? (so that bot can use relational data and relate items/people)
 
@@ -60,3 +61,9 @@ Extra
 =====
 - add a way to look for related target verb (from the question)
 - maybe check how many words are in front of the verbs and after... and determine which one is more likely the more important verb? (the side with the least amount of words might be the target...)
+- (I think this was added... but just in case)
+  - determine how to know when answer is on left or right of root verb
+    - one approach: use determiner+something to show that answer is on opposite side of root verb
+    - problem: what if the question has determiner+something?
+    - two approach: check which side contains 50% or more of the original question pieces?
+    - problem: partial phrase will throw this off...
