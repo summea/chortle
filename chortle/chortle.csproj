@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Data\bot-favorites.json" />
     <None Include="Data\bot-questions.json" />
     <None Include="Data\bot-taught-responses.json" />
     <None Include="Data\vocabulary.json" />

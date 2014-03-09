@@ -13,7 +13,7 @@ namespace chortle
     {
         public static class ChortleSettings
         {
-            public static bool debugMode    = true;
+            public static bool debugMode    = false;
             public static bool firstTime    = true;
             public static bool roundWeight  = true;
 
@@ -25,6 +25,7 @@ namespace chortle
             private static string questionDataSrc           = File.ReadAllText("../../Data/bot-questions.json");
             private static string vocabularyDataSrc         = File.ReadAllText("../../Data/vocabulary.json");
             private static string taughtResponsesDataSrc    = File.ReadAllText("../../Data/bot-taught-responses.json");
+            private static string botFavoritesDataSrc       = File.ReadAllText("../../Data/bot-favorites.json");
 
             public static Dictionary<string, string> questionData   = JsonConvert.DeserializeObject<Dictionary<string, string>>(questionDataSrc);
             public static Dictionary<string, string> responseData = new Dictionary<string, string>();
@@ -36,6 +37,9 @@ namespace chortle
             // subject(verb, object)
             // you(like, green pears)
             public static Dictionary<string, Dictionary<string, List<string>>> relationalData = new Dictionary<string, Dictionary<string, List<string>>>();
+            public static Dictionary<string, Dictionary<string, List<string>>> botRelationalData = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, List<string>>>>(botFavoritesDataSrc);
+
+            public static Dictionary<string, string> talkedAbout = new Dictionary<string, string>();
 
             public static string[] posSubjectTypes  = new string[] { "PRP", "WP", "WRB", "UNKNOWN", "VB", "VBD", "VBG", "VBN", "VBP", "VBZ" };
             public static string[] posObjectTypes   = new string[] { "NN", "UNKNOWN", "WP", "WRB", "VB", "VBD", "VBG", "VBN", "VBP", "VBZ" };
@@ -592,7 +596,45 @@ namespace chortle
                         if (!string.IsNullOrEmpty(previousQA["answer"]))
                         {
                             numBotQuestionsAsked++;
+
+                            // bot trying really hard to feel accepted...
+                            // check if a relation can help with this question
+
+                            // TODO: use variables here
+
+                            if (!ChortleSettings.talkedAbout.ContainsKey("i like fruit"))
+                            {
+                                ChortleSettings.talkedAbout.Add("i like fruit", "");
+                            }
+
+                            if (ChortleSettings.talkedAbout.ContainsKey("i like fruit") && !ChortleSettings.talkedAbout["i like fruit"].Equals("yes"))
+                            {
+                                if (ChortleSettings.relationalData.ContainsKey("you"))
+                                {
+                                    if (ChortleSettings.relationalData["you"].ContainsKey("like"))
+                                    {
+                                        if (ChortleSettings.relationalData["you"]["like"].Contains("fruit"))
+                                        {
+
+                                            if (ChortleSettings.botRelationalData.ContainsKey("i"))
+                                            {
+                                                if (ChortleSettings.botRelationalData["i"].ContainsKey("like"))
+                                                {
+                                                    if (ChortleSettings.botRelationalData["i"]["like"].Contains("fruit"))
+                                                    {
+                                                        Console.WriteLine("bot    > Oh, I like fruit too, lol");
+                                                        ChortleSettings.talkedAbout["i like fruit"] = "yes";
+                                                    }
+                                                }
+                                            }
+                                            // skip extra response and go directly back to asking a question
+                                            ChortleSettings.botState = ChortleSettings.BOT_ASK;
+                                        }
+                                    }
+                                }
+                            }
                         }
+
                         break;
                     case ChortleSettings.BOT_FOLLOW_UP:
                         break;

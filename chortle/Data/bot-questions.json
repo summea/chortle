@@ -3,5 +3,6 @@
   "way to go is what":"What is the way to go? (multiple verb test)",
   "your favorite color":"What is your favorite color?",
   "your favorite food":"What is your favorite food?",
-  "you like {{your favorite color}} {{your favorite food}}":"Do you like {{your favorite color}} {{your favorite food}}?" 
+  "you like {{your favorite color}} {{your favorite food}}":"Do you like {{your favorite color}} {{your favorite food}}?",
+  "you like fruit":"Do you like fruit?",
 }

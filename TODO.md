@@ -1,18 +1,16 @@
 TODO
 ====
-- teacher: ultimately, try mixing learned responses and get teacher feedback
-- teacher: merge patterns from previous work into the new teacher project so that bot can start to build phrase keys like: learned["NN ..."] instead of a hard coded phrase
-- teacher: go back to possible response list more often and get new response possibility if available (especially if the response is a 1)?
-- support for: "it's" and "that's" (it is, that is)
-- punctuation check: ? is a question
-- punctuation check: . (or nothing) is a statement
-- break out interpolation code into a function
-- use saved relational data in other questions...
+- add more vocabulary
 - goodbye phrases (end)
+- questions: somehow abstract out the questions list into something based on POS?
+- use saved relational data in other questions... (maybe do a check to see if relational data key exists relating to answer)
+- replace "i like fruit" strings and keys with variables
 
 
 Done
 ====
+- added bot-favorites data file (json)
++ bot only respond once (for now) about a particular similar like
 + teacher: prune responses that fall below a certain weight? (0.3)
 + find a way to not need to match question/responses in two separate data files...
 + fixed: relational data for "you like {{ x }} {{ y }}" (object should pick up both x and y...)
@@ -55,6 +53,17 @@ Done
 + store newly-learned keys
 + use short string if key is found (first try)
 + if learnedResponse key is not found, try looking for a slightly smaller part of the key (i like green things -> i like green -> i like)
+
+
+Future
+======
+- teacher: ultimately, try mixing learned responses and get teacher feedback
+- teacher: merge patterns from previous work into the new teacher project so that bot can start to build phrase keys like: learned["NN ..."] instead of a hard coded phrase
+- teacher: go back to possible response list more often and get new response possibility if available (especially if the response is a 1)?
+- support for: "it's" and "that's" (it is, that is)
+- punctuation check: ? is a question
+- punctuation check: . (or nothing) is a statement
+- break out interpolation code into a function
 
 
 Extra
