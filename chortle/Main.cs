@@ -13,7 +13,7 @@ namespace chortle
     {
         public static class ChortleSettings
         {
-            public static bool debugMode    = false;
+            public static bool debugMode    = true;
             public static bool firstTime    = true;
             public static bool roundWeight  = true;
 
@@ -55,6 +55,8 @@ namespace chortle
             public const int BOT_FOLLOW_UP  = 3;
 
             public static int botState = ChortleSettings.BOT_ASK;
+
+            public static double pruneWeightsLowerLimit = 0.3;
         }
 
         public static Dictionary<string, string> botAsk(string questionKey, bool followUp=false)
@@ -72,6 +74,11 @@ namespace chortle
                 if (ChortleSettings.questionData.ContainsKey("your name"))
                     questionKey = "your name";
                 ChortleSettings.firstTime = false;
+
+                // add an initial response (e.g. "hello!")
+                Dictionary<string, string> previousQA = new Dictionary<string, string>();
+                previousQA["answer"] = "hello";
+                botRespond(previousQA);
             }
 
             // add response key to response dictionary if it doesn't exist
@@ -103,24 +110,18 @@ namespace chortle
                     //Console.WriteLine ("passing through...");
                     String item = match.Groups[0].ToString();
                     item = item.Replace("{", "").Replace("}", "");
-                    //Console.WriteLine (item);
 
                     // check if responseData contains required, previously-asked information
-                    // #ADDME: could someday allow bot to ask questions about required information
-                    //     until required information is collected... and then ask  original, "dynamic" question
-
-                    //Console.WriteLine ("checking dictionary...");
                     if (ChortleSettings.responseData.ContainsKey(item) && ChortleSettings.responseData[item] == "")
                     {
+                        // sorry, still have to ask about this...
                         validQuestion = false;
-                        //Console.WriteLine ("sorry, still have to ask about this...");
                     }
                     else
                     {
                         questionNeedsInterpolation = true;
                     }
                 }
-
 
                 if (validQuestion)
                 {
@@ -1095,6 +1096,14 @@ namespace chortle
                                         weightTotal = Math.Round(weightTotal, 2);
 
                                     ChortleSettings.taughtResponseData[teacherResponse][botResponse] = weightTotal;
+
+                                    // prune entry if weight falls below lower limit
+                                    if (weightTotal < ChortleSettings.pruneWeightsLowerLimit)
+                                    {
+                                        if (ChortleSettings.debugMode)
+                                            Console.WriteLine("> pruning \"" + botResponse + "\" from \"" + teacherResponse + "\"");
+                                        ChortleSettings.taughtResponseData[teacherResponse].Remove(botResponse);
+                                    }
                                 }
                                 if (ChortleSettings.debugMode)
                                     Console.WriteLine("> bot already knows this response... but let's update info");
@@ -1142,6 +1151,7 @@ namespace chortle
                     ChortleSettings.taughtResponseData[teacherResponse] = new Dictionary<string, double> {
                         {botResponse, weightTotal}
                     };
+
                     firstTimeForThisTopic = false;
                 }
             }

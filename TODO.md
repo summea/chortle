@@ -7,14 +7,13 @@ TODO
 - punctuation check: ? is a question
 - punctuation check: . (or nothing) is a statement
 - break out interpolation code into a function
+- use saved relational data in other questions...
 - goodbye phrases (end)
-- teacher: prune responses that fall below a certain weight?
-- meaning? (so that bot can use relational data and relate items/people)
-- integrate taught responses back into responses in chat mode
 
 
 Done
 ====
++ teacher: prune responses that fall below a certain weight? (0.3)
 + find a way to not need to match question/responses in two separate data files...
 + fixed: relational data for "you like {{ x }} {{ y }}" (object should pick up both x and y...)
   + be able to parse answer that contains "no" (basic) and save results... like/don't like
