@@ -6,10 +6,12 @@
   },
   "hello": {
     "Oh, hey there!": 0.5,
-    "Lovely day, isn't it?": 0.5,
+    "Lovely day, isn't it?": 0.8,
     "Be seeing you!": 0.4,
     "See ya!": 0.4,
-    "Nice to meet you!": 0.4
+    "Nice to meet you!": 0.4,
+    "Good for you!": 0.4,
+    "Ah, I see.": 0.4
   },
   "goodbye": {
     "Oh, hey there!": 0.5,
@@ -43,9 +45,19 @@
     "Ah, I see.": 0.4,
     "Oh, hey there!": 0.4,
     "Nice to meet you!": 0.4,
-    "Sounds great.": 0.6
+    "Sounds great.": 0.4,
+    "Hmm?": 0.4
   },
   "my name is": {
+    "Ah, I see.": 0.5
+  },
+  "hey": {
+    "Ah, I see.": 0.4,
+    "Hmm?": 0.4,
+    "Yes, I suppose you must be.": 0.4,
+    "Oh, hey there!": 0.8
+  },
+  "same": {
     "Ah, I see.": 0.5
   }
 }

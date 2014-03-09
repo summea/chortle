@@ -29,7 +29,7 @@ namespace chortle
             public static Dictionary<string, string> questionData   = JsonConvert.DeserializeObject<Dictionary<string, string>>(questionDataSrc);
             public static Dictionary<string, string> responseData = new Dictionary<string, string>();
             public static Dictionary<string, string> vocabularyData = JsonConvert.DeserializeObject<Dictionary<string, string>>(vocabularyDataSrc);
-            public static Dictionary<string, Dictionary<string, double>> botLearnedResponses = JsonConvert.DeserializeObject <Dictionary<string, Dictionary<string, double>>>(taughtResponsesDataSrc);
+            public static Dictionary<string, Dictionary<string, double>> taughtResponseData = JsonConvert.DeserializeObject <Dictionary<string, Dictionary<string, double>>>(taughtResponsesDataSrc);
             public static Dictionary<string, string> phraseData = new Dictionary<string, string>();
             
             // meaning data
@@ -644,7 +644,7 @@ namespace chortle
         public static string botFormulateResponse(Dictionary<string, string> topicPhraseData)
         {
             string botResponse = "";
-            List<string> botLearnedKeyList = new List<string>(ChortleSettings.botLearnedResponses.Keys);
+            List<string> botLearnedKeyList = new List<string>(ChortleSettings.taughtResponseData.Keys);
             Random randomNumber = new Random();
             string searchKey = "";
 
@@ -657,7 +657,7 @@ namespace chortle
                 Console.WriteLine("]] searching for: " + searchKey);
 
             // bot tries out a response
-            if (ChortleSettings.botLearnedResponses.ContainsKey(searchKey))
+            if (ChortleSettings.taughtResponseData.ContainsKey(searchKey))
             {
                 if (ChortleSettings.debugMode)
                     Console.WriteLine("> found key: " + searchKey);
@@ -666,7 +666,7 @@ namespace chortle
 
                 // Add some randomness in how responses are initially found (ordered)
                 Random rndNumber = new Random();
-                var randomizedItems = from pair in ChortleSettings.botLearnedResponses[searchKey]
+                var randomizedItems = from pair in ChortleSettings.taughtResponseData[searchKey]
                                       orderby rndNumber.Next() descending
                                       select pair;
 
@@ -680,7 +680,7 @@ namespace chortle
 
                 foreach (string keyItem in botLearnedKeyValueList)
                 {
-                    var weight = ChortleSettings.botLearnedResponses[searchKey][keyItem];
+                    var weight = ChortleSettings.taughtResponseData[searchKey][keyItem];
                     if (ChortleSettings.debugMode)
                         Console.WriteLine("> checking weight response..." + weight + " / " + keyItem);
 
@@ -721,15 +721,15 @@ namespace chortle
                             // randomly guess from learned words
                             case 1:
                                 // refresh bot learned key list to get recent changes
-                                botLearnedKeyList = new List<string>(ChortleSettings.botLearnedResponses.Keys);
-                                String randomKey = botLearnedKeyList[randomNumber.Next(ChortleSettings.botLearnedResponses.Count)];
+                                botLearnedKeyList = new List<string>(ChortleSettings.taughtResponseData.Keys);
+                                String randomKey = botLearnedKeyList[randomNumber.Next(ChortleSettings.taughtResponseData.Count)];
 
-                                if (ChortleSettings.botLearnedResponses[randomKey].Count > 0)
+                                if (ChortleSettings.taughtResponseData[randomKey].Count > 0)
                                 {
                                     // Add some randomness in how guesses happen
                                     // (when bot doesn't have a response... try guessing at another topic response)
                                     Random rndNumberForGuess = new Random();
-                                    var randomizedTopicsForGuess = from pair in ChortleSettings.botLearnedResponses[randomKey]
+                                    var randomizedTopicsForGuess = from pair in ChortleSettings.taughtResponseData[randomKey]
                                                                    orderby rndNumber.Next()
                                                                    select pair;
 
@@ -744,7 +744,7 @@ namespace chortle
 
                                     foreach (string keyItemForGuess in botLearnedKeyValueListForGuess)
                                     {
-                                        if (ChortleSettings.botLearnedResponses.ContainsKey(randomKey) && ChortleSettings.botLearnedResponses[randomKey].Count > 0)
+                                        if (ChortleSettings.taughtResponseData.ContainsKey(randomKey) && ChortleSettings.taughtResponseData[randomKey].Count > 0)
                                         {
                                             var foundResponse = keyItemForGuess;
                                             if (ChortleSettings.debugMode)
@@ -806,22 +806,22 @@ namespace chortle
                         if (ChortleSettings.debugMode)
                             Console.WriteLine("> trying shorter key: " + shorterKey);
 
-                        if (ChortleSettings.botLearnedResponses.ContainsKey(shorterKey))
+                        if (ChortleSettings.taughtResponseData.ContainsKey(shorterKey))
                         {
                             if (ChortleSettings.debugMode)
                                 Console.WriteLine("> found this shorter key in learned responses: " + shorterKey);
 
                             // bot tries out a response
-                            if (ChortleSettings.botLearnedResponses.ContainsKey(shorterKey))
+                            if (ChortleSettings.taughtResponseData.ContainsKey(shorterKey))
                             {
-                                List<string> botLearnedKeyValueList = new List<string>(ChortleSettings.botLearnedResponses[shorterKey].Keys);
+                                List<string> botLearnedKeyValueList = new List<string>(ChortleSettings.taughtResponseData[shorterKey].Keys);
 
                                 bool checkForBest = true;
                                 foreach (string keyItem in botLearnedKeyValueList)
                                 {
-                                    var weight = ChortleSettings.botLearnedResponses[shorterKey][keyItem];
+                                    var weight = ChortleSettings.taughtResponseData[shorterKey][keyItem];
                                     if (ChortleSettings.debugMode)
-                                        Console.WriteLine("> checking weight response..." + weight + " / " + ChortleSettings.botLearnedResponses[shorterKey][keyItem]);
+                                        Console.WriteLine("> checking weight response..." + weight + " / " + ChortleSettings.taughtResponseData[shorterKey][keyItem]);
 
                                     // if weight is high enough, return found response as bot response
                                     if (Convert.ToDouble(weight) >= (ChortleSettings.midWeight + ChortleSettings.incDecWeight) && checkForBest)
@@ -867,15 +867,15 @@ namespace chortle
                                             // randomly guess from learned words
                                             case 1:
                                                 // refresh bot learned key list to get recent changes
-                                                botLearnedKeyList = new List<string>(ChortleSettings.botLearnedResponses.Keys);
-                                                String randomKey = botLearnedKeyList[randomNumber.Next(ChortleSettings.botLearnedResponses.Count)];
+                                                botLearnedKeyList = new List<string>(ChortleSettings.taughtResponseData.Keys);
+                                                String randomKey = botLearnedKeyList[randomNumber.Next(ChortleSettings.taughtResponseData.Count)];
 
-                                                botLearnedKeyValueList = new List<string>(ChortleSettings.botLearnedResponses[randomKey].Keys);
-                                                String randomValueKey = botLearnedKeyValueList[randomNumber.Next(ChortleSettings.botLearnedResponses[randomKey].Count)];
+                                                botLearnedKeyValueList = new List<string>(ChortleSettings.taughtResponseData[randomKey].Keys);
+                                                String randomValueKey = botLearnedKeyValueList[randomNumber.Next(ChortleSettings.taughtResponseData[randomKey].Count)];
 
-                                                if (ChortleSettings.botLearnedResponses.ContainsKey(randomKey) && ChortleSettings.botLearnedResponses[randomKey].Count > 0)
+                                                if (ChortleSettings.taughtResponseData.ContainsKey(randomKey) && ChortleSettings.taughtResponseData[randomKey].Count > 0)
                                                 {
-                                                    //var foundResponse = botLearnedResponses[randomKey][randomValueKey];
+                                                    //var foundResponse = taughtResponseData[randomKey][randomValueKey];
                                                     var foundResponse = randomValueKey;
                                                     botResponse = foundResponse;
                                                 }
@@ -908,20 +908,20 @@ namespace chortle
                                 Console.WriteLine("> picking from grab bag...");
 
                             // save new key first
-                            ChortleSettings.botLearnedResponses[searchKey] = new Dictionary<string, double>();
+                            ChortleSettings.taughtResponseData[searchKey] = new Dictionary<string, double>();
 
                             // otherwise... pick from the * (grab bag) responses
-                            if (ChortleSettings.botLearnedResponses.ContainsKey("*"))
+                            if (ChortleSettings.taughtResponseData.ContainsKey("*"))
                             {
                                 //teacherResponse = "*";
 
-                                List<string> botLearnedKeyValueList = new List<string>(ChortleSettings.botLearnedResponses["*"].Keys);
-                                //String randomValueKey = botLearnedKeyValueList[randomNumber.Next(botLearnedResponses[randomKey].Count)];
+                                List<string> botLearnedKeyValueList = new List<string>(ChortleSettings.taughtResponseData["*"].Keys);
+                                //String randomValueKey = botLearnedKeyValueList[randomNumber.Next(taughtResponseData[randomKey].Count)];
 
                                 bool checkForBest = true;
                                 foreach (string keyItem in botLearnedKeyValueList)
                                 {
-                                    var weight = ChortleSettings.botLearnedResponses["*"][keyItem];
+                                    var weight = ChortleSettings.taughtResponseData["*"][keyItem];
                                     if (ChortleSettings.debugMode)
                                         Console.WriteLine("> checking weight response..." + weight + " / " + keyItem);
 
@@ -962,15 +962,15 @@ namespace chortle
                                             // randomly guess from learned words
                                             case 1:
                                                 // refresh bot learned key list to get recent changes
-                                                botLearnedKeyList = new List<string>(ChortleSettings.botLearnedResponses.Keys);
-                                                String randomKey = botLearnedKeyList[randomNumber.Next(ChortleSettings.botLearnedResponses.Count)];
+                                                botLearnedKeyList = new List<string>(ChortleSettings.taughtResponseData.Keys);
+                                                String randomKey = botLearnedKeyList[randomNumber.Next(ChortleSettings.taughtResponseData.Count)];
 
-                                                botLearnedKeyValueList = new List<string>(ChortleSettings.botLearnedResponses[randomKey].Keys);
-                                                String randomValueKey = botLearnedKeyValueList[randomNumber.Next(ChortleSettings.botLearnedResponses[randomKey].Count)];
+                                                botLearnedKeyValueList = new List<string>(ChortleSettings.taughtResponseData[randomKey].Keys);
+                                                String randomValueKey = botLearnedKeyValueList[randomNumber.Next(ChortleSettings.taughtResponseData[randomKey].Count)];
 
-                                                if (ChortleSettings.botLearnedResponses.ContainsKey(randomKey) && ChortleSettings.botLearnedResponses[randomKey].Count > 0)
+                                                if (ChortleSettings.taughtResponseData.ContainsKey(randomKey) && ChortleSettings.taughtResponseData[randomKey].Count > 0)
                                                 {
-                                                    //var foundResponse = botLearnedResponses[randomKey][randomValueKey];
+                                                    //var foundResponse = taughtResponseData[randomKey][randomValueKey];
                                                     var foundResponse = randomValueKey;
                                                     botResponse = foundResponse;
                                                 }
@@ -1007,7 +1007,7 @@ namespace chortle
 
         public static void teacherMode()
         {
-            List<string> botLearnedKeyList = new List<string>(ChortleSettings.botLearnedResponses.Keys);
+            List<string> botLearnedKeyList = new List<string>(ChortleSettings.taughtResponseData.Keys);
             
             String teacherResponse;
             String teacherDecision;
@@ -1020,7 +1020,7 @@ namespace chortle
             // good = increment weight by incDecWeight
             // bad  = decrement weight by incDecWeight
 
-            // init botLearnedResponses
+            // init taughtResponseData
             // init topics
 
             int loopLimit = 5;
@@ -1028,7 +1028,7 @@ namespace chortle
             for (int i = 0; i < loopLimit; i++)
             {
                 botResponse = "";
-                botLearnedKeyList = new List<string>(ChortleSettings.botLearnedResponses.Keys);
+                botLearnedKeyList = new List<string>(ChortleSettings.taughtResponseData.Keys);
                 // teacher says something
                 Console.Write("teacher  > ");
                 teacherResponse = Console.ReadLine();
@@ -1065,36 +1065,36 @@ namespace chortle
                 // bot records string key, string list with response and weight
                 List<string> currentValuesList = new List<string>();
                 bool firstTimeForThisTopic = true;
-                if (ChortleSettings.botLearnedResponses.ContainsKey(teacherResponse))
+                if (ChortleSettings.taughtResponseData.ContainsKey(teacherResponse))
                 {
                     firstTimeForThisTopic = false;
-                    //currentValuesList = botLearnedResponses[teacherResponse];
-                    currentValuesList = new List<string>(ChortleSettings.botLearnedResponses[teacherResponse].Keys);
+                    //currentValuesList = taughtResponseData[teacherResponse];
+                    currentValuesList = new List<string>(ChortleSettings.taughtResponseData[teacherResponse].Keys);
 
                     if (currentValuesList.Count > 0)
                     {
                         bool foundResponseInValuesList = false;
 
-                        List<string> botLearnedKeyValueList = new List<string>(ChortleSettings.botLearnedResponses[teacherResponse].Keys);
-                        //String randomValueKey = botLearnedKeyValueList[randomNumber.Next(botLearnedResponses[randomKey].Count)];
+                        List<string> botLearnedKeyValueList = new List<string>(ChortleSettings.taughtResponseData[teacherResponse].Keys);
+                        //String randomValueKey = botLearnedKeyValueList[randomNumber.Next(taughtResponseData[randomKey].Count)];
 
                         // TODO: if teacher says "no", save and try another response?
 
                         foreach (string keyItem in botLearnedKeyValueList)
                         {
-                            //var foundResponse = botLearnedResponses[teacherResponse][keyItem];
+                            //var foundResponse = taughtResponseData[teacherResponse][keyItem];
                             if (botResponse.Equals(keyItem))
                             {
                                 // make sure we are within 0.0 and 1.0 limits for response weight values
-                                if ((ChortleSettings.botLearnedResponses[teacherResponse][botResponse] + teacherDecisionValue <= 1.0) &&
-                                (ChortleSettings.botLearnedResponses[teacherResponse][botResponse] + teacherDecisionValue >= 0.0))
+                                if ((ChortleSettings.taughtResponseData[teacherResponse][botResponse] + teacherDecisionValue <= 1.0) &&
+                                (ChortleSettings.taughtResponseData[teacherResponse][botResponse] + teacherDecisionValue >= 0.0))
                                 {
-                                    double weightTotal = ChortleSettings.botLearnedResponses[teacherResponse][botResponse] + teacherDecisionValue;
+                                    double weightTotal = ChortleSettings.taughtResponseData[teacherResponse][botResponse] + teacherDecisionValue;
 
                                     if (ChortleSettings.roundWeight)
                                         weightTotal = Math.Round(weightTotal, 2);
 
-                                    ChortleSettings.botLearnedResponses[teacherResponse][botResponse] = weightTotal;
+                                    ChortleSettings.taughtResponseData[teacherResponse][botResponse] = weightTotal;
                                 }
                                 if (ChortleSettings.debugMode)
                                     Console.WriteLine("> bot already knows this response... but let's update info");
@@ -1113,7 +1113,7 @@ namespace chortle
 
                             if (ChortleSettings.debugMode)
                                 Console.WriteLine("> adding response to learned key ...");
-                            ChortleSettings.botLearnedResponses[teacherResponse].Add(botResponse, (ChortleSettings.midWeight + teacherDecisionValue));
+                            ChortleSettings.taughtResponseData[teacherResponse].Add(botResponse, (ChortleSettings.midWeight + teacherDecisionValue));
                         }
                     }
                     else
@@ -1139,7 +1139,7 @@ namespace chortle
                     if (ChortleSettings.roundWeight)
                         weightTotal = Math.Round(weightTotal, 2);
 
-                    ChortleSettings.botLearnedResponses[teacherResponse] = new Dictionary<string, double> {
+                    ChortleSettings.taughtResponseData[teacherResponse] = new Dictionary<string, double> {
                         {botResponse, weightTotal}
                     };
                     firstTimeForThisTopic = false;
@@ -1147,44 +1147,56 @@ namespace chortle
             }
 
             // save changes back to data file
-            string json = JsonConvert.SerializeObject(ChortleSettings.botLearnedResponses, Formatting.Indented);
+            string json = JsonConvert.SerializeObject(ChortleSettings.taughtResponseData, Formatting.Indented);
             File.WriteAllText(ChortleSettings.taughtResponsesDataPath, json);
 
             Console.WriteLine("\n\nlearned responses:");
-            foreach (var key in ChortleSettings.botLearnedResponses.Keys)
+            foreach (var key in ChortleSettings.taughtResponseData.Keys)
             {
                 Console.WriteLine("{0}", key);
-                var value = ChortleSettings.botLearnedResponses[key];
+                var value = ChortleSettings.taughtResponseData[key];
 
                 foreach (var innerKey in value)
                 {
                     Console.WriteLine("  {0}", innerKey);
                 }
             }
+
+            Console.WriteLine();
         }
 
         public static void Main(string[] args)
         {
-            Console.WriteLine("Menu");
-            Console.WriteLine("1) chat mode");
-            Console.WriteLine("2) teacher mode");
-            string choice = Console.ReadKey().KeyChar.ToString();
-            Console.WriteLine("\n");
-
-            switch (choice)
+            bool running = true;
+            while (running)
             {
-                case "1":
-                    chatMode();
-                    break;
-                case "2":
-                    teacherMode();
-                    break;
-                default:
-                    chatMode();
-                    break;
-            }
+                Console.WriteLine("Menu");
+                Console.WriteLine("1) chat mode");
+                Console.WriteLine("2) teacher mode");
+                Console.WriteLine("3) quit");
+                string choice = Console.ReadKey().KeyChar.ToString();
+                Console.WriteLine("\n");
 
-            Console.ReadLine();
+                switch (choice)
+                {
+                    case "1":
+                        chatMode();
+                        break;
+                    case "2":
+                        teacherMode();
+                        break;
+                    case "3":
+                        running = false;
+                        break;
+                    default:
+                        chatMode();
+                        break;
+                }
+
+                Console.WriteLine("push a key to continue");
+                Console.ReadLine();
+                Console.Clear();
+            }
         }
     }
 }

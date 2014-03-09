@@ -10,6 +10,7 @@ TODO
 - goodbye phrases (end)
 - teacher: prune responses that fall below a certain weight?
 - meaning? (so that bot can use relational data and relate items/people)
+- integrate taught responses back into responses in chat mode
 
 
 Done
