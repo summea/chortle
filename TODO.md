@@ -5,6 +5,8 @@ TODO
 - questions: somehow abstract out the questions list into something based on POS?
 - use saved relational data in other questions... (maybe do a check to see if relational data key exists relating to answer)
 - replace "i like fruit" strings and keys with variables
+- fix: learned responses are accidentally being added to taught responses... (after doing: taught -> chat modes)
+- fix: going back to chat mode after one run (this used to work...)
 
 
 Done

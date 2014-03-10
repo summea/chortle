@@ -666,8 +666,15 @@ namespace chortle
                 }
             }
 
+            string showRelationalValues = "no";
+            if (!ChortleSettings.debugMode)
+            {
+                Console.WriteLine("\nWant to see what I learned about you?");
+                showRelationalValues = Console.ReadLine();
+            }
+
             // print out relational values
-            if (ChortleSettings.debugMode)
+            if (ChortleSettings.debugMode || (!ChortleSettings.debugMode && !showRelationalValues.Equals("no")))
             {
                 Console.WriteLine("\n\nlearned relational data:");
 
@@ -682,6 +689,7 @@ namespace chortle
                     }
                 }
             }
+
         }
 
         public static string botFormulateResponse(Dictionary<string, string> topicPhraseData)
@@ -1245,7 +1253,7 @@ namespace chortle
                         break;
                 }
 
-                Console.WriteLine("push a key to continue");
+                Console.WriteLine("push enter to continue");
                 Console.ReadLine();
                 Console.Clear();
             }
