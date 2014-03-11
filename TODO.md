@@ -7,6 +7,8 @@ TODO
 - replace "i like fruit" strings and keys with variables
 - fix: learned responses are accidentally being added to taught responses... (after doing: taught -> chat modes)
 - fix: going back to chat mode after one run (this used to work...)
+- add times where bot just says something and human can respond
+- add times where human asks a question instead of responding with a statement
 
 
 Done
