@@ -27,6 +27,11 @@ namespace chortle
             private static string taughtResponsesDataSrc    = File.ReadAllText("../../Data/bot-taught-responses.json");
             private static string botFavoritesDataSrc       = File.ReadAllText("../../Data/bot-favorites.json");
 
+            public static string getTaughtResponsesDataSrc()
+            {
+                return taughtResponsesDataSrc;
+            }
+
             public static Dictionary<string, string> questionData   = JsonConvert.DeserializeObject<Dictionary<string, string>>(questionDataSrc);
             public static Dictionary<string, string> responseData = new Dictionary<string, string>();
             public static Dictionary<string, string> vocabularyData = JsonConvert.DeserializeObject<Dictionary<string, string>>(vocabularyDataSrc);
@@ -61,6 +66,13 @@ namespace chortle
             public static int botState = ChortleSettings.BOT_ASK;
 
             public static double pruneWeightsLowerLimit = 0.3;
+        }
+
+        public static void init()
+        {
+            // make sure we init things that need init'ing in-between chat/teacher sessions
+            ChortleSettings.botState = ChortleSettings.BOT_ASK;
+            ChortleSettings.taughtResponseData = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, double>>>(ChortleSettings.getTaughtResponsesDataSrc());
         }
 
         public static Dictionary<string, string> botAsk(string questionKey, bool followUp=false)
@@ -1230,6 +1242,7 @@ namespace chortle
             bool running = true;
             while (running)
             {
+                init();
                 Console.WriteLine("Menu");
                 Console.WriteLine("1) chat mode");
                 Console.WriteLine("2) teacher mode");

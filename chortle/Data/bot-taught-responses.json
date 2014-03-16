@@ -81,7 +81,7 @@
   "cool": {
     "": 0.4,
     "Ah, I see.": 0.4,
-    "No problem.": 0.9
+    "No problem.": 1.0
   },
   "what's up?": {
     "Ah, I see.": 0.3,
@@ -100,5 +100,13 @@
     "Hmm?": 0.4,
     "Don't mention it.": 0.4,
     "Nice to meet you!": 0.4
+  },
+  "how": {
+    "Ah, I see.": 0.4,
+    "Be seeing you!": 0.4,
+    "What do you mean?": 0.7
+  },
+  "oh yeah": {
+    "Ah, I see.": 0.3,
   }
 }

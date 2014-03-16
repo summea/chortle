@@ -5,15 +5,17 @@ TODO
 - questions: somehow abstract out the questions list into something based on POS?
 - use saved relational data in other questions... (maybe do a check to see if relational data key exists relating to answer)
 - replace "i like fruit" strings and keys with variables
-- fix: learned responses are accidentally being added to taught responses... (after doing: taught -> chat modes)
-- fix: going back to chat mode after one run (this used to work...)
 - add times where bot just says something and human can respond
 - add times where human asks a question instead of responding with a statement
+- add more responses for the * taught response?
+- fix: multiple "like" relational data not saving...
 
 
 Done
 ====
-- added bot-favorites data file (json)
++ fixed: learned responses are accidentally being added to taught responses... (after doing: taught -> chat modes) (using init() to reset some settings)
+- fixed: going back to chat mode after one run
++ added: bot-favorites data file (json)
 + bot only respond once (for now) about a particular similar like
 + teacher: prune responses that fall below a certain weight? (0.3)
 + find a way to not need to match question/responses in two separate data files...
