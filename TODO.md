@@ -4,6 +4,7 @@ TODO
 - add more responses for the * taught response?
 - fix: multiple "like" relational data not saving...
 - replace "i like fruit" strings and keys with variables
+- fix: don't add extra bot response when saying the "i like fruit" thing
 
 
 Done

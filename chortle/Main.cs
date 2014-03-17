@@ -618,12 +618,12 @@ namespace chortle
 
                         // TODO: use variables here
 
-                        if (!ChortleSettings.talkedAbout.ContainsKey("i like fruit"))
+                        if (!ChortleSettings.talkedAbout.ContainsKey("you like fruit"))
                         {
-                            ChortleSettings.talkedAbout.Add("i like fruit", "");
+                            ChortleSettings.talkedAbout.Add("you like fruit", "");
                         }
 
-                        if (ChortleSettings.talkedAbout.ContainsKey("i like fruit") && !ChortleSettings.talkedAbout["i like fruit"].Equals("yes"))
+                        if (ChortleSettings.talkedAbout.ContainsKey("you like fruit") && !ChortleSettings.talkedAbout["you like fruit"].Equals("yes"))
                         {
                             if (ChortleSettings.relationalData.ContainsKey("you"))
                             {
@@ -632,19 +632,17 @@ namespace chortle
                                     if (ChortleSettings.relationalData["you"]["like"].Contains("fruit"))
                                     {
 
-                                        if (ChortleSettings.botRelationalData.ContainsKey("i"))
+                                        if (ChortleSettings.botRelationalData.ContainsKey("you"))
                                         {
-                                            if (ChortleSettings.botRelationalData["i"].ContainsKey("like"))
+                                            if (ChortleSettings.botRelationalData["you"].ContainsKey("like"))
                                             {
-                                                if (ChortleSettings.botRelationalData["i"]["like"].Contains("fruit"))
+                                                if (ChortleSettings.botRelationalData["you"]["like"].Contains("fruit"))
                                                 {
                                                     Console.WriteLine("bot    > Oh, I like fruit too, lol");
-                                                    ChortleSettings.talkedAbout["i like fruit"] = "yes";
+                                                    ChortleSettings.talkedAbout["you like fruit"] = "yes";
                                                 }
                                             }
                                         }
-                                        // skip extra response and go directly back to asking a question
-                                        // ChortleSettings.botState = ChortleSettings.BOT_ASK;
                                     }
                                 }
                             }
