@@ -3,6 +3,68 @@ chortle
 
 a really simple chat bot
 
+### Example Output
+
+        __  __ __   ___   ____  ______  _        ___
+       /  ]|  |  | /   \ |    \|      || |      /  _]
+      /  / |  |  ||     ||  D  )      || |     /  [_
+     /  /  |  _  ||  O  ||    /|_|  |_|| |___ |    _]
+    /   \_ |  |  ||     ||    \  |  |  |     ||   [_
+    \     ||  |  ||     ||  .  \ |  |  |     ||     |
+     \____||__|__| \___/ |__|\_| |__|  |_____||_____|
+
+    1) chat mode
+    2) teacher mode
+    3) quit
+    1
+
+    bot    > Lovely day, isn't it?
+    bot    > What is your name?
+    human  > andy
+    bot    > Nice to meet you!
+    human  > what is your name?
+    bot    > chortle
+    human  > nice to meet you
+    human  > what are your hobbies?
+    bot    > chatting
+    human  > oh really
+    human  > yes
+    bot    > Oh, how lovely!
+    human  > haha
+    bot    > Do you like fruit?
+    human  > yes
+    bot    > Ah, I see.
+    human  > that's cool
+    human  > do you like food?
+    bot    > What is your favorite food?
+    human  > i like pizza
+    bot    > What do you mean?
+    human  > oh, a food that is bad for you
+    bot    > Ah, I see.
+    human  > yeah
+    bot    > Be seeing you!
+    human  > oh, okay
+    bot    > Ah, I see.
+    human  > bye
+    bot    > Well, I need to be going!
+
+    Want to see what I learned about you?
+    yes
+
+
+    learned relational data:
+    your name
+    is
+    andy
+    you
+    like
+    fruit
+    your favorite food
+    is
+    pizza
+    push enter to continue
+
+
 ### Learning Example Output:
 
     bot    > What is your name?

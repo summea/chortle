@@ -71,8 +71,11 @@ namespace chortle
         public static void init()
         {
             // make sure we init things that need init'ing in-between chat/teacher sessions
+            ChortleSettings.firstTime = true;
+            ChortleSettings.humanResponseConversationData = new List<string>();
             ChortleSettings.botState = ChortleSettings.BOT_ASK;
             ChortleSettings.taughtResponseData = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, double>>>(ChortleSettings.getTaughtResponsesDataSrc());
+            ChortleSettings.responseData = new Dictionary<string, string>();
         }
 
         public static Dictionary<string, string> botAsk(string questionKey, bool followUp=false)
@@ -168,9 +171,6 @@ namespace chortle
 
                     // save human response to conversation data
                     ChortleSettings.humanResponseConversationData.Add(response);
-
-                    //if (response.Equals("goodbye"))
-                        //doneChatting = true;
 
                     // originally from chortlejs parsing
                     string[] questionPieces = questionKey.Split(' ');
@@ -569,17 +569,18 @@ namespace chortle
             return result["answer"];
         }
 
-        public static string botRespond(Dictionary<string, string> phraseData)
+        public static string botRespond(Dictionary<string, string> phraseData, string dataStore="taughtResponses")
         {
             string result = "";
 
             // formulate a response from learned responses
-            result = botFormulateResponse(phraseData);
+            result = botFormulateResponse(phraseData, dataStore);
 
             // respond
-            Console.WriteLine("bot    > " + result);
+            if (!string.IsNullOrWhiteSpace(result))
+                Console.WriteLine("bot    > " + result);
 
-            ChortleSettings.botState = ChortleSettings.BOT_ASK;
+            //ChortleSettings.botState = ChortleSettings.BOT_ASK;
 
             return result;
         }
@@ -589,72 +590,107 @@ namespace chortle
             bool doneChatting = false;
             List<string> questionKeyList = new List<string>(ChortleSettings.questionData.Keys);
             List<string> phraseKeyList = new List<string>(ChortleSettings.phraseData.Keys);
+            List<string> taughtResponseKeyList = new List<string>(ChortleSettings.taughtResponseData.Keys);
 
             int numBotQuestionsAsked = 0;
             int numTotalBotQuestions = questionKeyList.Count;
 
             Dictionary<string, string> previousQA = new Dictionary<string, string>();
 
-            while (!doneChatting && (numBotQuestionsAsked < numTotalBotQuestions))
+            while (!doneChatting)
             {
-                switch (ChortleSettings.botState)
+                int lastBotAction = 0;
+
+                Random rnd = new Random();
+                int randomBotState = rnd.Next(2);
+                if (randomBotState == 1)
                 {
-                    case ChortleSettings.BOT_NOP:
-                        break;
-                    case ChortleSettings.BOT_ASK:
-                        Random randomNumber = new Random();
-                        string randomKey = questionKeyList[randomNumber.Next(questionKeyList.Count)];
-                        previousQA = botAsk(randomKey);
-                        if (!string.IsNullOrEmpty(previousQA["answer"]))
+                    // bot asks question                   
+                    Random randomNumber = new Random();
+                    string randomKey = questionKeyList[randomNumber.Next(questionKeyList.Count)];
+                    previousQA = botAsk(randomKey);
+                    if (!string.IsNullOrEmpty(previousQA["answer"]))
+                    {
+                        numBotQuestionsAsked++;
+
+                        // bot trying really hard to feel accepted...
+                        // check if a relation can help with this question
+
+                        // TODO: use variables here
+
+                        if (!ChortleSettings.talkedAbout.ContainsKey("i like fruit"))
                         {
-                            numBotQuestionsAsked++;
+                            ChortleSettings.talkedAbout.Add("i like fruit", "");
+                        }
 
-                            // bot trying really hard to feel accepted...
-                            // check if a relation can help with this question
-
-                            // TODO: use variables here
-
-                            if (!ChortleSettings.talkedAbout.ContainsKey("i like fruit"))
+                        if (ChortleSettings.talkedAbout.ContainsKey("i like fruit") && !ChortleSettings.talkedAbout["i like fruit"].Equals("yes"))
+                        {
+                            if (ChortleSettings.relationalData.ContainsKey("you"))
                             {
-                                ChortleSettings.talkedAbout.Add("i like fruit", "");
-                            }
-
-                            if (ChortleSettings.talkedAbout.ContainsKey("i like fruit") && !ChortleSettings.talkedAbout["i like fruit"].Equals("yes"))
-                            {
-                                if (ChortleSettings.relationalData.ContainsKey("you"))
+                                if (ChortleSettings.relationalData["you"].ContainsKey("like"))
                                 {
-                                    if (ChortleSettings.relationalData["you"].ContainsKey("like"))
+                                    if (ChortleSettings.relationalData["you"]["like"].Contains("fruit"))
                                     {
-                                        if (ChortleSettings.relationalData["you"]["like"].Contains("fruit"))
-                                        {
 
-                                            if (ChortleSettings.botRelationalData.ContainsKey("i"))
+                                        if (ChortleSettings.botRelationalData.ContainsKey("i"))
+                                        {
+                                            if (ChortleSettings.botRelationalData["i"].ContainsKey("like"))
                                             {
-                                                if (ChortleSettings.botRelationalData["i"].ContainsKey("like"))
+                                                if (ChortleSettings.botRelationalData["i"]["like"].Contains("fruit"))
                                                 {
-                                                    if (ChortleSettings.botRelationalData["i"]["like"].Contains("fruit"))
-                                                    {
-                                                        Console.WriteLine("bot    > Oh, I like fruit too, lol");
-                                                        ChortleSettings.talkedAbout["i like fruit"] = "yes";
-                                                    }
+                                                    Console.WriteLine("bot    > Oh, I like fruit too, lol");
+                                                    ChortleSettings.talkedAbout["i like fruit"] = "yes";
                                                 }
                                             }
-                                            // skip extra response and go directly back to asking a question
-                                            ChortleSettings.botState = ChortleSettings.BOT_ASK;
                                         }
+                                        // skip extra response and go directly back to asking a question
+                                        // ChortleSettings.botState = ChortleSettings.BOT_ASK;
                                     }
                                 }
                             }
                         }
-
-                        break;
-                    case ChortleSettings.BOT_FOLLOW_UP:
-                        break;
-                    case ChortleSettings.BOT_RESPOND:
+                    }
+                    lastBotAction = ChortleSettings.BOT_ASK;
+                }
+                else
+                {
+                    if (lastBotAction != ChortleSettings.BOT_RESPOND)
+                    {
+                        // bot makes statement and allows user to respond
+                        if (previousQA.ContainsKey("answer") && string.IsNullOrWhiteSpace(previousQA["answer"]))
+                        {
+                            Random rndResponse = new Random();
+                            int randomKeyIndex = rndResponse.Next(taughtResponseKeyList.Count);
+                            previousQA["answer"] = taughtResponseKeyList[randomKeyIndex];
+                        }
                         botRespond(previousQA);
-                        break;
+                        Console.Write("human  > ");
+                        string response = Console.ReadLine();
+                        previousQA["answer"] = response;
+                        //botRespond(previousQA);
+                        lastBotAction = ChortleSettings.BOT_RESPOND;
+
+                        // check if user asked bot a question
+                        Regex rgx = new Regex(@"\?");
+                        Match match = rgx.Match(response);
+                        if (match.Success)
+                        {
+                            if (ChortleSettings.debugMode)
+                                Console.WriteLine(">>> user is asking a question...");
+                            botRespond(previousQA, "favorites");
+                        }
+                    }
+                }
+
+                if (previousQA.ContainsKey("answer"))
+                {
+                    Regex rgx = new Regex(@"bye");
+                    Match match = rgx.Match(previousQA["answer"]);
+                    if (match.Success)
+                        doneChatting = true;
                 }
             }
+
 
             Console.WriteLine("bot    > Well, I need to be going!");
 
@@ -704,7 +740,7 @@ namespace chortle
 
         }
 
-        public static string botFormulateResponse(Dictionary<string, string> topicPhraseData)
+        public static string botFormulateResponse(Dictionary<string, string> topicPhraseData, string dataStore = "taughtResponses")
         {
             string botResponse = "";
             List<string> botLearnedKeyList = new List<string>(ChortleSettings.taughtResponseData.Keys);
@@ -716,355 +752,493 @@ namespace chortle
             if (topicPhraseData.ContainsKey("combinedKey"))
                 searchKey = topicPhraseData["combinedKey"];
 
-            if (ChortleSettings.debugMode)
-                Console.WriteLine("]] searching for: " + searchKey);
-
-            // bot tries out a response
-            if (ChortleSettings.taughtResponseData.ContainsKey(searchKey))
+            if (!string.IsNullOrWhiteSpace(searchKey))
             {
-                if (ChortleSettings.debugMode)
-                    Console.WriteLine("> found key: " + searchKey);
-
-                bool checkForBest = true;
-
-                // Add some randomness in how responses are initially found (ordered)
-                Random rndNumber = new Random();
-                var randomizedItems = from pair in ChortleSettings.taughtResponseData[searchKey]
-                                      orderby rndNumber.Next() descending
-                                      select pair;
-
-                List<string> orderedKeys = new List<string>();
-                foreach (KeyValuePair<string, double> pair in randomizedItems)
+                // user is asking bot a question
+                if (dataStore.Equals("favorites"))
                 {
-                    orderedKeys.Add(pair.Key);
-                }
-
-                List<string> botLearnedKeyValueList = new List<string>(orderedKeys);
-
-                foreach (string keyItem in botLearnedKeyValueList)
-                {
-                    var weight = ChortleSettings.taughtResponseData[searchKey][keyItem];
                     if (ChortleSettings.debugMode)
-                        Console.WriteLine("> checking weight response..." + weight + " / " + keyItem);
+                        Console.WriteLine(">>> checking favorites...");
 
-                    // if weight is high enough, return found response as bot response
-                    if (Convert.ToDouble(weight) >= (ChortleSettings.midWeight + ChortleSettings.incDecWeight) && checkForBest)
+                    // TODO: separate out this earlier algorithm into another function...
+                    string questionKey = "";
+                    if (topicPhraseData.ContainsKey("answer"))
                     {
-                        if (ChortleSettings.debugMode)
-                            Console.WriteLine("> found a good weight response");
-                        botResponse = keyItem;
-                        break;
+                        // make sure to take out periods/question marks
+                        questionKey = Regex.Replace(topicPhraseData["answer"], @"[.?]+", "");
                     }
-                    else if (Convert.ToDouble(weight) >= ChortleSettings.midWeight && Convert.ToDouble(weight) < ChortleSettings.maxWeight)
+
+                    // save relation data
+                    // break down question into POS
+
+                    string[] questionPieces = questionKey.Split(' ');
+                    List<string> questionPiecesAsPOS = new List<string>();
+
+                    foreach (string word in questionPieces)
                     {
-                        if (checkForBest)
-                        {
-                            if (ChortleSettings.debugMode)
-                                Console.WriteLine("> found an okay weight response");
-                            botResponse = keyItem;
-                        }
+                        if (ChortleSettings.vocabularyData.ContainsKey(word))
+                            questionPiecesAsPOS.Add(ChortleSettings.vocabularyData[word]);
                         else
-                        {
-                            if (ChortleSettings.debugMode)
-                                Console.WriteLine("> found an okay weight response");
-                            botResponse = keyItem;
-                            break;
-                        }
+                            questionPiecesAsPOS.Add("UNKNOWN");
                     }
-                    // no responses available
+
+                    if (ChortleSettings.debugMode)
+                        Console.WriteLine(">>>>> Question POS: " + string.Join(",", questionPiecesAsPOS));
+
+                    List<string> questionSubjects = new List<string>();
+                    List<string> questionObjects = new List<string>();
+
+                    // search for root verb
+                    string questionRootVerb = "";
+                    int questionRootVerbIndex = 0;
+                    for (int itemIndex = 0; itemIndex < questionPiecesAsPOS.Count; itemIndex++)
+                    {
+                        if (ChortleSettings.posVerbTypes.Contains(questionPiecesAsPOS[itemIndex]))
+                        {
+                            questionRootVerb = questionPieces[itemIndex];
+                            questionRootVerbIndex = itemIndex;
+                        }
+
+                        if (ChortleSettings.debugMode)
+                            Console.WriteLine("question root verb: " + questionRootVerb);
+                    }
+
+
+                    // no root verb found (implies "x is what")
+                    if (string.IsNullOrWhiteSpace(questionRootVerb))
+                    {
+                        questionRootVerb = "is";
+
+                        foreach (string item in questionPieces)
+                        {
+                            questionSubjects.Add(item);
+                        }
+
+                        questionObjects.Add("what");
+                    }
                     else
                     {
-                        Random rnd = new Random();
-                        // TODO: add the random part (below) back in later...
-                        // int choice = rnd.Next(1, 2);
-                        int choice = 1;
+                        if (ChortleSettings.debugMode)
+                            Console.WriteLine("current root verb: " + questionRootVerb);
 
-                        switch (choice)
+                        // search for subject                    
+                        for (int itemIndex = 0; itemIndex < questionRootVerbIndex; itemIndex++)
                         {
-                            // randomly guess from learned words
-                            case 1:
-                                // refresh bot learned key list to get recent changes
-                                botLearnedKeyList = new List<string>(ChortleSettings.taughtResponseData.Keys);
-                                String randomKey = botLearnedKeyList[randomNumber.Next(ChortleSettings.taughtResponseData.Count)];
+                            if (ChortleSettings.posObjectTypes.Contains(questionPiecesAsPOS[itemIndex]))
+                            {
+                                questionObjects.Add(questionPieces[itemIndex]);
+                            }
+                        }
 
-                                if (ChortleSettings.taughtResponseData[randomKey].Count > 0)
+                        // search for object
+                        if ((questionRootVerbIndex + 1) <= questionPiecesAsPOS.Count)
+                        {
+                            for (int itemIndex = questionRootVerbIndex + 1; itemIndex < questionPiecesAsPOS.Count; itemIndex++)
+                            {
+                                if (ChortleSettings.posSubjectTypes.Contains(questionPiecesAsPOS[itemIndex]))
                                 {
-                                    // Add some randomness in how guesses happen
-                                    // (when bot doesn't have a response... try guessing at another topic response)
-                                    Random rndNumberForGuess = new Random();
-                                    var randomizedTopicsForGuess = from pair in ChortleSettings.taughtResponseData[randomKey]
-                                                                   orderby rndNumber.Next()
-                                                                   select pair;
+                                    questionSubjects.Add(questionPieces[itemIndex]);
+                                }
+                            }
+                        }
+                    }
 
-                                    List<string> orderedKeysForGuess = new List<string>();
-                                    foreach (KeyValuePair<string, double> pair in randomizedTopicsForGuess)
-                                    {
-                                        orderedKeysForGuess.Add(pair.Key);
-                                        //Console.WriteLine("{0} : {1}", pair.Key, pair.Value);
-                                    }
 
-                                    List<string> botLearnedKeyValueListForGuess = new List<string>(orderedKeysForGuess);
+                    string questionSubject = string.Join(" ", questionSubjects);
+                    string questionObject = string.Join(" ", questionObjects);
 
-                                    foreach (string keyItemForGuess in botLearnedKeyValueListForGuess)
-                                    {
-                                        if (ChortleSettings.taughtResponseData.ContainsKey(randomKey) && ChortleSettings.taughtResponseData[randomKey].Count > 0)
+
+                    // interpolate "dynamic" patterns in question
+                    String interpolatedStringTwo = questionObject;
+                    string patternItemTwo = @"({{[\w\s]+}})";
+                    foreach (Match match in Regex.Matches(questionObject, patternItemTwo, RegexOptions.IgnoreCase))
+                    {
+                        String itemKey = match.Groups[0].ToString();
+                        itemKey = itemKey.Replace("{", "").Replace("}", "");
+                        interpolatedStringTwo = interpolatedStringTwo.Replace(match.Groups[0].ToString(), ChortleSettings.responseData[itemKey]);
+                    }
+
+                    questionObject = interpolatedStringTwo;
+
+                    if (ChortleSettings.debugMode)
+                    {
+                        Console.WriteLine("> found question subject: " + questionSubject);
+                        Console.WriteLine("> found question (root) verb: " + questionRootVerb);
+                        Console.WriteLine("> found question object: " + questionObject);
+                    }
+
+                    // end of earlier algorithm
+
+                    if (ChortleSettings.botRelationalData.ContainsKey(questionSubject))
+                    {
+                        if (ChortleSettings.botRelationalData[questionSubject].ContainsKey(questionRootVerb))
+                        {
+                            //Console.WriteLine("bot    > " + string.Join(" ", ChortleSettings.botRelationalData[questionSubject][questionRootVerb]));
+                            botResponse = string.Join(" ", ChortleSettings.botRelationalData[questionSubject][questionRootVerb]);
+                        }
+                    }
+                }
+                else
+                {
+                    if (ChortleSettings.debugMode)
+                        Console.WriteLine("]] searching for: " + searchKey);
+
+                    // bot tries out a response
+                    if (ChortleSettings.taughtResponseData.ContainsKey(searchKey))
+                    {
+                        if (ChortleSettings.debugMode)
+                            Console.WriteLine("> found key: " + searchKey);
+
+                        bool checkForBest = true;
+
+                        // Add some randomness in how responses are initially found (ordered)
+                        Random rndNumber = new Random();
+                        var randomizedItems = from pair in ChortleSettings.taughtResponseData[searchKey]
+                                              orderby rndNumber.Next() descending
+                                              select pair;
+
+                        List<string> orderedKeys = new List<string>();
+                        foreach (KeyValuePair<string, double> pair in randomizedItems)
+                        {
+                            orderedKeys.Add(pair.Key);
+                        }
+
+                        List<string> botLearnedKeyValueList = new List<string>(orderedKeys);
+
+                        foreach (string keyItem in botLearnedKeyValueList)
+                        {
+                            var weight = ChortleSettings.taughtResponseData[searchKey][keyItem];
+                            if (ChortleSettings.debugMode)
+                                Console.WriteLine("> checking weight response..." + weight + " / " + keyItem);
+
+                            // if weight is high enough, return found response as bot response
+                            if (Convert.ToDouble(weight) >= (ChortleSettings.midWeight + ChortleSettings.incDecWeight) && checkForBest)
+                            {
+                                if (ChortleSettings.debugMode)
+                                    Console.WriteLine("> found a good weight response");
+                                botResponse = keyItem;
+                                break;
+                            }
+                            else if (Convert.ToDouble(weight) >= ChortleSettings.midWeight && Convert.ToDouble(weight) < ChortleSettings.maxWeight)
+                            {
+                                if (checkForBest)
+                                {
+                                    if (ChortleSettings.debugMode)
+                                        Console.WriteLine("> found an okay weight response");
+                                    botResponse = keyItem;
+                                }
+                                else
+                                {
+                                    if (ChortleSettings.debugMode)
+                                        Console.WriteLine("> found an okay weight response");
+                                    botResponse = keyItem;
+                                    break;
+                                }
+                            }
+                            // no responses available
+                            else
+                            {
+                                Random rnd = new Random();
+                                // TODO: add the random part (below) back in later...
+                                // int choice = rnd.Next(1, 2);
+                                int choice = 1;
+
+                                switch (choice)
+                                {
+                                    // randomly guess from learned words
+                                    case 1:
+                                        // refresh bot learned key list to get recent changes
+                                        botLearnedKeyList = new List<string>(ChortleSettings.taughtResponseData.Keys);
+                                        String randomKey = botLearnedKeyList[randomNumber.Next(ChortleSettings.taughtResponseData.Count)];
+
+                                        if (ChortleSettings.taughtResponseData[randomKey].Count > 0)
                                         {
-                                            var foundResponse = keyItemForGuess;
-                                            if (ChortleSettings.debugMode)
-                                                Console.WriteLine("> found response: " + foundResponse);
-                                            if (!foundResponse.Equals(""))
+                                            // Add some randomness in how guesses happen
+                                            // (when bot doesn't have a response... try guessing at another topic response)
+                                            Random rndNumberForGuess = new Random();
+                                            var randomizedTopicsForGuess = from pair in ChortleSettings.taughtResponseData[randomKey]
+                                                                           orderby rndNumber.Next()
+                                                                           select pair;
+
+                                            List<string> orderedKeysForGuess = new List<string>();
+                                            foreach (KeyValuePair<string, double> pair in randomizedTopicsForGuess)
                                             {
-                                                botResponse = foundResponse;
-                                                break;
+                                                orderedKeysForGuess.Add(pair.Key);
+                                                //Console.WriteLine("{0} : {1}", pair.Key, pair.Value);
+                                            }
+
+                                            List<string> botLearnedKeyValueListForGuess = new List<string>(orderedKeysForGuess);
+
+                                            foreach (string keyItemForGuess in botLearnedKeyValueListForGuess)
+                                            {
+                                                if (ChortleSettings.taughtResponseData.ContainsKey(randomKey) && ChortleSettings.taughtResponseData[randomKey].Count > 0)
+                                                {
+                                                    var foundResponse = keyItemForGuess;
+                                                    if (ChortleSettings.debugMode)
+                                                        Console.WriteLine("> found response: " + foundResponse);
+                                                    if (!foundResponse.Equals(""))
+                                                    {
+                                                        botResponse = foundResponse;
+                                                        break;
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    // repeat what teacher said
+                                                    botResponse = topicPhraseData["answer"];
+                                                }
                                             }
                                         }
                                         else
                                         {
                                             // repeat what teacher said
-                                            botResponse = searchKey;
+                                            botResponse = topicPhraseData["answer"];
                                         }
-                                    }
-                                }
-                                else
-                                {
-                                    // repeat what teacher said
-                                    botResponse = searchKey;
-                                }
-                                break;
-                            default:
-                                // repeat what teacher said
-                                botResponse = searchKey;
-                                break;
-                        }
-                    }
-                }
-            }
-            // no responses available (yet) so try some things
-            else
-            {
-                // break down teacher response key until nothing remains (i.e. nothing is found):
-                //  i like green things
-                //  i like green
-                //  i like
-                string[] teacherResponsePieces = searchKey.Split(' ');
-                string[] teacherResponsePiecesWorkingCopy = searchKey.Split(' ');
-                string shorterKey = "";
-                bool foundAResponse = false;
-
-                for (int teacherResponsePieceIndex = teacherResponsePieces.Length; teacherResponsePieceIndex >= 0; --teacherResponsePieceIndex)
-                {
-                    if (!foundAResponse)
-                    {
-                        if (ChortleSettings.debugMode)
-                            Console.WriteLine("> finding response...");
-                        shorterKey = "";
-
-                        // build shorterKey from longest to shortest key possible
-                        for (int buildKeyIndex = 0; buildKeyIndex < teacherResponsePieceIndex; buildKeyIndex++)
-                        {
-                            shorterKey += teacherResponsePieces[buildKeyIndex] + " ";
-                        }
-                        shorterKey = shorterKey.TrimEnd(' ');
-
-                        if (ChortleSettings.debugMode)
-                            Console.WriteLine("> trying shorter key: " + shorterKey);
-
-                        if (ChortleSettings.taughtResponseData.ContainsKey(shorterKey))
-                        {
-                            if (ChortleSettings.debugMode)
-                                Console.WriteLine("> found this shorter key in learned responses: " + shorterKey);
-
-                            // bot tries out a response
-                            if (ChortleSettings.taughtResponseData.ContainsKey(shorterKey))
-                            {
-                                List<string> botLearnedKeyValueList = new List<string>(ChortleSettings.taughtResponseData[shorterKey].Keys);
-
-                                bool checkForBest = true;
-                                foreach (string keyItem in botLearnedKeyValueList)
-                                {
-                                    var weight = ChortleSettings.taughtResponseData[shorterKey][keyItem];
-                                    if (ChortleSettings.debugMode)
-                                        Console.WriteLine("> checking weight response..." + weight + " / " + ChortleSettings.taughtResponseData[shorterKey][keyItem]);
-
-                                    // if weight is high enough, return found response as bot response
-                                    if (Convert.ToDouble(weight) >= (ChortleSettings.midWeight + ChortleSettings.incDecWeight) && checkForBest)
-                                    {
-                                        if (ChortleSettings.debugMode)
-                                            Console.WriteLine("> found a good weight response");
-                                        //Console.WriteLine("should be exiting here...");
-                                        botResponse = keyItem;
-                                        foundAResponse = true;
                                         break;
-                                    }
-                                    else if (Convert.ToDouble(weight) >= ChortleSettings.midWeight && Convert.ToDouble(weight) < ChortleSettings.maxWeight)
-                                    {
-                                        if (ChortleSettings.debugMode)
-                                            Console.WriteLine("> checking an 'okay' response");
-                                        if (checkForBest)
-                                        {
-                                            if (ChortleSettings.debugMode)
-                                                Console.WriteLine("> found an okay weight response");
-                                            botResponse = keyItem;
-                                            foundAResponse = true;
-                                            //break;
-                                        }
-                                        else
-                                        {
-                                            if (ChortleSettings.debugMode)
-                                                Console.WriteLine("> found an okay weight response");
-                                            botResponse = keyItem;
-                                            foundAResponse = true;
-                                            break;
-                                        }
-                                    }
-                                    // no responses available
-                                    else
-                                    {
-                                        Random rnd = new Random();
-                                        // TODO: add the random part (below) back in later...
-                                        // int choice = rnd.Next(1, 2);
-                                        int choice = 1;
-
-                                        switch (choice)
-                                        {
-                                            // randomly guess from learned words
-                                            case 1:
-                                                // refresh bot learned key list to get recent changes
-                                                botLearnedKeyList = new List<string>(ChortleSettings.taughtResponseData.Keys);
-                                                String randomKey = botLearnedKeyList[randomNumber.Next(ChortleSettings.taughtResponseData.Count)];
-
-                                                botLearnedKeyValueList = new List<string>(ChortleSettings.taughtResponseData[randomKey].Keys);
-                                                String randomValueKey = botLearnedKeyValueList[randomNumber.Next(ChortleSettings.taughtResponseData[randomKey].Count)];
-
-                                                if (ChortleSettings.taughtResponseData.ContainsKey(randomKey) && ChortleSettings.taughtResponseData[randomKey].Count > 0)
-                                                {
-                                                    //var foundResponse = taughtResponseData[randomKey][randomValueKey];
-                                                    var foundResponse = randomValueKey;
-                                                    botResponse = foundResponse;
-                                                }
-                                                else
-                                                {
-                                                    // repeat what teacher said
-                                                    botResponse = shorterKey;
-                                                }
-                                                foundAResponse = true;
-                                                break;
-                                            default:
-                                                // repeat what teacher said
-                                                botResponse = shorterKey;
-                                                foundAResponse = true;
-                                                break;
-                                        }
-                                    }
+                                    default:
+                                        // repeat what teacher said
+                                        botResponse = topicPhraseData["answer"];
+                                        break;
                                 }
-                                if (ChortleSettings.debugMode)
-                                    Console.WriteLine("> botResponse: " + botResponse);
                             }
                         }
+                    }
+                    // no responses available (yet) so try some things
+                    else
+                    {
+                        // break down teacher response key until nothing remains (i.e. nothing is found):
+                        //  i like green things
+                        //  i like green
+                        //  i like
+                        string[] teacherResponsePieces = searchKey.Split(' ');
+                        string[] teacherResponsePiecesWorkingCopy = searchKey.Split(' ');
+                        string shorterKey = "";
+                        bool foundAResponse = false;
 
-                        if (ChortleSettings.debugMode)
-                            Console.WriteLine("> found a response: " + foundAResponse);
-
-                        if (!foundAResponse)
+                        for (int teacherResponsePieceIndex = teacherResponsePieces.Length; teacherResponsePieceIndex >= 0; --teacherResponsePieceIndex)
                         {
-                            if (ChortleSettings.debugMode)
-                                Console.WriteLine("> picking from grab bag...");
-
-                            // save new key first
-                            ChortleSettings.taughtResponseData[searchKey] = new Dictionary<string, double>();
-
-                            // otherwise... pick from the * (grab bag) responses
-                            if (ChortleSettings.taughtResponseData.ContainsKey("*"))
+                            if (!foundAResponse)
                             {
-                                //teacherResponse = "*";
+                                if (ChortleSettings.debugMode)
+                                    Console.WriteLine("> finding response...");
+                                shorterKey = "";
 
-                                List<string> botLearnedKeyValueList = new List<string>(ChortleSettings.taughtResponseData["*"].Keys);
-                                //String randomValueKey = botLearnedKeyValueList[randomNumber.Next(taughtResponseData[randomKey].Count)];
-
-                                bool checkForBest = true;
-                                foreach (string keyItem in botLearnedKeyValueList)
+                                // build shorterKey from longest to shortest key possible
+                                for (int buildKeyIndex = 0; buildKeyIndex < teacherResponsePieceIndex; buildKeyIndex++)
                                 {
-                                    var weight = ChortleSettings.taughtResponseData["*"][keyItem];
+                                    shorterKey += teacherResponsePieces[buildKeyIndex] + " ";
+                                }
+                                shorterKey = shorterKey.TrimEnd(' ');
+
+                                if (ChortleSettings.debugMode)
+                                    Console.WriteLine("> trying shorter key: " + shorterKey);
+
+                                if (ChortleSettings.taughtResponseData.ContainsKey(shorterKey))
+                                {
                                     if (ChortleSettings.debugMode)
-                                        Console.WriteLine("> checking weight response..." + weight + " / " + keyItem);
+                                        Console.WriteLine("> found this shorter key in learned responses: " + shorterKey);
 
-                                    // if weight is high enough, return found response as bot response
-                                    if (Convert.ToDouble(weight) >= (ChortleSettings.midWeight + ChortleSettings.incDecWeight) && checkForBest)
+                                    // bot tries out a response
+                                    if (ChortleSettings.taughtResponseData.ContainsKey(shorterKey))
                                     {
-                                        if (ChortleSettings.debugMode)
-                                            Console.WriteLine("> found a good weight response");
-                                        botResponse = keyItem;
-                                        break;
-                                    }
-                                    else if (Convert.ToDouble(weight) >= ChortleSettings.midWeight && Convert.ToDouble(weight) < ChortleSettings.maxWeight)
-                                    {
-                                        if (checkForBest)
+                                        List<string> botLearnedKeyValueList = new List<string>(ChortleSettings.taughtResponseData[shorterKey].Keys);
+
+                                        bool checkForBest = true;
+                                        foreach (string keyItem in botLearnedKeyValueList)
                                         {
+                                            var weight = ChortleSettings.taughtResponseData[shorterKey][keyItem];
                                             if (ChortleSettings.debugMode)
-                                                Console.WriteLine("> found an okay weight response");
-                                            botResponse = keyItem;
-                                        }
-                                        else
-                                        {
-                                            if (ChortleSettings.debugMode)
-                                                Console.WriteLine("> found an okay weight response");
-                                            botResponse = keyItem;
-                                            break;
-                                        }
-                                    }
-                                    // no responses available
-                                    else
-                                    {
-                                        Random rnd = new Random();
-                                        // TODO: add the random part (below) back in later...
-                                        // int choice = rnd.Next(1, 2);
-                                        int choice = 1;
+                                                Console.WriteLine("> checking weight response..." + weight + " / " + ChortleSettings.taughtResponseData[shorterKey][keyItem]);
 
-                                        switch (choice)
-                                        {
-                                            // randomly guess from learned words
-                                            case 1:
-                                                // refresh bot learned key list to get recent changes
-                                                botLearnedKeyList = new List<string>(ChortleSettings.taughtResponseData.Keys);
-                                                String randomKey = botLearnedKeyList[randomNumber.Next(ChortleSettings.taughtResponseData.Count)];
-
-                                                botLearnedKeyValueList = new List<string>(ChortleSettings.taughtResponseData[randomKey].Keys);
-                                                String randomValueKey = botLearnedKeyValueList[randomNumber.Next(ChortleSettings.taughtResponseData[randomKey].Count)];
-
-                                                if (ChortleSettings.taughtResponseData.ContainsKey(randomKey) && ChortleSettings.taughtResponseData[randomKey].Count > 0)
+                                            // if weight is high enough, return found response as bot response
+                                            if (Convert.ToDouble(weight) >= (ChortleSettings.midWeight + ChortleSettings.incDecWeight) && checkForBest)
+                                            {
+                                                if (ChortleSettings.debugMode)
+                                                    Console.WriteLine("> found a good weight response");
+                                                //Console.WriteLine("should be exiting here...");
+                                                botResponse = keyItem;
+                                                foundAResponse = true;
+                                                break;
+                                            }
+                                            else if (Convert.ToDouble(weight) >= ChortleSettings.midWeight && Convert.ToDouble(weight) < ChortleSettings.maxWeight)
+                                            {
+                                                if (ChortleSettings.debugMode)
+                                                    Console.WriteLine("> checking an 'okay' response");
+                                                if (checkForBest)
                                                 {
-                                                    //var foundResponse = taughtResponseData[randomKey][randomValueKey];
-                                                    var foundResponse = randomValueKey;
-                                                    botResponse = foundResponse;
+                                                    if (ChortleSettings.debugMode)
+                                                        Console.WriteLine("> found an okay weight response");
+                                                    botResponse = keyItem;
+                                                    foundAResponse = true;
+                                                    //break;
                                                 }
                                                 else
                                                 {
-                                                    // repeat what teacher said
-                                                    botResponse = searchKey;
+                                                    if (ChortleSettings.debugMode)
+                                                        Console.WriteLine("> found an okay weight response");
+                                                    botResponse = keyItem;
+                                                    foundAResponse = true;
+                                                    break;
                                                 }
-                                                break;
-                                            default:
-                                                // repeat what teacher said
-                                                botResponse = searchKey;
-                                                break;
+                                            }
+                                            // no responses available
+                                            else
+                                            {
+                                                Random rnd = new Random();
+                                                // TODO: add the random part (below) back in later...
+                                                // int choice = rnd.Next(1, 2);
+                                                int choice = 1;
+
+                                                switch (choice)
+                                                {
+                                                    // randomly guess from learned words
+                                                    case 1:
+                                                        // refresh bot learned key list to get recent changes
+                                                        botLearnedKeyList = new List<string>(ChortleSettings.taughtResponseData.Keys);
+                                                        String randomKey = botLearnedKeyList[randomNumber.Next(ChortleSettings.taughtResponseData.Count)];
+
+                                                        botLearnedKeyValueList = new List<string>(ChortleSettings.taughtResponseData[randomKey].Keys);
+                                                        String randomValueKey;
+
+                                                        try
+                                                        {
+                                                            randomValueKey = botLearnedKeyValueList[randomNumber.Next(ChortleSettings.taughtResponseData[randomKey].Count)];
+                                                        }
+                                                        catch
+                                                        {
+                                                            randomValueKey = "*";
+                                                        }
+
+                                                        if (ChortleSettings.taughtResponseData.ContainsKey(randomKey) && ChortleSettings.taughtResponseData[randomKey].Count > 0)
+                                                        {
+                                                            //var foundResponse = taughtResponseData[randomKey][randomValueKey];
+                                                            var foundResponse = randomValueKey;
+                                                            botResponse = foundResponse;
+                                                        }
+                                                        else
+                                                        {
+                                                            // repeat what teacher said
+                                                            botResponse = shorterKey;
+                                                        }
+                                                        foundAResponse = true;
+                                                        break;
+                                                    default:
+                                                        // repeat what teacher said
+                                                        botResponse = shorterKey;
+                                                        foundAResponse = true;
+                                                        break;
+                                                }
+                                            }
                                         }
+                                        if (ChortleSettings.debugMode)
+                                            Console.WriteLine("> botResponse: " + botResponse);
+                                    }
+                                }
+
+                                if (ChortleSettings.debugMode)
+                                    Console.WriteLine("> found a response: " + foundAResponse);
+
+                                if (!foundAResponse)
+                                {
+                                    if (ChortleSettings.debugMode)
+                                        Console.WriteLine("> picking from grab bag...");
+
+                                    // save new key first
+                                    ChortleSettings.taughtResponseData[searchKey] = new Dictionary<string, double>();
+
+                                    // otherwise... pick from the * (grab bag) responses
+                                    if (ChortleSettings.taughtResponseData.ContainsKey("*"))
+                                    {
+                                        //teacherResponse = "*";
+
+                                        List<string> botLearnedKeyValueList = new List<string>(ChortleSettings.taughtResponseData["*"].Keys);
+                                        //String randomValueKey = botLearnedKeyValueList[randomNumber.Next(taughtResponseData[randomKey].Count)];
+
+                                        bool checkForBest = true;
+                                        foreach (string keyItem in botLearnedKeyValueList)
+                                        {
+                                            var weight = ChortleSettings.taughtResponseData["*"][keyItem];
+                                            if (ChortleSettings.debugMode)
+                                                Console.WriteLine("> checking weight response..." + weight + " / " + keyItem);
+
+                                            // if weight is high enough, return found response as bot response
+                                            if (Convert.ToDouble(weight) >= (ChortleSettings.midWeight + ChortleSettings.incDecWeight) && checkForBest)
+                                            {
+                                                if (ChortleSettings.debugMode)
+                                                    Console.WriteLine("> found a good weight response");
+                                                botResponse = keyItem;
+                                                break;
+                                            }
+                                            else if (Convert.ToDouble(weight) >= ChortleSettings.midWeight && Convert.ToDouble(weight) < ChortleSettings.maxWeight)
+                                            {
+                                                if (checkForBest)
+                                                {
+                                                    if (ChortleSettings.debugMode)
+                                                        Console.WriteLine("> found an okay weight response");
+                                                    botResponse = keyItem;
+                                                }
+                                                else
+                                                {
+                                                    if (ChortleSettings.debugMode)
+                                                        Console.WriteLine("> found an okay weight response");
+                                                    botResponse = keyItem;
+                                                    break;
+                                                }
+                                            }
+                                            // no responses available
+                                            else
+                                            {
+                                                Random rnd = new Random();
+                                                // TODO: add the random part (below) back in later...
+                                                // int choice = rnd.Next(1, 2);
+                                                int choice = 1;
+
+                                                switch (choice)
+                                                {
+                                                    // randomly guess from learned words
+                                                    case 1:
+                                                        // refresh bot learned key list to get recent changes
+                                                        botLearnedKeyList = new List<string>(ChortleSettings.taughtResponseData.Keys);
+                                                        String randomKey = botLearnedKeyList[randomNumber.Next(ChortleSettings.taughtResponseData.Count)];
+
+                                                        botLearnedKeyValueList = new List<string>(ChortleSettings.taughtResponseData[randomKey].Keys);
+                                                        String randomValueKey = botLearnedKeyValueList[randomNumber.Next(ChortleSettings.taughtResponseData[randomKey].Count)];
+
+                                                        if (ChortleSettings.taughtResponseData.ContainsKey(randomKey) && ChortleSettings.taughtResponseData[randomKey].Count > 0)
+                                                        {
+                                                            //var foundResponse = taughtResponseData[randomKey][randomValueKey];
+                                                            var foundResponse = randomValueKey;
+                                                            botResponse = foundResponse;
+                                                        }
+                                                        else
+                                                        {
+                                                            // repeat what teacher said
+                                                            botResponse = topicPhraseData["answer"];
+                                                        }
+                                                        break;
+                                                    default:
+                                                        // repeat what teacher said
+                                                        botResponse = topicPhraseData["answer"];
+                                                        break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // repeat what teacher said
+                                        botResponse = topicPhraseData["answer"];
                                     }
                                 }
                             }
                             else
                             {
-                                // repeat what teacher said
-                                botResponse = searchKey;
+                                break;
                             }
                         }
                     }
-                    else
-                    {
-                        break;
-                    }
                 }
             }
-
             return botResponse;
         }
 
@@ -1243,7 +1417,14 @@ namespace chortle
             while (running)
             {
                 init();
-                Console.WriteLine("Menu");
+                Console.WriteLine("    __  __ __   ___   ____  ______  _        ___ ");
+                Console.WriteLine("   /  ]|  |  | /   \\ |    \\|      || |      /  _]");
+                Console.WriteLine("  /  / |  |  ||     ||  D  )      || |     /  [_ ");
+                Console.WriteLine(" /  /  |  _  ||  O  ||    /|_|  |_|| |___ |    _]");
+                Console.WriteLine("/   \\_ |  |  ||     ||    \\  |  |  |     ||   [_ ");
+                Console.WriteLine("\\     ||  |  ||     ||  .  \\ |  |  |     ||     |");
+                Console.WriteLine(" \\____||__|__| \\___/ |__|\\_| |__|  |_____||_____|");
+                Console.WriteLine();                                 
                 Console.WriteLine("1) chat mode");
                 Console.WriteLine("2) teacher mode");
                 Console.WriteLine("3) quit");

@@ -1,20 +1,18 @@
 TODO
 ====
 - add more vocabulary
-- goodbye phrases (end)
-- questions: somehow abstract out the questions list into something based on POS?
-- use saved relational data in other questions... (maybe do a check to see if relational data key exists relating to answer)
-- replace "i like fruit" strings and keys with variables
-- add times where bot just says something and human can respond
-- add times where human asks a question instead of responding with a statement
 - add more responses for the * taught response?
 - fix: multiple "like" relational data not saving...
+- replace "i like fruit" strings and keys with variables
 
 
 Done
 ====
++ add times where human can ask a question instead of responding with a statement (though this is really simple for now...)
++ added: matched goodbye phrases end conversation
++ added: times where bot just says something and human can respond (naive implementation)
 + fixed: learned responses are accidentally being added to taught responses... (after doing: taught -> chat modes) (using init() to reset some settings)
-- fixed: going back to chat mode after one run
++ fixed: going back to chat mode after one run
 + added: bot-favorites data file (json)
 + bot only respond once (for now) about a particular similar like
 + teacher: prune responses that fall below a certain weight? (0.3)
@@ -70,6 +68,8 @@ Future
 - punctuation check: ? is a question
 - punctuation check: . (or nothing) is a statement
 - break out interpolation code into a function
+- questions: somehow abstract out the questions list into something based on POS?
+- use saved relational data in other questions... (maybe do a check to see if relational data key exists relating to answer)
 
 
 Extra

@@ -2,7 +2,8 @@
   "*": {
     "What do you mean?": 0.5,
     "Hmm?": 0.5,
-    "Ah, I see.": 0.5
+    "Ah, I see.": 0.5,
+    "That's cool.": 0.5
   },
   "hello": {
     "Oh, hey there!": 0.5,
