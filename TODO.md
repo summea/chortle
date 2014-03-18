@@ -2,14 +2,14 @@ TODO
 ====
 - add more vocabulary
 - add more responses for the * taught response?
-- fix: multiple "like" relational data not saving...
-- replace "i like fruit" strings and keys with variables
-- fix: don't add extra bot response when saying the "i like fruit" thing
 
 
 Done
 ====
-+ add times where human can ask a question instead of responding with a statement (though this is really simple for now...)
++ fixed: "don't like" relational data not saving
++ fixed: multiple "like" relational data not saving
++ fixed: "i like fruit" strings and keys with variables
++ added: times where human can ask a question instead of responding with a statement (though this is really simple for now...)
 + added: matched goodbye phrases end conversation
 + added: times where bot just says something and human can respond (naive implementation)
 + fixed: learned responses are accidentally being added to taught responses... (after doing: taught -> chat modes) (using init() to reset some settings)
@@ -71,6 +71,7 @@ Future
 - break out interpolation code into a function
 - questions: somehow abstract out the questions list into something based on POS?
 - use saved relational data in other questions... (maybe do a check to see if relational data key exists relating to answer)
+- fix: don't add extra bot response when saying the "i like fruit" thing
 
 
 Extra

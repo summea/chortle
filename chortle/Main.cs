@@ -76,6 +76,7 @@ namespace chortle
             ChortleSettings.botState = ChortleSettings.BOT_ASK;
             ChortleSettings.taughtResponseData = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, double>>>(ChortleSettings.getTaughtResponsesDataSrc());
             ChortleSettings.responseData = new Dictionary<string, string>();
+            ChortleSettings.relationalData = new Dictionary<string, Dictionary<string, List<string>>>();
         }
 
         public static Dictionary<string, string> botAsk(string questionKey, bool followUp=false)
@@ -83,6 +84,7 @@ namespace chortle
             Dictionary<string, string> result = new Dictionary<string, string>();
             string response     = "";
             result["question"]  = questionKey;
+            result["questionKey"] = questionKey;
             result["answer"]    = "";
             bool validQuestion  = true;
             bool questionNeedsInterpolation = false;
@@ -524,22 +526,10 @@ namespace chortle
                     {
                         List<string> values = new List<string>();
 
-                        // key exists
-                        if (ChortleSettings.relationalData.ContainsKey(questionSubject))
-                        {
-                            //ChortleSettings.relationalData[questionSubject] = new Dictionary<string, List<string>>();
-                            values = ChortleSettings.relationalData[questionSubject][questionRootVerb];
-                        }
-                        // create new key
-                        else
-                        {
-                            ChortleSettings.relationalData[questionSubject] = new Dictionary<string, List<string>>();
-                            values = new List<string> { questionObject };
-                        }
-                            
                         if (questionRootVerb == "is")
                         {
                             values = new List<string> { result["answer"] };
+                            //values.Add(result["answer"]);
                         }
                         else
                         {
@@ -551,6 +541,36 @@ namespace chortle
                                 // TODO: add better list of inflections for negation
                                 questionRootVerb = "don't " + questionRootVerb;
                             }
+                        }
+                        
+                        // key exists
+                        if (ChortleSettings.relationalData.ContainsKey(questionSubject))
+                        {
+                            
+                            //ChortleSettings.relationalData[questionSubject] = new Dictionary<string, List<string>>();
+                            if (ChortleSettings.relationalData[questionSubject].ContainsKey(questionRootVerb))
+                            {
+                                Console.WriteLine("key exists...");
+                                values = ChortleSettings.relationalData[questionSubject][questionRootVerb];
+                                if (!values.Contains(questionObject))
+                                {
+                                    // add object to list of relational data
+                                    values.Add(questionObject);
+                                }
+                            }
+                            // create new inner verb key
+                            else
+                            {
+                                Console.WriteLine("create key...");
+                                ChortleSettings.relationalData[questionSubject][questionRootVerb] = new List<string>();
+                                values = new List<string> { questionObject };
+                            }
+                        }
+                        // create new key
+                        else
+                        {
+                            ChortleSettings.relationalData[questionSubject] = new Dictionary<string, List<string>>();
+                            values = new List<string> { questionObject };
                         }
 
                         ChortleSettings.relationalData[questionSubject][questionRootVerb] = values;
@@ -618,28 +638,47 @@ namespace chortle
 
                         // TODO: use variables here
 
-                        if (!ChortleSettings.talkedAbout.ContainsKey("you like fruit"))
+                        // check if question key matches a bot favorite
+                        Console.WriteLine(")))))))) " + previousQA["questionKey"]);
+                        string questionKey = "";
+                        if (previousQA.ContainsKey("questionKey"))
+                            questionKey = previousQA["questionKey"];
+
+                        if (!ChortleSettings.talkedAbout.ContainsKey(questionKey))
                         {
-                            ChortleSettings.talkedAbout.Add("you like fruit", "");
+                            ChortleSettings.talkedAbout.Add(questionKey, "");
                         }
 
-                        if (ChortleSettings.talkedAbout.ContainsKey("you like fruit") && !ChortleSettings.talkedAbout["you like fruit"].Equals("yes"))
-                        {
-                            if (ChortleSettings.relationalData.ContainsKey("you"))
-                            {
-                                if (ChortleSettings.relationalData["you"].ContainsKey("like"))
-                                {
-                                    if (ChortleSettings.relationalData["you"]["like"].Contains("fruit"))
-                                    {
+                        // break down questionKey to see if it contains a "you like *" pattern
+                        string[] questionPieces = questionKey.Split(' ');
+                        Console.WriteLine(questionPieces.Length);
+                        string[] questionPiecesEndSection = new List<string>(questionPieces).GetRange(2, questionPieces.Length-2).ToArray();
+                        string questionPiecesEndSectionString = string.Join(" ", questionPiecesEndSection);
 
-                                        if (ChortleSettings.botRelationalData.ContainsKey("you"))
+                        // first check if user likes this item
+                        if (ChortleSettings.talkedAbout.ContainsKey(questionKey) && !ChortleSettings.talkedAbout[questionKey].Equals("yes"))
+                        {
+                            Console.WriteLine("so far so good... 1");
+                            if (ChortleSettings.relationalData.ContainsKey(questionPieces[0]))
+                            {
+                                Console.WriteLine("so far so good... 2");
+                                if (ChortleSettings.relationalData[questionPieces[0]].ContainsKey(questionPieces[1]))
+                                {
+                                    Console.WriteLine("so far so good... 3");
+                                    if (ChortleSettings.relationalData[questionPieces[0]][questionPieces[1]].Contains(questionPiecesEndSectionString))
+                                    {
+                                        Console.WriteLine("so far so good... 4");
+                                        // then check if bot likes this item
+                                        if (ChortleSettings.botRelationalData.ContainsKey(questionPieces[0]))
                                         {
-                                            if (ChortleSettings.botRelationalData["you"].ContainsKey("like"))
+                                            Console.WriteLine("so far so good... 5");
+                                            if (ChortleSettings.botRelationalData[questionPieces[0]].ContainsKey(questionPieces[1]))
                                             {
-                                                if (ChortleSettings.botRelationalData["you"]["like"].Contains("fruit"))
+                                                Console.WriteLine("so far so good... 6");
+                                                if (ChortleSettings.botRelationalData[questionPieces[0]][questionPieces[1]].Contains(questionPiecesEndSectionString))
                                                 {
-                                                    Console.WriteLine("bot    > Oh, I like fruit too, lol");
-                                                    ChortleSettings.talkedAbout["you like fruit"] = "yes";
+                                                    Console.WriteLine("bot    > Oh, I " + questionPieces[1] + " " + questionPiecesEndSectionString + " too, lol");
+                                                    ChortleSettings.talkedAbout[questionKey] = "yes";
                                                 }
                                             }
                                         }
