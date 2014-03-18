@@ -6,6 +6,7 @@ TODO
 
 Done
 ====
+- fixed: learned relational data is not picking up new objects (your name is _what_) (it was the order of the questionRootVerb part of the algorithm...)
 + fixed: "don't like" relational data not saving
 + fixed: multiple "like" relational data not saving
 + fixed: "i like fruit" strings and keys with variables
