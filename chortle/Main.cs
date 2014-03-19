@@ -32,6 +32,11 @@ namespace chortle
                 return taughtResponsesDataSrc;
             }
 
+            public static string getBotFavoritesDataSrc()
+            {
+                return botFavoritesDataSrc;
+            }
+
             public static Dictionary<string, string> questionData   = JsonConvert.DeserializeObject<Dictionary<string, string>>(questionDataSrc);
             public static Dictionary<string, string> responseData = new Dictionary<string, string>();
             public static Dictionary<string, string> vocabularyData = JsonConvert.DeserializeObject<Dictionary<string, string>>(vocabularyDataSrc);
@@ -46,6 +51,7 @@ namespace chortle
 
             public static Dictionary<string, string> talkedAbout = new Dictionary<string, string>();
 
+            // parts of speech types
             public static string[] posSubjectTypes  = new string[] { "PRP", "WP", "WRB", "UNKNOWN", "VB", "VBD", "VBG", "VBN", "VBP", "VBZ" };
             public static string[] posObjectTypes   = new string[] { "NN", "UNKNOWN", "WP", "WRB", "VB", "VBD", "VBG", "VBN", "VBP", "VBZ" };
             public static string[] posVerbTypes     = new string[] { "VB", "VBD", "VBG", "VBN", "VBP", "VBZ" };
@@ -66,6 +72,7 @@ namespace chortle
             public static int botState = ChortleSettings.BOT_ASK;
 
             public static double pruneWeightsLowerLimit = 0.3;
+            public static int teacherSessionLoopLimit = 5;
         }
 
         public static void init()
@@ -77,6 +84,8 @@ namespace chortle
             ChortleSettings.taughtResponseData = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, double>>>(ChortleSettings.getTaughtResponsesDataSrc());
             ChortleSettings.responseData = new Dictionary<string, string>();
             ChortleSettings.relationalData = new Dictionary<string, Dictionary<string, List<string>>>();
+            ChortleSettings.botRelationalData = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, List<string>>>>(ChortleSettings.getBotFavoritesDataSrc());
+            ChortleSettings.talkedAbout = new Dictionary<string, string>();
         }
 
         public static Dictionary<string, string> botAsk(string questionKey, bool followUp=false)
@@ -1283,9 +1292,7 @@ namespace chortle
             // good = increment weight by incDecWeight
             // bad  = decrement weight by incDecWeight
 
-            int loopLimit = 5;
-
-            for (int i = 0; i < loopLimit; i++)
+            for (int i = 0; i < ChortleSettings.teacherSessionLoopLimit; i++)
             {
                 botResponse = "";
                 botLearnedKeyList = new List<string>(ChortleSettings.taughtResponseData.Keys);
