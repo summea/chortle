@@ -2,6 +2,7 @@ TODO
 ====
 - add more vocabulary
 - add more responses for the * taught response?
+- fix: take out times where human writes something and bot doesn't respond? (this is natural, though...)
 
 
 Done
