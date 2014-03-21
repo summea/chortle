@@ -3,9 +3,9 @@ chortle
 a really simple chat bot
 
 ## Overview
-Chortle is still very new to the human world and will take a while to get used to human conversation. Chortle will (often) listen to what a human says in conversation, but will not always know the best way to respond. For some words or phrases, however, Chortle has been taught common, contextual responses by a _teacher_ in an attempt to help Chortle along the path to being a better conversationalist.
+Chortle is still very new to the human world and will take a while to get used to human conversation. Chortle will (often) listen to what a human says in conversation, but will not always know the best way to respond. For some words or phrases, however, Chortle has been taught common, contextual responses _by a teacher_ in an attempt to help Chortle along the path of becoming a better conversationalist.
 
-In conversation, Chortle:
+In conversation _(chat mode)_, Chortle:
 
 - knows when a human is making a statement
 - knows when a human is asking a question
@@ -16,6 +16,16 @@ In conversation, Chortle:
 - can recall human answers to questions (relational data)
 - has its own favorites (relational data)
 - can respond in kind if human relational data matches Chortle relational data
+
+In learning _(teacher mode)_, Chortle:
+
+- waits for teacher to say a phrase
+- listens to phrase and responds with a related phrase guess (if available)
+- will take a guess if no previously-learned response is found
+- waits for teacher response (yes: good response ... no: bad response)
+- increases weight (usefulness) of response phrase, depending on teacher's response decision
+- decreases weight (usefulness) of response phrase, depending on teacher's response decision
+- will forget responses that are no longer useful (weight pruning)
 
 ## Phrases to Try with Chortle
 
