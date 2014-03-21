@@ -1,11 +1,27 @@
 chortle
 =======
-
 a really simple chat bot
 
-## Phrases To Try
+## Overview
+Chortle is still very new to the human world and will take a while to get used to human conversation. Chortle will (often) listen to what a human says in conversation, but will not always know the best way to respond. For some words or phrases, however, Chortle has been taught common, contextual responses by a _teacher_ in an attempt to help Chortle along the path to being a better conversationalist.
+
+In conversation, Chortle:
+
+- knows when a human is making a statement
+- knows when a human is asking a question
+- will respond with learned phrases
+- will respond with new response guesses
+- has some questions to ask human
+- will remember human answers to questions (relational data)
+- can recall human answers to questions (relational data)
+- has its own favorites (relational data)
+- can respond in kind if human relational data matches Chortle relational data
+
+## Phrases to Try with Chortle
+
 - "What is your name?"
 - "What are your hobbies?"
+- ...and whatever else comes to mind!
 
 ## Chat Mode Example Output
 ### Overview
@@ -344,3 +360,5 @@ a really simple chat bot
       
 ## Notes
 - some conversation response data comes from: http://en.wikibooks.org/wiki/English_in_Use/Conversation_Pieces
+- parts of speech (POS) tags adhere to Illinois POS: http://cogcomp.cs.illinois.edu/demo/pos/?id=4
+- POS key is located in ~/pos-key.txt for general reference
