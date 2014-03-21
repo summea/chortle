@@ -31,7 +31,7 @@ In learning _(teacher mode)_, Chortle:
 
 - "What is your name?"
 - "What are your hobbies?"
-- ...and whatever else comes to mind! _(check out the [chortle-conversations](https://github.com/datanets/chortle/blob/master/chortle-conversations.md) file for past gems...)_
+- ...and whatever else comes to mind! _(check out the [chortle-conversations](https://github.com/datanets/chortle/blob/master/chortle-conversations.md) archive for past gems...)_
 
 ## Chat Mode Example Output
 ### Overview
@@ -371,4 +371,4 @@ In learning _(teacher mode)_, Chortle:
 ## Notes
 - some conversation response data comes from: http://en.wikibooks.org/wiki/English_in_Use/Conversation_Pieces
 - parts of speech (POS) tags adhere to Illinois POS: http://cogcomp.cs.illinois.edu/demo/pos/?id=4
-- POS key is located in ~/pos-key.txt for general reference
+- POS key is located in [pos-key.txt](https://github.com/datanets/chortle/blob/master/pos-key.txt) for general reference
