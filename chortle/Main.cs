@@ -848,8 +848,8 @@ namespace chortle
 
                     foreach (KeyValuePair<string, List<string>> innerItem in item.Value)
                     {
-                        Console.WriteLine(innerItem.Key);
-                        Console.WriteLine(string.Join(",", innerItem.Value));
+                        Console.WriteLine("  " + innerItem.Key);
+                        Console.WriteLine("    " + string.Join(",", innerItem.Value));
                     }
                 }
             }

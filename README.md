@@ -84,14 +84,14 @@ In learning _(teacher mode)_, Chortle:
 
     learned relational data:
     your name
-    is
-    andy
+      is
+        andy
     you
-    like
-    fruit
+      like
+        fruit
     your favorite food
-    is
-    pizza
+      is
+        pizza
     push enter to continue
 
 

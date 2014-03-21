@@ -88,20 +88,20 @@ Chortle Conversations
 
     learned relational data:
     your name
-    is
-    andy
+      is
+        andy
     you
-    like
-    fruit,games,orange pizza
+      like
+        fruit,games,orange pizza
     way to go
-    is
-    over there
+      is
+        over there
     your favorite color
-    is
-    orange
+      is
+        orange
     your favorite food
-    is
-    pizza
+      is
+        pizza
     push enter to continue
 
 
@@ -175,16 +175,16 @@ Chortle Conversations
 
     learned relational data:
     your name
-    is
-    andy
+      is
+        andy
     you
-    don't like
-    games
-    like
-    fruit
+      don't like
+        games
+      like
+        fruit
     your favorite food
-    is
-    potatoes
+      is
+        potatoes
     push enter to continue
 
 
@@ -248,17 +248,17 @@ Chortle Conversations
 
     learned relational data:
     your name
-    is
-    andy
+      is
+        andy
     your favorite food
-    is
-    pizza
+      is
+        pizza
     you
-    like
-    games,fruit
+      like
+        games,fruit
     way to go
-    is
-    over there
+      is
+        over there
     push enter to continue
 
 
@@ -312,16 +312,16 @@ Chortle Conversations
 
     learned relational data:
     your name
-    is
-    andy
+      is
+        andy
     you
-    like
-    games
-    don't like
-    fruit
+      like
+        games
+      don't like
+        fruit
     your favorite food
-    is
-    orange peels
+      is
+        orange peels
     push enter to continue
 
     
@@ -388,16 +388,16 @@ Chortle Conversations
 
     learned relational data:
     your name
-    is
-    andy
+      is
+        andy
     your favorite food
-    is
-    bread rolls
+      is
+        bread rolls
     you
-    don't like
-    games
-    like
-    fruit
+      don't like
+        games
+      like
+        fruit
     push enter to continue
 
     
@@ -478,19 +478,19 @@ Chortle Conversations
 
     learned relational data:
     your name
-    is
-    andy
+      is
+        andy
     you
-    like
-    fruit
-    don't like
-    games
+      like
+        fruit
+      don't like
+        games
     way to go
-    is
-    that way
+      is
+        that way
     your favorite food
-    is
-    pizza
+      is
+        pizza
     push enter to continue
     
 
@@ -543,12 +543,12 @@ Chortle Conversations
 
     learned relational data:
     your name
-    is
-    andy
+      is
+        andy
     you
-    like
-    fruit
+      like
+        fruit
     your favorite food
-    is
-    pizza
+      is
+        pizza
     push enter to continue
