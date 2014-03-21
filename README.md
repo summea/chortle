@@ -3,12 +3,12 @@ chortle
 
 a really simple chat bot
 
-### Phrases To Try
-- "what is your name?"
-- "what are your hobbies?"
+## Phrases To Try
+- "What is your name?"
+- "What are your hobbies?"
 
-### Example Output
-
+## Chat Mode Example Output
+### Overview
         __  __ __   ___   ____  ______  _        ___
        /  ]|  |  | /   \ |    \|      || |      /  _]
       /  / |  |  ||     ||  D  )      || |     /  [_
@@ -69,7 +69,7 @@ a really simple chat bot
     push enter to continue
 
 
-### Learning Example Output:
+### Learning About Human
 
     bot    > What is your name?
     human  > my name is andy bean
@@ -106,7 +106,7 @@ a really simple chat bot
 
 
     
-### Learning Example Output (final verb check)
+### Learning About Human (final verb check)
 
     bot    > what is the way to go? (multiple verb test)
     human  > my way to go is over there
@@ -127,7 +127,8 @@ a really simple chat bot
 
     
     
-### Learning Example Output (DT_X_VB check)
+### Learning About Human (DT_X_VB check)
+
     bot    > What is your name?
     human  > a
     bot    > I see
@@ -162,7 +163,8 @@ a really simple chat bot
     way to go - that way
 
 
-### Teacher Example Output:
+## Teacher Mode Example Output
+### Overview
 
     teacher  > hello
     bot      > See ya!
@@ -218,7 +220,7 @@ a really simple chat bot
 
 
       
-### Teacher Example Output (debug mode):
+### Debug Mode
 
     teacher  > hello there
     > finding response...

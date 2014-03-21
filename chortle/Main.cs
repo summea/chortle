@@ -989,7 +989,7 @@ namespace chortle
                     {
                         if (ChortleSettings.botRelationalData[questionSubject].ContainsKey(questionRootVerb))
                         {
-                            botResponse = string.Join(" ", ChortleSettings.botRelationalData[questionSubject][questionRootVerb]);
+                            botResponse = string.Join(", ", ChortleSettings.botRelationalData[questionSubject][questionRootVerb]);
                         }
                     }
                 }

@@ -125,7 +125,7 @@ Chortle Conversations
     human  > your name
     bot    > Nice.
     human  > what are your hobbies?
-    bot    > chatting sleeping
+    bot    > chatting, sleeping
     bot    > Hey, andy, what is the way to go? (multiple verb test)
     human  > I think the way to go is over there
     bot    > Hmm?
@@ -247,7 +247,7 @@ Chortle Conversations
     bot    > Chortle
     human  > nice to meet you, Chortle
     human  > what are your hobbies?
-    bot    > chatting sleeping
+    bot    > chatting, sleeping
     human  > just those?
     human  > it's cool
     human  > so...
