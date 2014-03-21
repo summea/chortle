@@ -31,7 +31,7 @@ In learning _(teacher mode)_, Chortle:
 
 - "What is your name?"
 - "What are your hobbies?"
-- ...and whatever else comes to mind!
+- ...and whatever else comes to mind! _(check out the [chortle-conversations](https://github.com/datanets/chortle/blob/master/chortle-conversations.md) file for past gems...)_
 
 ## Chat Mode Example Output
 ### Overview
@@ -128,7 +128,7 @@ In learning _(teacher mode)_, Chortle:
     your name - andy bean
     your favorite color - red ruby
     your favorite food - green jelly
-    you like {{your favorite color}} {{your favorite food}} - yes
+    you like red ruby green jelly - yes
 
 
     
