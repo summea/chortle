@@ -1,6 +1,4 @@
-﻿// some conversation data comes from: http://en.wikibooks.org/wiki/English_in_Use/Conversation_Pieces
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Linq;
@@ -606,8 +604,16 @@ namespace chortle
         {
             string result = "";
 
-            // formulate a response from learned responses
-            result = botFormulateResponse(phraseData, dataStore);
+            // loop could be longer if need be...
+            for (int i = 0; i < 5; i++)
+            {
+                // formulate a response from learned responses
+                result = botFormulateResponse(phraseData, dataStore);
+
+                // cycle through until we formulate a true response
+                if (!string.IsNullOrEmpty(result))
+                    break;
+            }
 
             // respond
             if (!string.IsNullOrWhiteSpace(result))

@@ -2,11 +2,11 @@ TODO
 ====
 - add more vocabulary
 - add more responses for the * taught response?
-- fix: take out times where human writes something and bot doesn't respond? (this is natural, though...)
 
 
 Done
 ====
+- fixed: take out times where human writes something and bot doesn't respond? (this is natural, though...) (using a loop until a response is most likely formed)
 - fixed: bot says "i like * too" after starting program over (in-app) (was an init issue... talkedAbout)
 - fixed: learned relational data is not picking up new objects (your name is _what_) (it was the order of the questionRootVerb part of the algorithm...)
 + fixed: "don't like" relational data not saving

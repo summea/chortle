@@ -3,6 +3,10 @@ chortle
 
 a really simple chat bot
 
+### Phrases To Try
+- "what is your name?"
+- "what are your hobbies?"
+
 ### Example Output
 
         __  __ __   ___   ____  ______  _        ___
@@ -335,3 +339,6 @@ a really simple chat bot
       [Hmm?, 0.4]
       [Nice to meet you!, 0.4]
       [Oh, hey there!, 0.6]
+      
+## Notes
+- some conversation response data comes from: http://en.wikibooks.org/wiki/English_in_Use/Conversation_Pieces
