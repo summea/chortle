@@ -14,6 +14,110 @@ Chortle Conversations
     3) quit
     1
 
+    bot    > Ah, I see.
+    human  > you see what?
+    bot    > Lovely day, isn't it?
+    bot    > What is your name?
+    human  > andy
+    bot    > Hey, andy, do you like fruit?
+    human  > sometimes i like fruit
+    bot    > Oh, I like fruit too, lol
+    bot    > Lovely day, isn't it?
+    human  > yes it is
+    bot    > Hmm?
+    human  > it is a lovely day
+    bot    > Hmm?
+    human  > nevermind
+    bot    > Hmm?
+    human  > oh
+    bot    > What do you mean?
+    human  > I mean that
+    bot    > Hey, andy, do you like games?
+    human  > yes
+    bot    > Oh, I like games too, lol
+    bot    > Hmm?
+    human  > you like games?
+    bot    > Oh, hey there!
+    human  > i'm still here, lol
+    bot    > Hmm?
+    human  > lol
+    bot    > Oh, hey there!
+    human  > what is your name?
+    bot    > Chortle
+    bot    > Hey, andy, what is the way to go? (multiple verb test)
+    human  > the way to go is over there
+    bot    > Hmm?
+    human  > over there
+    bot    > What do you mean?
+    human  > i gotta go
+    bot    > What do you mean?
+    human  > i gotta go
+    bot    > Hmm?
+    human  > see ya
+    bot    > Hmm?
+    human  > go
+    bot    > Hmm?
+    human  > go
+    bot    > Oh, hey there!
+    human  > haha
+    bot    > Hmm?
+    human  > nothing
+    bot    > Hey, andy, what is your favorite color?
+    human  > orange
+    bot    > Hey, andy, what is your favorite food?
+    human  > pizza
+    bot    > Hmm?
+    human  > yes
+    bot    > How could you?
+    human  > haha
+    bot    > Ah, I see.
+    human  > how could you?
+    bot    > What do you mean?
+    human  > who wants to know?
+    bot    > Be seeing you!
+    human  > um
+    bot    > Hey, andy, do you like orange pizza?
+    human  > yes
+    bot    > Hmm?
+    human  > bye
+    bot    > Well, andy, I do need to be going!
+
+    Want to see what I learned about you?
+    yes
+
+
+    learned relational data:
+    your name
+    is
+    andy
+    you
+    like
+    fruit,games,orange pizza
+    way to go
+    is
+    over there
+    your favorite color
+    is
+    orange
+    your favorite food
+    is
+    pizza
+    push enter to continue
+
+
+        __  __ __   ___   ____  ______  _        ___
+       /  ]|  |  | /   \ |    \|      || |      /  _]
+      /  / |  |  ||     ||  D  )      || |     /  [_
+     /  /  |  _  ||  O  ||    /|_|  |_|| |___ |    _]
+    /   \_ |  |  ||     ||    \  |  |  |     ||   [_
+    \     ||  |  ||     ||  .  \ |  |  |     ||     |
+     \____||__|__| \___/ |__|\_| |__|  |_____||_____|
+
+    1) chat mode
+    2) teacher mode
+    3) quit
+    1
+
     bot    > Don't mention it.
     human  > don't mention what?
     bot    > Lovely day, isn't it?

@@ -153,7 +153,7 @@ The *final verb check* is used to test if Chortle can find the intended _target 
     
     
 ### Learning About Human (DT_X_VB check)
-The *DT_X_VB* is used to test if Chortle can find the correct object when a determiner is being used near the beginning of a phrase. For example, the initial question given by bot could be in a pattern like: O-V-S. So the human response may be given in a similar O-V-S pattern... and if so, Chortle needs to be able to understand what the human is using for the subject and object of the overall phrase.
+The *DT_X_VB check* is used to test if Chortle can find the correct object when a determiner is being used near the beginning of a phrase. For example, the initial question given by bot could be in a pattern such as: O-V-S (object-verb-subject). So the human response may be given in a similar O-V-S pattern... and if so, Chortle needs to be able to understand what the human is using for the subject and object of the overall phrase.
 
     bot    > What is the way to go? (multiple verb test)
     human  > that way is the way

@@ -143,5 +143,10 @@
   "quit": {
     "Hmm?": 0.3,
     "No problem.": 0.6
+  },
+  "really?": {
+    "Hmm?": 0.4,
+    "You are welcome!": 0.4,
+    "No problem.": 0.8
   }
 }
