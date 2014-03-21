@@ -14,6 +14,302 @@ Chortle Conversations
     3) quit
     1
 
+    bot    > Don't mention it.
+    human  > don't mention what?
+    bot    > Lovely day, isn't it?
+    bot    > What is your name?
+    human  > andy
+    bot    > Hey, andy, do you like games?
+    human  > no
+    bot    > Hmm?
+    human  > I don't like games.
+    bot    > Ah, I see.
+    human  > What is your name?
+    bot    > Chortle
+    bot    > What do you mean?
+    human  > Your name is Chortle?
+    bot    > That's cool.
+    human  > cool
+    bot    > Ah, I see.
+    human  > what is cool?
+    bot    > Hey, andy, do you like fruit?
+    human  > yes
+    bot    > Oh, I like fruit too, lol
+    bot    > Hmm?
+    human  > you like fruit?
+    bot    > Oh, how lovely!
+    human  > we both like fruit!!
+    bot    > Hmm?
+    human  > we both like fruit
+    bot    > Hmm?
+    human  > nevermind
+    bot    > Hmm?
+    human  > haha
+    bot    > Hey, andy, what is your favorite food?
+    human  > potatoes
+    bot    > Hmm?
+    human  > do you like potatoes?
+    bot    > Nice.
+    human  > nice try, you mean?
+    bot    > Oh, hey there!
+    human  > just joking
+    bot    > Lovely day, isn't it?
+    human  > yeah
+    bot    > Lovely day, isn't it?
+    human  > cool
+    bot    > What do you mean?
+    human  > cool
+    bot    > No problem.
+    human  > ok, well, I've gotta go
+    bot    > Be seeing you!
+    human  > bye!
+    bot    > Well, andy, I do need to be going!
+
+    Want to see what I learned about you?
+    ok
+
+
+    learned relational data:
+    your name
+    is
+    andy
+    you
+    don't like
+    games
+    like
+    fruit
+    your favorite food
+    is
+    potatoes
+    push enter to continue
+
+
+        __  __ __   ___   ____  ______  _        ___
+       /  ]|  |  | /   \ |    \|      || |      /  _]
+      /  / |  |  ||     ||  D  )      || |     /  [_
+     /  /  |  _  ||  O  ||    /|_|  |_|| |___ |    _]
+    /   \_ |  |  ||     ||    \  |  |  |     ||   [_
+    \     ||  |  ||     ||  .  \ |  |  |     ||     |
+     \____||__|__| \___/ |__|\_| |__|  |_____||_____|
+
+    1) chat mode
+    2) teacher mode
+    3) quit
+    1
+
+    bot    > That's cool.
+    human  > what is?
+    bot    > Hmm?
+    human  > haha
+    bot    > Lovely day, isn't it?
+    bot    > What is your name?
+    human  > andy
+    bot    > Hey, andy, what is your favorite food?
+    human  > i like pizza
+    bot    > Hmm?
+    human  > pizza
+    bot    > Hey, andy, do you like games?
+    human  > sometimes, yeah
+    bot    > Oh, I like games too, lol
+    bot    > Hey, andy, do you like fruit?
+    human  > I think so
+    bot    > Oh, I like fruit too, lol
+    bot    > Hmm?
+    human  > you do?
+    bot    > Oh really?
+    human  > haha
+    bot    > That's cool.
+    human  > what is your name?
+    bot    > Chortle
+    bot    > What do you mean?
+    human  > your name
+    bot    > Nice.
+    human  > what are your hobbies?
+    bot    > chatting sleeping
+    bot    > Hey, andy, what is the way to go? (multiple verb test)
+    human  > I think the way to go is over there
+    bot    > Hmm?
+    human  > over there
+    bot    > How could you?
+    human  > haha
+    bot    > Lovely day, isn't it?
+    human  > yes
+    bot    > Ah, I see.
+    human  > well, bye
+    bot    > Well, andy, I do need to be going!
+
+    Want to see what I learned about you?
+    yes
+
+
+    learned relational data:
+    your name
+    is
+    andy
+    your favorite food
+    is
+    pizza
+    you
+    like
+    games,fruit
+    way to go
+    is
+    over there
+    push enter to continue
+
+
+        __  __ __   ___   ____  ______  _        ___
+       /  ]|  |  | /   \ |    \|      || |      /  _]
+      /  / |  |  ||     ||  D  )      || |     /  [_
+     /  /  |  _  ||  O  ||    /|_|  |_|| |___ |    _]
+    /   \_ |  |  ||     ||    \  |  |  |     ||   [_
+    \     ||  |  ||     ||  .  \ |  |  |     ||     |
+     \____||__|__| \___/ |__|\_| |__|  |_____||_____|
+
+    1) chat mode
+    2) teacher mode
+    3) quit
+    1
+
+    human  > hello
+    bot    > Lovely day, isn't it?
+    bot    > What is your name?
+    human  > andy
+    bot    > Hey, andy, do you like games?
+    human  > sometimes
+    bot    > Oh, I like games too, lol
+    bot    > Hmm?
+    human  > sometimes i do
+    bot    > Hey, andy, what is your favorite food?
+    human  > orange peels
+    bot    > Hey, andy, do you like fruit?
+    human  > not that much
+    bot    > Hmm?
+    human  > not that much
+    human  > what is your name?
+    bot    > Chortle
+    bot    > Oh, how lovely!
+    human  > your name is lovely?
+    bot    > See ya!
+    human  > aren't we still talking?
+    bot    > Be seeing you!
+    human  > oh, I see
+    bot    > Hmm?
+    human  > cool
+    bot    > No problem.
+    human  > so, I'll talk to you later?
+    bot    > Ah, I see.
+    human  > bye
+    bot    > Well, andy, I do need to be going!
+
+    Want to see what I learned about you?
+    okay
+
+
+    learned relational data:
+    your name
+    is
+    andy
+    you
+    like
+    games
+    don't like
+    fruit
+    your favorite food
+    is
+    orange peels
+    push enter to continue
+
+    
+        __  __ __   ___   ____  ______  _        ___
+       /  ]|  |  | /   \ |    \|      || |      /  _]
+      /  / |  |  ||     ||  D  )      || |     /  [_
+     /  /  |  _  ||  O  ||    /|_|  |_|| |___ |    _]
+    /   \_ |  |  ||     ||    \  |  |  |     ||   [_
+    \     ||  |  ||     ||  .  \ |  |  |     ||     |
+     \____||__|__| \___/ |__|\_| |__|  |_____||_____|
+
+    1) chat mode
+    2) teacher mode
+    3) quit
+    1
+
+    human  > what's up?
+    bot    > Lovely day, isn't it?
+    human  > I guess
+    bot    > Hmm?
+    human  > I guess it's a lovely day
+    bot    > Lovely day, isn't it?
+    bot    > What is your name?
+    human  > andy
+    bot    > Nice to meet you!
+    human  > what is your name?
+    bot    > Chortle
+    human  > nice to meet you, Chortle
+    human  > what are your hobbies?
+    bot    > chatting sleeping
+    human  > just those?
+    human  > it's cool
+    human  > so...
+    human  > you there?
+    bot    > Hey, andy, what is your favorite food?
+    human  > bread rolls
+    bot    > Hey, andy, do you like games?
+    human  > no
+    bot    > Hey, andy, do you like fruit?
+    human  > yes
+    bot    > Oh, I like fruit too, lol
+    bot    > Hmm?
+    human  > you do?
+    human  > you there?
+    bot    > Be seeing you!
+    human  > you have to go already?
+    bot    > Hmm?
+    human  > something came up?
+    bot    > Hmm?
+    human  > haha, whatever
+    bot    > Hmm?
+    human  > talk to you later, then
+    bot    > Oh, hey there!
+    human  > you want to talk?
+    bot    > Hmm?
+    human  > nevermind
+    bot    > Hmm?
+    human  > bye
+    bot    > Well, andy, I do need to be going!
+
+    Want to see what I learned about you?
+    yes
+
+
+    learned relational data:
+    your name
+    is
+    andy
+    your favorite food
+    is
+    bread rolls
+    you
+    don't like
+    games
+    like
+    fruit
+    push enter to continue
+
+    
+        __  __ __   ___   ____  ______  _        ___
+       /  ]|  |  | /   \ |    \|      || |      /  _]
+      /  / |  |  ||     ||  D  )      || |     /  [_
+     /  /  |  _  ||  O  ||    /|_|  |_|| |___ |    _]
+    /   \_ |  |  ||     ||    \  |  |  |     ||   [_
+    \     ||  |  ||     ||  .  \ |  |  |     ||     |
+     \____||__|__| \___/ |__|\_| |__|  |_____||_____|
+
+    1) chat mode
+    2) teacher mode
+    3) quit
+    1
+
     human  > hi
     bot    > Oh hey.
     human  > hi
@@ -92,72 +388,7 @@ Chortle Conversations
     is
     pizza
     push enter to continue
-
-
-
-        __  __ __   ___   ____  ______  _        ___
-       /  ]|  |  | /   \ |    \|      || |      /  _]
-      /  / |  |  ||     ||  D  )      || |     /  [_
-     /  /  |  _  ||  O  ||    /|_|  |_|| |___ |    _]
-    /   \_ |  |  ||     ||    \  |  |  |     ||   [_
-    \     ||  |  ||     ||  .  \ |  |  |     ||     |
-     \____||__|__| \___/ |__|\_| |__|  |_____||_____|
-
-    1) chat mode
-    2) teacher mode
-    3) quit
-    1
-
-    human  > hello
-    bot    > Lovely day, isn't it?
-    bot    > What is your name?
-    human  > andy
-    bot    > Hey, andy, do you like games?
-    human  > sometimes
-    bot    > Oh, I like games too, lol
-    bot    > Hmm?
-    human  > sometimes i do
-    bot    > Hey, andy, what is your favorite food?
-    human  > orange peels
-    bot    > Hey, andy, do you like fruit?
-    human  > not that much
-    bot    > Hmm?
-    human  > not that much
-    human  > what is your name?
-    bot    > Chortle
-    bot    > Oh, how lovely!
-    human  > your name is lovely?
-    bot    > See ya!
-    human  > aren't we still talking?
-    bot    > Be seeing you!
-    human  > oh, I see
-    bot    > Hmm?
-    human  > cool
-    bot    > No problem.
-    human  > so, I'll talk to you later?
-    bot    > Ah, I see.
-    human  > bye
-    bot    > Well, andy, I do need to be going!
-
-    Want to see what I learned about you?
-    okay
-
-
-    learned relational data:
-    your name
-    is
-    andy
-    you
-    like
-    games
-    don't like
-    fruit
-    your favorite food
-    is
-    orange peels
-    push enter to continue
-
-
+    
 
         __  __ __   ___   ____  ______  _        ___
        /  ]|  |  | /   \ |    \|      || |      /  _]
@@ -172,49 +403,35 @@ Chortle Conversations
     3) quit
     1
 
-    human  > what's up?
-    bot    > Lovely day, isn't it?
-    human  > I guess
-    bot    > Hmm?
-    human  > I guess it's a lovely day
     bot    > Lovely day, isn't it?
     bot    > What is your name?
     human  > andy
     bot    > Nice to meet you!
     human  > what is your name?
-    bot    > Chortle
-    human  > nice to meet you, Chortle
+    bot    > chortle
+    human  > nice to meet you
     human  > what are your hobbies?
-    bot    > chatting sleeping
-    human  > just those?
-    human  > it's cool
-    human  > so...
-    human  > you there?
-    bot    > Hey, andy, what is your favorite food?
-    human  > bread rolls
-    bot    > Hey, andy, do you like games?
-    human  > no
-    bot    > Hey, andy, do you like fruit?
+    bot    > chatting
+    human  > oh really
     human  > yes
-    bot    > Oh, I like fruit too, lol
-    bot    > Hmm?
-    human  > you do?
-    human  > you there?
+    bot    > Oh, how lovely!
+    human  > haha
+    bot    > Do you like fruit?
+    human  > yes
+    bot    > Ah, I see.
+    human  > that's cool
+    human  > do you like food?
+    bot    > What is your favorite food?
+    human  > i like pizza
+    bot    > What do you mean?
+    human  > oh, a food that is bad for you
+    bot    > Ah, I see.
+    human  > yeah
     bot    > Be seeing you!
-    human  > you have to go already?
-    bot    > Hmm?
-    human  > something came up?
-    bot    > Hmm?
-    human  > haha, whatever
-    bot    > Hmm?
-    human  > talk to you later, then
-    bot    > Oh, hey there!
-    human  > you want to talk?
-    bot    > Hmm?
-    human  > nevermind
-    bot    > Hmm?
+    human  > oh, okay
+    bot    > Ah, I see.
     human  > bye
-    bot    > Well, andy, I do need to be going!
+    bot    > Well, I need to be going!
 
     Want to see what I learned about you?
     yes
@@ -224,12 +441,10 @@ Chortle Conversations
     your name
     is
     andy
-    your favorite food
-    is
-    bread rolls
     you
-    don't like
-    games
     like
     fruit
+    your favorite food
+    is
+    pizza
     push enter to continue

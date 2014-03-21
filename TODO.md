@@ -1,13 +1,10 @@
 TODO
 ====
-- add more vocabulary
-- add more responses for the * taught response?
-- fix: less silence times...
-- fix: when asking bot a question and getting an answer from its favorites data... sometimes it will ask a question right away (unnatural?)
 
 
 Done
 ====
+- fixed: less silence times... (mostly had to do with times when user asked a question the bot did not understand)
 - added: user name in later sentences?
 - fixed: object issue in relation to the SVO relational data saving (fixed this with verbIsType bool check)
 - fixed: "i like * too" yes/no (bot thinks you both like and dislike both things...) (put the "switch-to-negative verb" logic in front of rest of this part...)
@@ -84,9 +81,12 @@ Future
 - questions: somehow abstract out the questions list into something based on POS?
 - use saved relational data in other questions... (maybe do a check to see if relational data key exists relating to answer)
 - fix: don't add extra bot response when saying the "i like fruit" thing
+- fix: when asking bot a question and getting an answer from its favorites data... sometimes it will ask a question right away (unnatural?)
+- add more vocabulary
+- add more responses for the * taught response?
 
 
-Extra
+Notes
 =====
 - add a way to look for related target verb (from the question)
 - maybe check how many words are in front of the verbs and after... and determine which one is more likely the more important verb? (the side with the least amount of words might be the target...)

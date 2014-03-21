@@ -106,7 +106,16 @@ namespace chortle
                 // add an initial response (e.g. "hello!")
                 Dictionary<string, string> previousQA = new Dictionary<string, string>();
                 previousQA["answer"] = "hello";
-                botRespond(previousQA);
+
+                string newBotResponse = botRespond(previousQA);
+
+                // get generic response if necessary
+                if (string.IsNullOrWhiteSpace(newBotResponse))
+                {
+                    newBotResponse = botRespond(new Dictionary<string, string> { { "answer", "*" } });
+                }
+
+                Console.WriteLine("bot    > " + newBotResponse);
             }
 
             // add response key to response dictionary if it doesn't exist
@@ -226,8 +235,6 @@ namespace chortle
 
                         string responsePOS = string.Join(",", responsePiecesAsPOS);
 
-                        // TODO: find "target verb" from question and use as root verb?
-
                         if (ChortleSettings.debugMode)
                             Console.WriteLine("responsePOS: " + responsePOS);
 
@@ -235,7 +242,6 @@ namespace chortle
                         string sentenceBeginning = "";
                     
                         int rootVerbPosition = 0;
-
 
                         // search for root verb
                         string questionRootVerb = "";
@@ -277,8 +283,6 @@ namespace chortle
                                 }
                             }
 
-                            //Console.WriteLine();
-
                             int rightSideMatchCount = 0;
 
                             // make sure we have a right side to work with...
@@ -286,7 +290,9 @@ namespace chortle
                             {
                                 for (int rightSidePieceIndex = questionRootVerbIndex + 1; rightSidePieceIndex < questionPieces.Length; rightSidePieceIndex++)
                                 {
-                                    //Console.WriteLine(" checking... " + responsePieces[rightSidePieceIndex]);
+                                    if (ChortleSettings.debugMode)
+                                        Console.WriteLine(" checking... " + responsePieces[rightSidePieceIndex]);
+
                                     if (responsePieces[rightSidePieceIndex].Length > 0)
                                     {
                                         if (!responsePieces[rightSidePieceIndex].Equals(questionRootVerb))
@@ -298,7 +304,8 @@ namespace chortle
                                 }
                             }
 
-                            //Console.WriteLine("@@@@ left count: " + leftSideMatchCount + " ... right count: " + rightSideMatchCount);
+                            if (ChortleSettings.debugMode)
+                                Console.WriteLine("@@@@ left count: " + leftSideMatchCount + " ... right count: " + rightSideMatchCount);
                         
                             if (leftSideMatchCount > rightSideMatchCount)
                                 resultKeyValueDirection = "ltr";  
@@ -637,7 +644,7 @@ namespace chortle
             string result = "";
 
             // loop could be longer if need be...
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 3; i++)
             {
                 // formulate a response from learned responses
                 result = botFormulateResponse(phraseData, dataStore);
@@ -646,12 +653,6 @@ namespace chortle
                 if (!string.IsNullOrEmpty(result))
                     break;
             }
-
-            // respond
-            if (!string.IsNullOrWhiteSpace(result))
-                Console.WriteLine("bot    > " + result);
-
-            //ChortleSettings.botState = ChortleSettings.BOT_ASK;
 
             return result;
         }
@@ -686,39 +687,42 @@ namespace chortle
 
                         // bot trying really hard to feel accepted...
                         // check if question key matches a bot favorite
-                        string questionKey = "";
-                        if (previousQA.ContainsKey("questionKey"))
-                            questionKey = previousQA["questionKey"];
-
-                        if (!ChortleSettings.talkedAbout.ContainsKey(questionKey))
+                        try
                         {
-                            ChortleSettings.talkedAbout.Add(questionKey, "");
-                        }
+                            string questionKey = "";
+                            if (previousQA.ContainsKey("questionKey"))
+                                questionKey = previousQA["questionKey"];
 
-                        // break down questionKey to see if it contains a "you like *" pattern
-                        string[] questionPieces = questionKey.Split(' ');
-
-                        string[] questionPiecesEndSection = new List<string>(questionPieces).GetRange(2, questionPieces.Length-2).ToArray();
-                        string questionPiecesEndSectionString = string.Join(" ", questionPiecesEndSection);
-
-                        // first check if user likes this item
-                        if (ChortleSettings.talkedAbout.ContainsKey(questionKey) && !ChortleSettings.talkedAbout[questionKey].Equals("yes"))
-                        {
-                            if (ChortleSettings.relationalData.ContainsKey(questionPieces[0]))
+                            if (!ChortleSettings.talkedAbout.ContainsKey(questionKey))
                             {
-                                if (ChortleSettings.relationalData[questionPieces[0]].ContainsKey(questionPieces[1]))
+                                ChortleSettings.talkedAbout.Add(questionKey, "");
+                            }
+
+                            // break down questionKey to see if it contains a "you like *" pattern
+                            string[] questionPieces = questionKey.Split(' ');
+
+                            string[] questionPiecesEndSection = new List<string>(questionPieces).GetRange(2, questionPieces.Length - 2).ToArray();
+                            string questionPiecesEndSectionString = string.Join(" ", questionPiecesEndSection);
+
+                            // first check if user likes this item
+                            if (ChortleSettings.talkedAbout.ContainsKey(questionKey) && !ChortleSettings.talkedAbout[questionKey].Equals("yes"))
+                            {
+                                if (ChortleSettings.relationalData.ContainsKey(questionPieces[0]))
                                 {
-                                    if (ChortleSettings.relationalData[questionPieces[0]][questionPieces[1]].Contains(questionPiecesEndSectionString))
+                                    if (ChortleSettings.relationalData[questionPieces[0]].ContainsKey(questionPieces[1]))
                                     {
-                                        // then check if bot likes this item
-                                        if (ChortleSettings.botRelationalData.ContainsKey(questionPieces[0]))
+                                        if (ChortleSettings.relationalData[questionPieces[0]][questionPieces[1]].Contains(questionPiecesEndSectionString))
                                         {
-                                            if (ChortleSettings.botRelationalData[questionPieces[0]].ContainsKey(questionPieces[1]))
+                                            // then check if bot likes this item
+                                            if (ChortleSettings.botRelationalData.ContainsKey(questionPieces[0]))
                                             {
-                                                if (ChortleSettings.botRelationalData[questionPieces[0]][questionPieces[1]].Contains(questionPiecesEndSectionString))
+                                                if (ChortleSettings.botRelationalData[questionPieces[0]].ContainsKey(questionPieces[1]))
                                                 {
-                                                    Console.WriteLine("bot    > Oh, I " + questionPieces[1] + " " + questionPiecesEndSectionString + " too, lol");
-                                                    ChortleSettings.talkedAbout[questionKey] = "yes";
+                                                    if (ChortleSettings.botRelationalData[questionPieces[0]][questionPieces[1]].Contains(questionPiecesEndSectionString))
+                                                    {
+                                                        Console.WriteLine("bot    > Oh, I " + questionPieces[1] + " " + questionPiecesEndSectionString + " too, lol");
+                                                        ChortleSettings.talkedAbout[questionKey] = "yes";
+                                                    }
                                                 }
                                             }
                                         }
@@ -726,6 +730,8 @@ namespace chortle
                                 }
                             }
                         }
+                        catch
+                        { }
                     }
                     lastBotAction = ChortleSettings.BOT_ASK;
                 }
@@ -734,17 +740,38 @@ namespace chortle
                     if (lastBotAction != ChortleSettings.BOT_RESPOND)
                     {
                         // bot makes statement and allows user to respond
-                        if (previousQA.ContainsKey("answer") && string.IsNullOrWhiteSpace(previousQA["answer"]))
+                        if ((!previousQA.ContainsKey("answer")) || (previousQA.ContainsKey("answer") && string.IsNullOrWhiteSpace(previousQA["answer"])))
                         {
                             Random rndResponse = new Random();
-                            int randomKeyIndex = rndResponse.Next(taughtResponseKeyList.Count);
-                            previousQA["answer"] = taughtResponseKeyList[randomKeyIndex];
+                            bool foundResponse = false;
+
+                            while (!foundResponse)
+                            {
+                                int randomKeyIndex = rndResponse.Next(taughtResponseKeyList.Count);
+                                previousQA["answer"] = taughtResponseKeyList[randomKeyIndex];
+                                if (!string.IsNullOrWhiteSpace(previousQA["answer"]))
+                                {
+                                    foundResponse = true;
+                                    break;
+                                }
+                            }
                         }
-                        botRespond(previousQA);
+
+                        string newBotResponse = "";
+                        newBotResponse = botRespond(previousQA);
+
+                        // get generic response if necessary
+                        if (string.IsNullOrWhiteSpace(newBotResponse))
+                        {
+                            newBotResponse = botRespond(new Dictionary<string, string> { {"answer", "*"} });
+                        }
+                        
+                        Console.WriteLine("bot    > " + newBotResponse);
+
                         Console.Write("human  > ");
                         string response = Console.ReadLine();
                         previousQA["answer"] = response;
-                        //botRespond(previousQA);
+                        
                         lastBotAction = ChortleSettings.BOT_RESPOND;
 
                         // check if user asked bot a question
@@ -754,7 +781,10 @@ namespace chortle
                         {
                             if (ChortleSettings.debugMode)
                                 Console.WriteLine(">>> user is asking a question...");
-                            botRespond(previousQA, "favorites");
+
+                            newBotResponse = botRespond(previousQA, "favorites");
+                            if (!string.IsNullOrEmpty(newBotResponse))
+                                Console.WriteLine("bot    > " + newBotResponse);
                         }
                     }
                 }
@@ -959,7 +989,6 @@ namespace chortle
                     {
                         if (ChortleSettings.botRelationalData[questionSubject].ContainsKey(questionRootVerb))
                         {
-                            //Console.WriteLine("bot    > " + string.Join(" ", ChortleSettings.botRelationalData[questionSubject][questionRootVerb]));
                             botResponse = string.Join(" ", ChortleSettings.botRelationalData[questionSubject][questionRootVerb]);
                         }
                     }
@@ -1197,7 +1226,6 @@ namespace chortle
 
                                                         if (ChortleSettings.taughtResponseData.ContainsKey(randomKey) && ChortleSettings.taughtResponseData[randomKey].Count > 0)
                                                         {
-                                                            //var foundResponse = taughtResponseData[randomKey][randomValueKey];
                                                             var foundResponse = randomValueKey;
                                                             botResponse = foundResponse;
                                                         }
@@ -1238,7 +1266,6 @@ namespace chortle
                                         //teacherResponse = "*";
 
                                         List<string> botLearnedKeyValueList = new List<string>(ChortleSettings.taughtResponseData["*"].Keys);
-                                        //String randomValueKey = botLearnedKeyValueList[randomNumber.Next(taughtResponseData[randomKey].Count)];
 
                                         bool checkForBest = true;
                                         foreach (string keyItem in botLearnedKeyValueList)
@@ -1347,6 +1374,7 @@ namespace chortle
             {
                 botResponse = "";
                 botLearnedKeyList = new List<string>(ChortleSettings.taughtResponseData.Keys);
+
                 // teacher says something
                 Console.Write("teacher  > ");
                 teacherResponse = Console.ReadLine();

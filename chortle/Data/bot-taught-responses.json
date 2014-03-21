@@ -5,7 +5,8 @@
     "Ah, I see.": 0.5,
     "That's cool.": 0.5,
     "Nice.": 0.5,
-    "Oh really?": 0.5
+    "Oh really?": 0.5,
+    "How could you?": 0.5
   },
   "hello": {
     "Oh, hey there!": 0.5,
@@ -138,5 +139,9 @@
   },
   "hi": {
     "Oh hey.": 0.5
+  },
+  "quit": {
+    "Hmm?": 0.3,
+    "No problem.": 0.6
   }
 }
