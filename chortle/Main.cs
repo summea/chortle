@@ -175,7 +175,22 @@ namespace chortle
                     // bot asks question and gets human response
                     if (!string.IsNullOrEmpty(questionText))
                     {
-                        Console.WriteLine("bot    > " + questionText);
+                        bool foundName = false;
+                        Console.Write("bot    > ");
+                        try
+                        {
+                            if (ChortleSettings.relationalData.ContainsKey("your name"))
+                            {
+                                Console.Write("Hey, " + ChortleSettings.relationalData["your name"]["is"].First() + ", ");
+                                foundName = true;
+                            }
+                        }
+                        catch
+                        { }
+                        if (foundName)
+                            Console.WriteLine(char.ToLower(questionText[0]) + questionText.Substring(1));
+                        else
+                            Console.WriteLine(questionText);
                         result["question"] = questionText;
                         Console.Write("human  > ");
                         response = Console.ReadLine();
@@ -535,7 +550,34 @@ namespace chortle
                         if (!string.IsNullOrWhiteSpace(questionSubject))
                         {
                             List<string> values = new List<string>();
-                        
+
+                            if (ChortleSettings.debugMode)
+                                Console.WriteLine("question root verb: " + questionRootVerb);
+
+                            // used to check which object we need to add to saved relational data
+                            bool verbIsType = false;
+
+                            if (questionRootVerb == "is")
+                            {
+                                values = new List<string> { result["answer"] };
+                                //values.Add(result["answer"]);
+                                verbIsType = true;
+                            }
+                            else
+                            {
+                                // TODO: add better check for negation
+                                Match answerMatch = Regex.Match(result["answer"], @"no", RegexOptions.IgnoreCase);
+
+                                if (answerMatch.Success)
+                                {
+                                    if (ChortleSettings.debugMode)
+                                        Console.WriteLine("switching to negative...");
+
+                                    // TODO: add better list of inflections for negation
+                                    questionRootVerb = "don't " + questionRootVerb;
+                                }
+                            }
+
                             // key exists
                             if (ChortleSettings.relationalData.ContainsKey(questionSubject))
                             {
@@ -543,8 +585,11 @@ namespace chortle
                                 //ChortleSettings.relationalData[questionSubject] = new Dictionary<string, List<string>>();
                                 if (ChortleSettings.relationalData[questionSubject].ContainsKey(questionRootVerb))
                                 {
-                                    //Console.WriteLine("key exists...");
-                                    values = ChortleSettings.relationalData[questionSubject][questionRootVerb];
+                                    if (ChortleSettings.debugMode)
+                                        Console.WriteLine("key exists... " + questionSubject + " " + questionRootVerb);
+
+                                    if (!verbIsType)
+                                        values = ChortleSettings.relationalData[questionSubject][questionRootVerb];
                                     if (!values.Contains(questionObject))
                                     {
                                         // add object to list of relational data
@@ -554,34 +599,21 @@ namespace chortle
                                 // create new inner verb key
                                 else
                                 {
-                                    //Console.WriteLine("create key...");
                                     ChortleSettings.relationalData[questionSubject][questionRootVerb] = new List<string>();
-                                    values = new List<string> { questionObject };
+                                    if (!verbIsType)
+                                        values = new List<string> { questionObject };
                                 }
                             }
                             // create new key
                             else
                             {
                                 ChortleSettings.relationalData[questionSubject] = new Dictionary<string, List<string>>();
-                                values = new List<string> { questionObject };
+                                if (!verbIsType)
+                                    values = new List<string> { questionObject };
                             }
 
-                            if (questionRootVerb == "is")
-                            {
-                                values = new List<string> { result["answer"] };
-                                //values.Add(result["answer"]);
-                            }
-                            else
-                            {
-                                // TODO: add better check for negation
-                                Match answerMatch = Regex.Match(result["answer"], @"no", RegexOptions.IgnoreCase);
-
-                                if (answerMatch.Success)
-                                {
-                                    // TODO: add better list of inflections for negation
-                                    questionRootVerb = "don't " + questionRootVerb;
-                                }
-                            }
+                            if (ChortleSettings.debugMode)
+                                Console.WriteLine(string.Join(",", values.ToArray()));
 
                             ChortleSettings.relationalData[questionSubject][questionRootVerb] = values;
                         }
@@ -605,7 +637,7 @@ namespace chortle
             string result = "";
 
             // loop could be longer if need be...
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 10; i++)
             {
                 // formulate a response from learned responses
                 result = botFormulateResponse(phraseData, dataStore);
@@ -736,8 +768,17 @@ namespace chortle
                 }
             }
 
-
-            Console.WriteLine("bot    > Well, I need to be going!");
+            Console.Write("bot    > Well, ");
+            try
+            {
+                if (ChortleSettings.relationalData.ContainsKey("your name"))
+                {
+                    Console.Write(ChortleSettings.relationalData["your name"]["is"].First() + ", ");
+                }
+            }
+            catch
+            { }
+            Console.WriteLine("I do need to be going!");
 
             // print out human response conversation data
             if (ChortleSettings.debugMode)

@@ -2,10 +2,19 @@ TODO
 ====
 - add more vocabulary
 - add more responses for the * taught response?
+- fix: less silence times...
+- fix: when asking bot a question and getting an answer from its favorites data... sometimes it will ask a question right away (unnatural?)
 
 
 Done
 ====
+- added: user name in later sentences?
+- fixed: object issue in relation to the SVO relational data saving (fixed this with verbIsType bool check)
+- fixed: "i like * too" yes/no (bot thinks you both like and dislike both things...) (put the "switch-to-negative verb" logic in front of rest of this part...)
+  - yes/yes works
+  - no/yes works
+  - yes/no works
+  (but this causes S V O <-- O stays as original "what" instead of being filled in with real, answered object...
 - fixed: take out times where human writes something and bot doesn't respond? (this is natural, though...) (using a loop until a response is most likely formed)
 - fixed: bot says "i like * too" after starting program over (in-app) (was an init issue... talkedAbout)
 - fixed: learned relational data is not picking up new objects (your name is _what_) (it was the order of the questionRootVerb part of the algorithm...)
