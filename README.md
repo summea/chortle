@@ -131,8 +131,8 @@ In learning _(teacher mode)_, Chortle:
     you like red ruby green jelly - yes
 
 
-    
 ### Learning About Human (final verb check)
+The *final verb check* is used to test if Chortle can find the intended _target verb_ in a given phrase (where there are two actual verbs provided, and the intended _target verb_ is the final verb in given phrase.) Once Chortle decides which verb to use, Chortle is able to parse out the intended subject, verb, and object of the given phrase.
 
     bot    > what is the way to go? (multiple verb test)
     human  > my way to go is over there
@@ -150,17 +150,11 @@ In learning _(teacher mode)_, Chortle:
 
     learned information:
     way to go - over there
-
     
     
 ### Learning About Human (DT_X_VB check)
+The *DT_X_VB* is used to test if Chortle can find the correct object when a determiner is being used near the beginning of a phrase. For example, the initial question given by bot could be in a pattern like: O-V-S. So the human response may be given in a similar O-V-S pattern... and if so, Chortle needs to be able to understand what the human is using for the subject and object of the overall phrase.
 
-    bot    > What is your name?
-    human  > a
-    bot    > I see
-    responsePOS: UNKNOWN
-    a
-    >>> result: a
     bot    > What is the way to go? (multiple verb test)
     human  > that way is the way
     bot    > I see
@@ -168,8 +162,6 @@ In learning _(teacher mode)_, Chortle:
     > found DT_X_VB!
     that way is the way
     > found match!
-    right to left verb direction!
-    right to left verb direction!
     right to left verb direction!
     found root verb: VBZ
     generated key/value lists joined individually
@@ -179,13 +171,7 @@ In learning _(teacher mode)_, Chortle:
     >>> result: that way
 
 
-    human response conversation data:
-    a
-    that way is the way
-
-
     learned information:
-    your name - a
     way to go - that way
 
 
@@ -243,7 +229,6 @@ In learning _(teacher mode)_, Chortle:
       [Don't mention it., 0.5]
       [No problem., 0.5]
       [It's okay, 0.5]
-
 
       
 ### Debug Mode
@@ -367,6 +352,7 @@ In learning _(teacher mode)_, Chortle:
       [Hmm?, 0.4]
       [Nice to meet you!, 0.4]
       [Oh, hey there!, 0.6]
+
       
 ## Notes
 - some conversation response data comes from: http://en.wikibooks.org/wiki/English_in_Use/Conversation_Pieces
