@@ -1,0 +1,41 @@
+{
+  "*": {
+    "What do you mean?": 0.5,
+    "Hmm?": 0.5
+  },
+  "hello": {
+    "Oh, hey there!": 0.5,
+    "Lovely day, isn't it?": 0.5,
+    "Be seeing you!": 0.5,
+    "See ya!": 0.5,
+    "Nice to meet you!": 0.5
+  },
+  "goodbye": {
+    "Oh, hey there!": 0.5,
+    "Lovely day, isn't it?": 0.5,
+    "Be seeing you!": 0.5,
+    "See ya!": 0.5,
+    "Nice to meet you!": 0.5
+  },
+  "i like": {
+    "Good for you!": 0.5,
+    "I'm sorry to hear that.": 0.5,
+    "Oh, how lovely!": 0.5,
+    "Sounds great.": 0.5,
+    "Yes, I suppose you must be.": 0.5,
+    "Wow! That sounds exciting.": 0.5
+  },
+  "my name is": {
+    "Oh, hey there!": 0.5,
+    "Lovely day, isn't it?": 0.5,
+    "Be seeing you!": 0.5,
+    "See ya!": 0.5,
+    "Nice to meet you!": 0.5
+  },
+  "thanks": {
+    "You are welcome!": 0.5,
+    "Don't mention it.": 0.5,
+    "No problem.": 0.5,
+    "It's okay": 0.5
+  }
+}

@@ -1,0 +1,159 @@
+{
+  "*": {
+    "What do you mean?": 0.5,
+    "Hmm?": 0.5,
+    "Ah, I see.": 0.5,
+    "That's cool.": 0.5,
+    "Nice.": 0.5,
+    "Oh really?": 0.5,
+    "How could you?": 0.5
+  },
+  "hello": {
+    "Oh, hey there!": 0.5,
+    "Lovely day, isn't it?": 0.8,
+    "Be seeing you!": 0.4,
+    "See ya!": 0.4,
+    "Nice to meet you!": 0.4,
+    "Good for you!": 0.4,
+    "Ah, I see.": 0.4
+  },
+  "goodbye": {
+    "Oh, hey there!": 0.5,
+    "Lovely day, isn't it?": 0.5,
+    "Be seeing you!": 1.0,
+    "See ya!": 0.5,
+    "Nice to meet you!": 0.5
+  },
+  "i like": {
+    "Good for you!": 0.5,
+    "I'm sorry to hear that.": 0.5,
+    "Oh, how lovely!": 0.6,
+    "Sounds great.": 0.4,
+    "Yes, I suppose you must be.": 0.4,
+    "Wow! That sounds exciting.": 0.5,
+    "Oh, hey there!": 0.4
+  },
+  "what is your name?": {
+    "Oh, hey there!": 0.5,
+    "Lovely day, isn't it?": 0.5,
+    "Be seeing you!": 0.5,
+    "See ya!": 0.5,
+    "Nice to meet you!": 0.5
+  },
+  "thanks": {
+    "You are welcome!": 0.5,
+    "Don't mention it.": 0.7,
+    "No problem.": 0.5,
+    "It's okay": 0.4
+  },
+  "bye": {
+    "Ah, I see.": 0.4,
+    "Oh, hey there!": 0.4,
+    "Nice to meet you!": 0.4,
+    "Sounds great.": 0.4,
+    "Hmm?": 0.4
+  },
+  "my name is": {
+    "Ah, I see.": 0.5
+  },
+  "hey": {
+    "Ah, I see.": 0.4,
+    "Hmm?": 0.4,
+    "Yes, I suppose you must be.": 0.4,
+    "Oh, hey there!": 1.0
+  },
+  "same": {
+    "Ah, I see.": 0.5
+  },
+  "name is": {
+    "Ah, I see.": 0.3,
+    "You are welcome!": 0.4,
+    "Oh, hey there!": 0.3,
+    "Lovely day, isn't it?": 0.4,
+    "Hmm?": 0.4,
+    "Nice to meet you!": 0.7
+  },
+  "favorite": {
+    "Ah, I see.": 0.9,
+    "Oh, hey there!": 0.4,
+    "Don't mention it.": 0.4,
+    "What do you mean?": 0.4
+  },
+  "": {
+    "Hmm?": 0.5
+  },
+  "cool": {
+    "": 0.4,
+    "Ah, I see.": 0.4,
+    "No problem.": 1.0
+  },
+  "what's up?": {
+    "Be seeing you!": 0.3,
+    "Hmm?": 0.3,
+    "Oh, how lovely!": 0.4,
+    "Lovely day, isn't it?": 0.5,
+    "what's up?": 0.4,
+    "Sounds great.": 0.3
+  },
+  "what?": {
+    "Ah, I see.": 0.4,
+    "Hmm?": 0.7
+  },
+  "i hate": {
+    "Ah, I see.": 0.5,
+    "Oh, hey there!": 0.4,
+    "Hmm?": 0.4,
+    "Don't mention it.": 0.4,
+    "Nice to meet you!": 0.4
+  },
+  "how": {
+    "Ah, I see.": 0.4,
+    "Be seeing you!": 0.4,
+    "What do you mean?": 0.7
+  },
+  "oh yeah": {
+    "Ah, I see.": 0.3
+  },
+  "why": {
+    "Ah, I see.": 0.4,
+    "Nice to meet you!": 0.4,
+    "Hmm?": 0.7
+  },
+  "okay": {
+    "Ah, I see.": 0.7
+  },
+  "sorry": {
+    "Ah, I see.": 0.4,
+    "what's up?": 0.7
+  },
+  "lol": {
+    "Hmm?": 0.4,
+    "It's okay": 0.8
+  },
+  "don't like": {
+    "Hmm?": 0.4,
+    "Ah, I see.": 0.7
+  },
+  "oops": {
+    "Hmm?": 0.6
+  },
+  "hi": {
+    "Oh hey.": 0.5
+  },
+  "quit": {
+    "Hmm?": 0.3,
+    "No problem.": 0.6
+  },
+  "really?": {
+    "Hmm?": 0.4,
+    "You are welcome!": 0.4,
+    "No problem.": 0.8
+  },
+  "so": {
+    "Hmm?": 0.6
+  },
+  "k": {
+    "Hmm?": 0.4,
+    "No problem.": 0.6
+  }
+}
